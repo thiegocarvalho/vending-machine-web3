@@ -1,0 +1,9 @@
+{
+  "name": "DeFi Vending Machine",
+  "description": "Collection of 30 DeFi Vending Machine Cards (5x6 Grid). Each card has a strictly limited supply of 100 units and can only be purchased 1 at a time from the on-chain Vending Machine.",
+  "image": "ipfs://bafybeicards1155/collection.png",
+  "banner_image": "ipfs://bafybeicards1155/banner.png",
+  "external_link": "https://vendingmachine.cards",
+  "seller_fee_basis_points": 250,
+  "fee_recipient": "0x0000000000000000000000000000000000000000"
+}

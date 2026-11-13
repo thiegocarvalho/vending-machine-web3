@@ -1,0 +1,36 @@
+{
+  "name": "Card #07: Felp 4K Ultra HD",
+  "description": "Crystal-clear resolution to analyze red candles on TradingView. Official DeFi Vending Machine collectible card (Slot B1). Edition 001.",
+  "image": "ipfs://bafybeicards1155/07_B1.png",
+  "external_url": "https://vendingmachine.cards/cards/7",
+  "attributes": [
+    {
+      "trait_type": "Machine Slot",
+      "value": "B1"
+    },
+    {
+      "trait_type": "Row",
+      "value": "B"
+    },
+    {
+      "trait_type": "Column",
+      "value": 1
+    },
+    {
+      "trait_type": "Original Format",
+      "value": "Horizontal"
+    },
+    {
+      "trait_type": "Edition",
+      "value": "001"
+    },
+    {
+      "trait_type": "Collection",
+      "value": "DeFi Vending Machine"
+    },
+    {
+      "trait_type": "Network",
+      "value": "Ethereum Sepolia"
+    }
+  ]
+}

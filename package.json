@@ -1,0 +1,23 @@
+{
+  "name": "defi-vending-machine-1155",
+  "version": "1.0.0",
+  "description": "DeFi Vending Machine ERC-1155 Smart Contract & 30 Meme Cards Pipeline",
+  "main": "card_showcase.html",
+  "scripts": {
+    "test": "node test/vending_machine.test.js",
+    "generate:cards": "python3 scripts/generate_cards.py",
+    "generate:back": "python3 scripts/generate_card_back.py",
+    "generate:poster": "python3 scripts/generate_poster.py",
+    "generate:metadata": "node scripts/generate_metadata.js",
+    "serve": "npx serve ."
+  },
+  "keywords": [
+    "defi",
+    "smart-contracts",
+    "erc-1155",
+    "vending-machine",
+    "ethereum",
+    "sepolia"
+  ],
+  "license": "MIT"
+}

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeFi Vending Machine - 30 Cards Showcase</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fira+Code:wght@400;500;600;700&family=Space+Grotesk:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"Bebas Neue"', 'sans-serif'],
+            sans: ['"Space Grotesk"', 'sans-serif'],
+            mono: ['"Fira Code"', 'monospace']
+          },
+          colors: {
+            cyber: {
+              pitch: '#060407',
+              dark: '#0C080E',
+              card: '#120D15',
+              border: '#2A1822',
+              red: '#FF0033',
+              redGlow: 'rgba(255, 0, 51, 0.4)',
+              accent: '#FFD700',
+              muted: '#8A7A85'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #060407;
+      color: #FFFFFF;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .tech-grid {
+      background-image: 
+        linear-gradient(to right, rgba(255, 0, 51, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 0, 51, 0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+    .card-tilt {
+      transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+      transform-style: preserve-3d;
+    }
+    .card-tilt:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 16px 32px -8px rgba(255, 0, 51, 0.35);
+    }
+    .crt-scanlines {
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
+      background-size: 100% 4px;
+    }
+  </style>
+</head>
+<body class="min-h-screen tech-grid p-6">
+
+  <!-- Top Navigation & Header -->
+  <header class="max-w-7xl mx-auto border-b border-cyber-border pb-6 mb-8">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-3">
+          <span class="px-2.5 py-0.5 bg-cyber-red/20 border border-cyber-red text-cyber-red text-xs font-mono font-bold tracking-widest uppercase">
+            ERC-1155 Vending Machine
+          </span>
+          <span class="text-xs text-cyber-muted font-mono">SEPOLIA TESTNET // ERC-1155 STANDARD</span>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-display tracking-wider text-white mt-1">
+          DEFI VENDING MACHINE <span class="text-cyber-red">// EDITION 001</span>
+        </h1>
+        <p class="text-cyber-muted text-sm max-w-2xl mt-1">
+          Set of 30 Collectible Meme Cards (5x6 Grid) featuring <strong class="text-white">Dynamic Adaptive Matting</strong> accommodating multiple aspect ratios (9:16 portrait, 1:1 square, and 16:9 panoramic).
+        </p>
+      </div>
+
+      <!-- Quick Metrics -->
+      <div class="flex gap-4">
+        <div class="bg-cyber-dark border border-cyber-border px-4 py-2 rounded">
+          <div class="text-xs text-cyber-muted font-mono">COLLECTION</div>
+          <div class="text-xl font-bold font-mono text-white">MEME <span class="text-xs text-cyber-red">CARDS</span></div>
+        </div>
+        <div class="bg-cyber-dark border border-cyber-border px-4 py-2 rounded">
+          <div class="text-xs text-cyber-muted font-mono">SERIES</div>
+          <div class="text-xl font-bold font-mono text-cyber-accent">EDITION <span class="text-xs text-white">001</span></div>
+        </div>
+        <div class="bg-cyber-dark border border-cyber-border px-4 py-2 rounded">
+          <div class="text-xs text-cyber-muted font-mono">TOTAL ITEMS</div>
+          <div class="text-xl font-bold font-mono text-cyber-red">30 <span class="text-xs text-white">5x6 GRID</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter & View Mode Controls -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mt-6 pt-4 border-t border-cyber-border/50">
+      <div class="flex flex-wrap gap-2" id="filter-buttons">
+        <button onclick="filterCards('all')" class="filter-btn active px-3 py-1.5 rounded text-xs font-mono bg-cyber-red text-white border border-cyber-red">
+          All (30 Cards)
+        </button>
+        <button onclick="filterCards('vertical')" class="filter-btn px-3 py-1.5 rounded text-xs font-mono bg-cyber-dark text-cyber-muted hover:text-white border border-cyber-border">
+          Vertical (9:16 & 3:4)
+        </button>
+        <button onclick="filterCards('square')" class="filter-btn px-3 py-1.5 rounded text-xs font-mono bg-cyber-dark text-cyber-muted hover:text-white border border-cyber-border">
+          Square (~1:1)
+        </button>
+        <button onclick="filterCards('horizontal')" class="filter-btn px-3 py-1.5 rounded text-xs font-mono bg-cyber-dark text-cyber-muted hover:text-white border border-cyber-border">
+          Horizontal (16:9 & Wide)
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-mono text-cyber-muted">Display Mode:</span>
+        <button id="view-toggle" onclick="toggleViewMode()" class="px-3 py-1 bg-cyber-dark border border-cyber-red text-cyber-red text-xs font-mono rounded hover:bg-cyber-red hover:text-white transition">
+          View Rendered Card (PNG 1200x1600)
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Grid 5x6 Showcase -->
+  <main class="max-w-7xl mx-auto">
+    <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+      <!-- Dynamically inserted via JS -->
+    </div>
+  </main>
+
+  <!-- Modal Inspector for Metadata & Contract Details -->
+  <div id="inspector-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-cyber-dark border-2 border-cyber-red rounded-lg max-w-4xl w-full p-6 relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeModal()" class="absolute top-4 right-4 text-cyber-muted hover:text-white text-2xl font-mono">×</button>
+      <div id="modal-content" class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <!-- Dynamically filled -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CARDS_DATA = [
+      { id: 1, slot: "A1", file: "altseason.png", name: "Altseason Manifest", format: "square", size: "852x803", ratio: "1.06", rarity: "Legendary", desc: "The legendary capital rotation from Bitcoin into altcoins, anticipated by generations." },
+      { id: 2, slot: "A2", file: "amor_powell.png", name: "Amor Powell", format: "horizontal", size: "1536x1024", ratio: "1.50", rarity: "Epic", desc: "Jerome Powell managing interest rates with love and the dollar money printer running at full throttle." },
+      { id: 3, slot: "A3", file: "berachain_nutshell.png", name: "Berachain In A Nutshell", format: "square", size: "631x670", ratio: "0.94", rarity: "Rare", desc: "Proof of Liquidity explained in the most chaotic and bearish way possible." },
+      { id: 4, slot: "A4", file: "btc_season.png", name: "Bitcoin Dominance Season", format: "horizontal", size: "1683x934", ratio: "1.80", rarity: "Epic", desc: "The market leviathan crushing all speculative cycle narratives." },
+      { id: 5, slot: "A5", file: "chilling_felp.png", name: "Chilling Felp", format: "horizontal", size: "1011x669", ratio: "1.51", rarity: "Common", desc: "Felp completely relaxed while the 5-minute candle dumps 40%." },
+      { id: 6, slot: "A6", file: "fariax_holyfield.jpeg", name: "Fariax Holyfield", format: "vertical", size: "992x1600", ratio: "0.62", rarity: "Legendary", desc: "The classic financial ear bite straight from the Faria Lima trading floor." },
+      
+      { id: 7, slot: "B1", file: "felp_4k.png", name: "Felp 4K Ultra HD", format: "horizontal", size: "609x327", ratio: "1.86", rarity: "Rare", desc: "Crystal-clear resolution to analyze red candles on TradingView." },
+      { id: 8, slot: "B2", file: "felp_depende.png", name: "Felp Depende", format: "horizontal", size: "1318x806", ratio: "1.64", rarity: "Common", desc: "The definitive answer to any economic or DeFi valuation inquiry: 'Depende'." },
+      { id: 9, slot: "B3", file: "felp_forecaster.png", name: "Felp The Forecaster", format: "horizontal", size: "1024x773", ratio: "1.32", rarity: "Rare", desc: "High-precision macroeconomic forecasts guided by sentiment and pure intuition." },
+      { id: 10, slot: "B4", file: "kawai_victor.png", name: "Kawai Victor", format: "vertical", size: "386x483", ratio: "0.80", rarity: "Common", desc: "The cute anime persona of the community's boldest trader." },
+      { id: 11, slot: "B5", file: "kim_jong_ns1ght.png", name: "Supreme Leader Ns1ght", format: "horizontal", size: "1008x631", ratio: "1.60", rarity: "Epic", desc: "The central command dictating inviolable network consensuses." },
+      { id: 12, slot: "B6", file: "lippe_mafioso.png", name: "Lippe Mafioso Godfather", format: "horizontal", size: "1024x848", ratio: "1.21", rarity: "Legendary", desc: "An offer of governance you cannot refuse, delivered directly to the validators." },
+
+      { id: 13, slot: "C1", file: "missing_felp.JPG", name: "Missing Felp Protocol", format: "vertical", size: "640x800", ratio: "0.80", rarity: "Rare", desc: "Network alert triggered whenever the analyst mysteriously vanishes mid-pump." },
+      { id: 14, slot: "C2", file: "no_amor.png", name: "Sem Amor No Mercado", format: "horizontal", size: "956x773", ratio: "1.24", rarity: "Common", desc: "The cold reality of order books: there is no love, only liquidation engines." },
+      { id: 15, slot: "C3", file: "oitoeseti.png", name: "Oito e Sete Resistance", format: "horizontal", size: "1020x766", ratio: "1.33", rarity: "Rare", desc: "The sacred timing and impenetrable price level that cannot be broken." },
+      { id: 16, slot: "C4", file: "piramide_comecinho.png", name: "Pirâmide Bem No Comecinho", format: "vertical", size: "414x498", ratio: "0.83", rarity: "Common", desc: "'If you get in early, you're fine' — the ancestral mantra of shitcoins." },
+      { id: 17, slot: "C5", file: "pobres.png", name: "Pobres vs Liquidez", format: "horizontal", size: "963x634", ratio: "1.52", rarity: "Common", desc: "The stark reality check of staring down a 300 Gwei base fee on Ethereum mainnet." },
+      { id: 18, slot: "C6", file: "victao_live.jpg", name: "Victão Na Live", format: "horizontal", size: "923x620", ratio: "1.49", rarity: "Rare", desc: "The live broadcast where legendary high-leverage trades come alive." },
+
+      { id: 19, slot: "D1", file: "victor sheik.png", name: "Victor Sheik de Dubai", format: "vertical", size: "683x911", ratio: "0.75", rarity: "Legendary", desc: "The Dubai sheik aesthetic flexing imaginary concentrated pool yields." },
+      { id: 20, slot: "D2", file: "victor.png", name: "Victor Original", format: "horizontal", size: "266x161", ratio: "1.65", rarity: "Common", desc: "The low-resolution genesis avatar of an iconic community legend." },
+      { id: 21, slot: "D3", file: "victor_bear.png", name: "Victor Bear Market Survivor", format: "vertical", size: "411x600", ratio: "0.69", rarity: "Rare", desc: "The thousand-yard stare of a trader who endured the deepest bear cycles." },
+      { id: 22, slot: "D4", file: "victor_beta.png", name: "Victor Beta Tester", format: "horizontal", size: "1536x1024", ratio: "1.50", rarity: "Common", desc: "Testing the Vending Machine and uncovering bugs prior to deployment." },
+      { id: 23, slot: "D5", file: "victor_cz.jpg", name: "Victor CZ 4 Binance", format: "vertical", size: "672x1280", ratio: "0.53", rarity: "Legendary", desc: "The iconic '4' gesture — ignore the FUD and keep building." },
+      { id: 24, slot: "D6", file: "victor_de_moraes.png", name: "Alexandre de Moraes vs Victor", format: "horizontal", size: "5472x3166", ratio: "1.73", rarity: "Mythic", desc: "The monumental 33MB file representing the ultimate on-chain judicial subpoena." },
+
+      { id: 25, slot: "E1", file: "victor_kills_dog.jpg", name: "Victor vs Dog Memecoin", format: "square", size: "819x900", ratio: "0.91", rarity: "Common", desc: "The merciless battle against zero-fundamental canine tokens." },
+      { id: 26, slot: "E2", file: "victor_papa.png", name: "Papa Victor I", format: "square", size: "400x365", ratio: "1.10", rarity: "Epic", desc: "The papal blessing ensuring your transactions remain immune to predatory MEV bots." },
+      { id: 27, slot: "E3", file: "victor_poker.png", name: "Victor Poker Face Bluff", format: "vertical", size: "290x382", ratio: "0.76", rarity: "Rare", desc: "Bluffing with the entire bankroll directly into weekly resistance." },
+      { id: 28, slot: "E4", file: "zeru_confuso.png", name: "Confuso Com a EVM", format: "horizontal", size: "346x204", ratio: "1.70", rarity: "Rare", desc: "Trying to decode why the Solidity execution reverted with an undocumented error code." },
+      { id: 29, slot: "E5", file: "zeru_perplexo.png", name: "Perplexo no Terminal", format: "horizontal", size: "349x197", ratio: "1.77", rarity: "Epic", desc: "The shock when the smart contract deploy script compiles on the first attempt with zero warnings." },
+      { id: 30, slot: "E6", file: "zeru_sem_barba.png", name: "Foto Sem Barba Mythic", format: "horizontal", size: "1024x585", ratio: "1.75", rarity: "Mythic", desc: "The rare and forbidden photograph that rewrites community lore." }
+    ];
+
+    let currentFilter = 'all';
+    let showPngMode = true;
+
+    function renderCards() {
+      const container = document.getElementById('cards-container');
+      container.innerHTML = '';
+
+      const filtered = CARDS_DATA.filter(c => currentFilter === 'all' || c.format === currentFilter);
+
+      filtered.forEach(c => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'card-tilt bg-cyber-dark border border-cyber-border rounded-lg overflow-hidden cursor-pointer flex flex-col group';
+        cardEl.onclick = () => openModal(c);
+
+        const cardPngPath = `generated_cards/${String(c.id).padStart(2, '0')}_${c.slot}.png`;
+        const rawMemePath = `memes/${encodeURIComponent(c.file)}`;
+
+        if (showPngMode) {
+          cardEl.innerHTML = `
+            <div class="relative bg-black aspect-[3/4] overflow-hidden">
+              <img src="${cardPngPath}" alt="${c.name}" class="w-full h-full object-cover">
+              <div class="absolute top-2 left-2 bg-black/80 border border-cyber-red px-2 py-0.5 text-[10px] font-mono text-white">
+                SLOT ${c.slot}
+              </div>
+              <div class="absolute top-2 right-2 bg-black/80 border border-cyber-accent px-2 py-0.5 text-[10px] font-mono text-cyber-accent">
+                #${String(c.id).padStart(2, '0')}
+              </div>
+            </div>
+            <div class="p-3 border-t border-cyber-border bg-cyber-card flex-1 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between text-[11px] font-mono text-cyber-muted">
+                  <span>${c.rarity}</span>
+                  <span class="text-cyber-red">${c.format.toUpperCase()} (${c.ratio})</span>
+                </div>
+                <div class="font-bold text-white text-sm truncate mt-1">${c.name}</div>
+              </div>
+              <div class="mt-3 pt-2 border-t border-cyber-border/40 flex items-center justify-between text-[10px] font-mono text-cyber-muted">
+                <span>SLOT ${c.slot}</span>
+                <span class="text-cyber-accent">EDITION 001</span>
+              </div>
+            </div>
+          `;
+        } else {
+          cardEl.innerHTML = `
+            <div class="p-2 bg-cyber-pitch border-b border-cyber-border flex justify-between items-center text-[10px] font-mono">
+              <span class="text-cyber-red font-bold">SLOT ${c.slot}</span>
+              <span class="text-cyber-muted">VENDING MACHINE</span>
+              <span class="text-white">#${String(c.id).padStart(2, '0')}</span>
+            </div>
+            <div class="relative aspect-square overflow-hidden bg-black flex items-center justify-center crt-scanlines">
+              <img src="${rawMemePath}" class="absolute inset-0 w-full h-full object-cover blur-xl opacity-35 scale-125">
+              <img src="${rawMemePath}" class="relative z-10 max-w-[90%] max-h-[90%] object-contain shadow-2xl border border-cyber-red/40">
+              <div class="absolute bottom-1 left-2 z-20 text-[9px] font-mono text-cyber-red bg-black/80 px-1">
+                ${c.size} (${c.ratio})
+              </div>
+            </div>
+            <div class="p-3 bg-cyber-card flex-1 flex flex-col justify-between">
+              <div class="font-bold text-white text-sm truncate">${c.name}</div>
+              <div class="mt-2 text-[10px] font-mono text-cyber-muted flex justify-between">
+                <span>MEME CARD</span>
+                <span class="text-cyber-accent">EDITION 001</span>
+              </div>
+            </div>
+          `;
+        }
+
+        container.appendChild(cardEl);
+      });
+    }
+
+    function filterCards(type) {
+      currentFilter = type;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('bg-cyber-red', 'text-white', 'border-cyber-red');
+        btn.classList.add('bg-cyber-dark', 'text-cyber-muted', 'border-cyber-border');
+      });
+      event.target.classList.add('bg-cyber-red', 'text-white', 'border-cyber-red');
+      event.target.classList.remove('bg-cyber-dark', 'text-cyber-muted', 'border-cyber-border');
+      renderCards();
+    }
+
+    function toggleViewMode() {
+      showPngMode = !showPngMode;
+      document.getElementById('view-toggle').innerText = showPngMode 
+        ? "View Rendered Card (PNG 1200x1600)" 
+        : "View Dynamic Viewport";
+      renderCards();
+    }
+
+    function openModal(card) {
+      const modal = document.getElementById('inspector-modal');
+      const content = document.getElementById('modal-content');
+
+      const hexId = card.id.toString(16).padStart(64, '0');
+      const cardPngPath = `generated_cards/${String(card.id).padStart(2, '0')}_${card.slot}.png`;
+
+      const metadataJson = {
+        name: `Card #${String(card.id).padStart(2, '0')}: ${card.name}`,
+        description: `${card.desc} Official DeFi Vending Machine collectible card (Slot ${card.slot}). Edition 001.`,
+        image: `ipfs://bafybeicards1155/${String(card.id).padStart(2, '0')}_${card.slot}.png`,
+        external_url: `https://vendingmachine.cards/cards/${card.id}`,
+        attributes: [
+          { trait_type: "Machine Slot", value: card.slot },
+          { trait_type: "Row", value: card.slot[0] },
+          { trait_type: "Column", value: parseInt(card.slot[1]) },
+          { trait_type: "Original Format", value: card.format.toUpperCase() },
+          { trait_type: "Rarity", value: card.rarity },
+          { trait_type: "Edition", value: "001" },
+          { trait_type: "Collection", value: "DeFi Vending Machine" },
+          { trait_type: "Network", value: "Ethereum Sepolia" }
+        ]
+      };
+
+      content.innerHTML = `
+        <div class="flex flex-col items-center">
+          <img src="${cardPngPath}" class="w-full max-w-sm rounded border border-cyber-red shadow-2xl">
+          <div class="mt-3 text-xs font-mono text-cyber-muted text-center">
+            Generated File: <span class="text-white">${String(card.id).padStart(2, '0')}_${card.slot}.png</span> (1200x1600 px)
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <div class="text-xs font-mono text-cyber-red">CARD DETAILS #${card.id}</div>
+            <h2 class="text-2xl font-bold text-white">${card.name}</h2>
+            <div class="text-xs text-cyber-muted font-mono mt-1">
+              Slot: <strong class="text-white">${card.slot}</strong> | Original Format: <strong class="text-white">${card.format.toUpperCase()} (${card.size})</strong>
+            </div>
+          </div>
+
+          <!-- Metadata JSON -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-mono text-cyber-accent">METADATA JSON (${hexId.slice(0, 8)}...json):</span>
+              <button onclick="navigator.clipboard.writeText(JSON.stringify(${JSON.stringify(metadataJson)}, null, 2))" class="text-[10px] font-mono text-cyber-muted hover:text-white bg-cyber-pitch px-2 py-0.5 border border-cyber-border rounded">
+                Copy JSON
+              </button>
+            </div>
+            <pre class="bg-cyber-pitch border border-cyber-border text-cyber-terminalText p-3 rounded text-[11px] font-mono max-h-56 overflow-y-auto">${JSON.stringify(metadataJson, null, 2)}</pre>
+          </div>
+
+          <!-- Smart Contract Rules -->
+          <div class="bg-cyber-pitch border border-cyber-border p-3 rounded space-y-2 text-xs font-mono">
+            <div class="text-white font-bold flex items-center justify-between">
+              <span>Contract Call:</span>
+              <span class="text-cyber-red">buyCard(${card.id})</span>
+            </div>
+            <div class="text-cyber-muted">
+              • Quantity: <span class="text-white">Strictly 1 unit per transaction</span><br>
+              • Max Supply: <span class="text-white">Enforced on-chain (Max 100 per card)</span><br>
+              • Metadata URI: <span class="text-cyber-accent">ipfs://CID/{id}.json</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('inspector-modal').classList.add('hidden');
+    }
+
+    renderCards();
+  </script>
+</body>
+</html>

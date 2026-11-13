@@ -1,0 +1,36 @@
+{
+  "name": "Card #02: Amor Powell",
+  "description": "Jerome Powell managing interest rates with love and the dollar money printer running at full throttle. Official DeFi Vending Machine collectible card (Slot A2). Edition 001.",
+  "image": "ipfs://bafybeicards1155/02_A2.png",
+  "external_url": "https://vendingmachine.cards/cards/2",
+  "attributes": [
+    {
+      "trait_type": "Machine Slot",
+      "value": "A2"
+    },
+    {
+      "trait_type": "Row",
+      "value": "A"
+    },
+    {
+      "trait_type": "Column",
+      "value": 2
+    },
+    {
+      "trait_type": "Original Format",
+      "value": "Horizontal"
+    },
+    {
+      "trait_type": "Edition",
+      "value": "001"
+    },
+    {
+      "trait_type": "Collection",
+      "value": "DeFi Vending Machine"
+    },
+    {
+      "trait_type": "Network",
+      "value": "Ethereum Sepolia"
+    }
+  ]
+}

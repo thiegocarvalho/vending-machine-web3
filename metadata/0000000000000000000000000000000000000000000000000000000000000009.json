@@ -1,0 +1,36 @@
+{
+  "name": "Card #09: Felp The Forecaster",
+  "description": "High-precision macroeconomic forecasts guided by sentiment and pure intuition. Official DeFi Vending Machine collectible card (Slot B3). Edition 001.",
+  "image": "ipfs://bafybeicards1155/09_B3.png",
+  "external_url": "https://vendingmachine.cards/cards/9",
+  "attributes": [
+    {
+      "trait_type": "Machine Slot",
+      "value": "B3"
+    },
+    {
+      "trait_type": "Row",
+      "value": "B"
+    },
+    {
+      "trait_type": "Column",
+      "value": 3
+    },
+    {
+      "trait_type": "Original Format",
+      "value": "Horizontal"
+    },
+    {
+      "trait_type": "Edition",
+      "value": "001"
+    },
+    {
+      "trait_type": "Collection",
+      "value": "DeFi Vending Machine"
+    },
+    {
+      "trait_type": "Network",
+      "value": "Ethereum Sepolia"
+    }
+  ]
+}

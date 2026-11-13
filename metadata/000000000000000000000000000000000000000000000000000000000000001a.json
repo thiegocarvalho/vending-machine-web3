@@ -1,0 +1,36 @@
+{
+  "name": "Card #26: Papa Victor I",
+  "description": "The papal blessing ensuring your transactions remain immune to predatory MEV bots. Official DeFi Vending Machine collectible card (Slot E2). Edition 001.",
+  "image": "ipfs://bafybeicards1155/26_E2.png",
+  "external_url": "https://vendingmachine.cards/cards/26",
+  "attributes": [
+    {
+      "trait_type": "Machine Slot",
+      "value": "E2"
+    },
+    {
+      "trait_type": "Row",
+      "value": "E"
+    },
+    {
+      "trait_type": "Column",
+      "value": 2
+    },
+    {
+      "trait_type": "Original Format",
+      "value": "Square"
+    },
+    {
+      "trait_type": "Edition",
+      "value": "001"
+    },
+    {
+      "trait_type": "Collection",
+      "value": "DeFi Vending Machine"
+    },
+    {
+      "trait_type": "Network",
+      "value": "Ethereum Sepolia"
+    }
+  ]
+}

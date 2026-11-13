@@ -1,0 +1,36 @@
+{
+  "name": "Card #22: Victor Beta Tester",
+  "description": "Testing the Vending Machine and uncovering bugs prior to deployment. Official DeFi Vending Machine collectible card (Slot D4). Edition 001.",
+  "image": "ipfs://bafybeicards1155/22_D4.png",
+  "external_url": "https://vendingmachine.cards/cards/22",
+  "attributes": [
+    {
+      "trait_type": "Machine Slot",
+      "value": "D4"
+    },
+    {
+      "trait_type": "Row",
+      "value": "D"
+    },
+    {
+      "trait_type": "Column",
+      "value": 4
+    },
+    {
+      "trait_type": "Original Format",
+      "value": "Horizontal"
+    },
+    {
+      "trait_type": "Edition",
+      "value": "001"
+    },
+    {
+      "trait_type": "Collection",
+      "value": "DeFi Vending Machine"
+    },
+    {
+      "trait_type": "Network",
+      "value": "Ethereum Sepolia"
+    }
+  ]
+}

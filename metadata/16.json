@@ -1,0 +1,36 @@
+{
+  "name": "Card #16: Pirâmide Bem No Comecinho",
+  "description": "'If you get in early, you're fine' — the ancestral mantra of shitcoins. Official DeFi Vending Machine collectible card (Slot C4). Edition 001.",
+  "image": "ipfs://bafybeicards1155/16_C4.png",
+  "external_url": "https://vendingmachine.cards/cards/16",
+  "attributes": [
+    {
+      "trait_type": "Machine Slot",
+      "value": "C4"
+    },
+    {
+      "trait_type": "Row",
+      "value": "C"
+    },
+    {
+      "trait_type": "Column",
+      "value": 4
+    },
+    {
+      "trait_type": "Original Format",
+      "value": "Vertical"
+    },
+    {
+      "trait_type": "Edition",
+      "value": "001"
+    },
+    {
+      "trait_type": "Collection",
+      "value": "DeFi Vending Machine"
+    },
+    {
+      "trait_type": "Network",
+      "value": "Ethereum Sepolia"
+    }
+  ]
+}

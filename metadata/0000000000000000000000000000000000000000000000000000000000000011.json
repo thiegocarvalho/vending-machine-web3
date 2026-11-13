@@ -1,0 +1,36 @@
+{
+  "name": "Card #17: Pobres vs Liquidez",
+  "description": "The stark reality check of staring down a 300 Gwei base fee on Ethereum mainnet. Official DeFi Vending Machine collectible card (Slot C5). Edition 001.",
+  "image": "ipfs://bafybeicards1155/17_C5.png",
+  "external_url": "https://vendingmachine.cards/cards/17",
+  "attributes": [
+    {
+      "trait_type": "Machine Slot",
+      "value": "C5"
+    },
+    {
+      "trait_type": "Row",
+      "value": "C"
+    },
+    {
+      "trait_type": "Column",
+      "value": 5
+    },
+    {
+      "trait_type": "Original Format",
+      "value": "Horizontal"
+    },
+    {
+      "trait_type": "Edition",
+      "value": "001"
+    },
+    {
+      "trait_type": "Collection",
+      "value": "DeFi Vending Machine"
+    },
+    {
+      "trait_type": "Network",
+      "value": "Ethereum Sepolia"
+    }
+  ]
+}

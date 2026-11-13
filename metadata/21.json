@@ -1,0 +1,36 @@
+{
+  "name": "Card #21: Victor Bear Market Survivor",
+  "description": "The thousand-yard stare of a trader who endured the deepest bear cycles. Official DeFi Vending Machine collectible card (Slot D3). Edition 001.",
+  "image": "ipfs://bafybeicards1155/21_D3.png",
+  "external_url": "https://vendingmachine.cards/cards/21",
+  "attributes": [
+    {
+      "trait_type": "Machine Slot",
+      "value": "D3"
+    },
+    {
+      "trait_type": "Row",
+      "value": "D"
+    },
+    {
+      "trait_type": "Column",
+      "value": 3
+    },
+    {
+      "trait_type": "Original Format",
+      "value": "Vertical"
+    },
+    {
+      "trait_type": "Edition",
+      "value": "001"
+    },
+    {
+      "trait_type": "Collection",
+      "value": "DeFi Vending Machine"
+    },
+    {
+      "trait_type": "Network",
+      "value": "Ethereum Sepolia"
+    }
+  ]
+}

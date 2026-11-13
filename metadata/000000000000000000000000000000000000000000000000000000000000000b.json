@@ -1,0 +1,36 @@
+{
+  "name": "Card #11: Supreme Leader Ns1ght",
+  "description": "The central command dictating inviolable network consensuses. Official DeFi Vending Machine collectible card (Slot B5). Edition 001.",
+  "image": "ipfs://bafybeicards1155/11_B5.png",
+  "external_url": "https://vendingmachine.cards/cards/11",
+  "attributes": [
+    {
+      "trait_type": "Machine Slot",
+      "value": "B5"
+    },
+    {
+      "trait_type": "Row",
+      "value": "B"
+    },
+    {
+      "trait_type": "Column",
+      "value": 5
+    },
+    {
+      "trait_type": "Original Format",
+      "value": "Horizontal"
+    },
+    {
+      "trait_type": "Edition",
+      "value": "001"
+    },
+    {
+      "trait_type": "Collection",
+      "value": "DeFi Vending Machine"
+    },
+    {
+      "trait_type": "Network",
+      "value": "Ethereum Sepolia"
+    }
+  ]
+}

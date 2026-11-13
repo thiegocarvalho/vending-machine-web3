@@ -1,0 +1,36 @@
+{
+  "name": "Card #27: Victor Poker Face Bluff",
+  "description": "Bluffing with the entire bankroll directly into weekly resistance. Official DeFi Vending Machine collectible card (Slot E3). Edition 001.",
+  "image": "ipfs://bafybeicards1155/27_E3.png",
+  "external_url": "https://vendingmachine.cards/cards/27",
+  "attributes": [
+    {
+      "trait_type": "Machine Slot",
+      "value": "E3"
+    },
+    {
+      "trait_type": "Row",
+      "value": "E"
+    },
+    {
+      "trait_type": "Column",
+      "value": 3
+    },
+    {
+      "trait_type": "Original Format",
+      "value": "Vertical"
+    },
+    {
+      "trait_type": "Edition",
+      "value": "001"
+    },
+    {
+      "trait_type": "Collection",
+      "value": "DeFi Vending Machine"
+    },
+    {
+      "trait_type": "Network",
+      "value": "Ethereum Sepolia"
+    }
+  ]
+}
