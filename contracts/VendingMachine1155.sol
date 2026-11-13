@@ -332,7 +332,7 @@ contract DefiVendingMachine1155 is ERC1155, ERC2981, Ownable2Step, Pausable, Ree
      * @return startId The first card ID assigned in this batch.
      * @return count Total number of cards registered.
      */
-    function addCardsBatch(uint128[] calldata prices, uint48[] calldata stocks)
+    function addCardsBatch(uint128[] memory prices, uint48[] memory stocks)
         public
         onlyOwner
         returns (uint256 startId, uint256 count)
