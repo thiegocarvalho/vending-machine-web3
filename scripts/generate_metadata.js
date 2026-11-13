@@ -2,12 +2,13 @@ const fs = require('fs');
 const path = require('path');
 
 const METADATA_DIR = path.join(__dirname, '..', 'metadata');
-if (!fs.existsSync(METADATA_DIR)) {
-  fs.mkdirSync(METADATA_DIR, { recursive: true });
-}
+const CIDS_FILE = path.join(__dirname, '..', 'ipfs-cids.json');
 
-// IPFS images directory CID placeholder
-const IPFS_IMAGES_CID = "bafybeicards1155";
+// Images directory CID: read from ipfs-cids.json after the Pinata upload, placeholder before it.
+function readImagesCid() {
+  try { return JSON.parse(fs.readFileSync(CIDS_FILE, 'utf8')).imagesCid || "bafybeicards1155"; }
+  catch { return "bafybeicards1155"; }
+}
 const CONTRACT_EXTERNAL_URL = "https://vendingmachine.cards";
 
 const CARDS_DATA = [
@@ -47,17 +48,11 @@ const CARDS_DATA = [
   { id: 30, slot: "E6", file: "zeru_sem_barba.png", name: "Foto Sem Barba Mythic", format: "Horizontal", size: "1024x585", desc: "The rare and forbidden photograph that rewrites community lore." }
 ];
 
-console.log(`Generating 30 ERC-1155 metadata files in ${METADATA_DIR}...`);
-
-CARDS_DATA.forEach(card => {
-  const hexId = card.id.toString(16).padStart(64, '0');
-  const filename = `${hexId}.json`;
-  const filePath = path.join(METADATA_DIR, filename);
-
-  const metadata = {
+function buildMetadata(card, imagesCid) {
+  return {
     name: `Card #${String(card.id).padStart(2, '0')}: ${card.name}`,
     description: `${card.desc} Official DeFi Vending Machine collectible card (Slot ${card.slot}). Edition 001.`,
-    image: `ipfs://${IPFS_IMAGES_CID}/${String(card.id).padStart(2, '0')}_${card.slot}.png`,
+    image: `ipfs://${imagesCid}/${String(card.id).padStart(2, '0')}_${card.slot}.png`,
     external_url: `${CONTRACT_EXTERNAL_URL}/cards/${card.id}`,
     attributes: [
       { trait_type: "Machine Slot", value: card.slot },
@@ -69,25 +64,34 @@ CARDS_DATA.forEach(card => {
       { trait_type: "Network", value: "Ethereum Sepolia" }
     ]
   };
+}
 
-  // Strict ERC-1155 standard (64-character lowercase hex)
-  fs.writeFileSync(filePath, JSON.stringify(metadata, null, 2), 'utf8');
-
-  // Human-friendly decimal copy (e.g. 1.json)
-  const simpleFilePath = path.join(METADATA_DIR, `${card.id}.json`);
-  fs.writeFileSync(simpleFilePath, JSON.stringify(metadata, null, 2), 'utf8');
-});
+function generateAll() {
+  const IPFS_IMAGES_CID = readImagesCid();
+  if (!fs.existsSync(METADATA_DIR)) fs.mkdirSync(METADATA_DIR, { recursive: true });
+  console.log(`Generating 30 ERC-1155 metadata files in ${METADATA_DIR} (images CID: ${IPFS_IMAGES_CID})...`);
+  CARDS_DATA.forEach(card => {
+    const hexId = card.id.toString(16).padStart(64, '0');
+    const metadata = buildMetadata(card, IPFS_IMAGES_CID);
+    // Strict ERC-1155 standard (64-character lowercase hex)
+    fs.writeFileSync(path.join(METADATA_DIR, `${hexId}.json`), JSON.stringify(metadata, null, 2), 'utf8');
+    // Human-friendly decimal copy (e.g. 1.json)
+    fs.writeFileSync(path.join(METADATA_DIR, `${card.id}.json`), JSON.stringify(metadata, null, 2), 'utf8');
+  });
 
 // Collection-level metadata (contractURI)
-const contractMetadata = {
+  const contractMetadata = {
   name: "DeFi Vending Machine",
   description: "Collection of 30 DeFi Vending Machine Cards (5x6 Grid). Each card has a strictly limited supply of 100 units and can only be purchased 1 at a time from the on-chain Vending Machine.",
   image: `ipfs://${IPFS_IMAGES_CID}/collection.png`,
-  banner_image: `ipfs://${IPFS_IMAGES_CID}/banner.png`,
   external_link: CONTRACT_EXTERNAL_URL,
   seller_fee_basis_points: 250,
   fee_recipient: "0x0000000000000000000000000000000000000000"
 };
-fs.writeFileSync(path.join(METADATA_DIR, "contractURI.json"), JSON.stringify(contractMetadata, null, 2), 'utf8');
+  fs.writeFileSync(path.join(METADATA_DIR, "contractURI.json"), JSON.stringify(contractMetadata, null, 2), 'utf8');
 
 console.log("✓ All 30 ERC-1155 metadata files and contractURI.json generated successfully in English!");
+}
+
+if (require.main === module) generateAll();
+module.exports = { buildMetadata, generateAll, CARDS_DATA, readImagesCid };
