@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { SCENERY_COLLIDERS, paintBricks, paintPaving, paintNeon, paintUfoSign, paintSkyline } from './scenery.js';
+import { SCENERY_COLLIDERS, paintBricks, paintPaving, paintNeon, paintUfoSign, paintPoster, paintSkyline } from './scenery.js';
 import { MACHINE_COLLIDER } from './machine.js';
 import { collideCircle } from '../player/movement.js';
 
@@ -20,6 +20,9 @@ describe('painted textures', () => {
     expect(() => paintPaving(ctx(), 128, 128, () => 0.5)).not.toThrow();
     expect(() => paintNeon(ctx(), 512, 210)).not.toThrow();
     expect(() => paintUfoSign(ctx(), 256, 230)).not.toThrow();
+    let qrArgs = null;
+    expect(() => paintPoster(ctx(), 512, 610, (...a) => { qrArgs = a; }, () => 0.5)).not.toThrow();
+    expect(qrArgs[1]).toMatch(/^https:\/\/.*faucet.*sepolia/);       // o QR aponta para o faucet da Sepolia
     expect(() => paintSkyline(ctx(), 1024, 256, () => 0.5)).not.toThrow();
   });
 });

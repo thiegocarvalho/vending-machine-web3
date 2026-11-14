@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { createRenderer } from './render/renderer.js';
 import { buildMachine, MACHINE_COLLIDER, PANEL } from './scene/machine.js';
-import { buildScenery, addLighting, SCENERY_COLLIDERS } from './scene/scenery.js';
+import { buildScenery, addLighting, SCENERY_COLLIDERS, POSTER } from './scene/scenery.js';
 import { createControls } from './player/controls.js';
 import { createRig } from './player/rig.js';
 import { populateCards } from './scene/cards.js';
@@ -13,7 +13,7 @@ import { buildEip681 } from './payment/eip681.js';
 import { hasWallet, payWithWallet } from './payment/wallet.js';
 import { config } from './config.js';
 import { cardIdToSlot } from './grid.js';
-import { createModes, facingTarget } from './interaction.js';
+import { createModes, pickInteractable } from './interaction.js';
 import { formatEther } from 'viem';
 import { TIERS, RESOLUTION_LEVELS, detectTier, createAdaptiveScale } from './render/quality.js';
 
@@ -31,7 +31,9 @@ const adaptive = createAdaptiveScale({ base: 0, max: RESOLUTION_LEVELS.length - 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(65, 1, 0.1, 60);
 addLighting(scene);
-scene.add(buildScenery());
+const sceneryGroup = buildScenery();
+scene.add(sceneryGroup);
+const poster = sceneryGroup.getObjectByName('faucet-poster');
 const machine = buildMachine();
 scene.add(machine.group);
 const controls = createControls(camera, canvas, { colliders: [...SCENERY_COLLIDERS, MACHINE_COLLIDER] });
@@ -51,7 +53,11 @@ window.__game = { renderer, scene, camera, machine, controls, cardsApi, selectio
 
 const priceText = (i) => `${formatEther(infos[i - 1].price)} ETH`;
 const contractForQr = config.contractAddress || '0x0000000000000000000000000000000000000000';
-const MACHINE_TARGET = { x: 0, y: 1.3, z: 0.2 };
+const INTERACTABLES = [
+  { kind: 'machine', pos: { x: 0, y: 1.3, z: 0.2 } },
+  { kind: 'faucet', pos: { x: POSTER.x, y: POSTER.y, z: -0.45 }, maxDist: 4.2, maxAngleDeg: 20 }
+];
+const openFaucet = () => window.open(config.faucetUrl, '_blank', 'noopener,noreferrer');
 const front = machine.size.D / 2;
 let busy = false, watcher = null, screenArgs = { state: 'idle' }, hoverBtn = false;
 
@@ -151,7 +157,7 @@ async function payNow() {
 // ---------- modos ----------
 let pendingWalk = false;
 modes.onChange((mode) => {
-  wake(3000); canUse = false; hud.setMode(mode); hud.setStatus('');
+  wake(3000); aimed = null; hud.setMode(mode); hud.setStatus('');
   if (mode === 'walk') {
     stopWatcher(); highlight.setVisible(false); controls.setEnabled(false); pendingWalk = true;
     rig.flyTo(walkPose(), 600); machine.led.setText('-- --'); drawScreen({ state: 'idle' });
@@ -170,7 +176,11 @@ function tryConfirm() {
   if (info.stock <= 0 || !info.active) return hud.setStatus('Card esgotado.', { error: true });
   hud.setStatus(''); modes.confirm();
 }
-const tryUse = () => { if (modes.mode === 'walk' && controls.enabled && hud.el.classList.contains('can-use')) modes.interact(); };
+let aimed = null;                                    // objeto interativo sob a mira (andando)
+const tryUse = () => {
+  if (modes.mode !== 'walk' || !controls.enabled) return;
+  if (aimed === 'machine') modes.interact(); else if (aimed === 'faucet') openFaucet();
+};
 
 hud.onUse(tryUse); hud.onConfirm(tryConfirm); hud.onBack(() => modes.back());
 hud.onDpad(dir => selection.move(dir));
@@ -214,6 +224,13 @@ canvas.addEventListener('pointermove', (e) => {
 });
 canvas.addEventListener('pointerup', (e) => {
   if (rig.active || controls.moved > 8) return;
+  if (modes.mode === 'walk') {                                   // clicar no cartaz abre o faucet (com a mira travada, vale o centro da tela)
+    const locked = document.pointerLockElement === canvas;
+    cast(locked ? { clientX: innerWidth / 2, clientY: innerHeight / 2 } : e);
+    const hit = ray.intersectObject(poster, false)[0];
+    if (hit && hit.distance < 4.5) openFaucet();
+    return;
+  }
   if (modes.mode === 'select') {
     cast(e); const id = pickCard(ray, cardsApi.cards);
     if (!id) return;
@@ -230,7 +247,7 @@ function onResize() {
 }
 window.addEventListener('resize', onResize); window.addEventListener('orientationchange', onResize); onResize();
 
-let last = performance.now(), lastDraw = 0, canUse = false;
+let last = performance.now(), lastDraw = 0;
 (function loop(t) {
   requestAnimationFrame(loop);
   if (document.hidden) { lastDraw = 0; return; }
@@ -243,8 +260,8 @@ let last = performance.now(), lastDraw = 0, canUse = false;
   controls.update(dt);
   if (modes.mode === 'walk' && controls.enabled) {                              // prompt "E" quando perto e olhando a máquina
     const { yaw, pitch } = controls.pose();
-    const near = facingTarget(camera.position, yaw, pitch, MACHINE_TARGET);
-    if (near !== canUse) { canUse = near; hud.showPrompt(near); }
+    const now = pickInteractable(camera.position, yaw, pitch, INTERACTABLES);
+    if (now !== aimed) { aimed = now; hud.showPrompt(now); }
   }
   render(scene, camera);
   if (lastDraw) adaptive.sample(t - lastDraw);

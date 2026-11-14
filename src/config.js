@@ -13,5 +13,6 @@ export const config = {
     'https://ipfs.filebase.io/ipfs/'
   ],
   get demoMode() { return !this.contractAddress; },
+  faucetUrl: 'https://cloud.google.com/application/web3/faucet/ethereum/sepolia',   // faucet do Google (Sepolia)
   wallRadius: 7
 };

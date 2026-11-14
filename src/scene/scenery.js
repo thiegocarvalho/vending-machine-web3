@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { createBatch } from './baked.js';
+import { drawQr } from '../payment/machineScreen.js';
+import { config } from '../config.js';
 
 const POST = { x: 3.2, z: 1.2, h: 4.2 };                              // poste de luz ao lado da máquina
 const SIGN = { x: -1.4, z: 1.6 };                                      // placa de rua sobre bloco de concreto
@@ -56,6 +58,45 @@ export function paintNeon(g, w, h) {
   g.shadowBlur = 0; g.lineWidth = 3; g.strokeStyle = '#f0eaff'; g.strokeText(text, w / 2, h / 2 + 8);  // núcleo
   g.shadowColor = '#5a3cff'; g.shadowBlur = 20; g.lineWidth = 5; g.strokeStyle = '#7a5cff';          // moldura do letreiro
   g.strokeRect(w * 0.08, h * 0.08, w * 0.84, h * 0.84);
+}
+
+// Cartaz velho estilo Polaroid, colado na parede, com o QR do faucet da Sepolia. Fica à esquerda da máquina.
+export const POSTER = { x: -2.3, y: 1.75, w: 1.05, h: 1.25 };
+export function paintPoster(g, w, h, qr = () => {}, rand = Math.random) {
+  g.clearRect(0, 0, w, h);
+  const paper = g.createLinearGradient(0, 0, w, h);                                            // papel amarelado e gasto
+  paper.addColorStop(0, '#e6dfcb'); paper.addColorStop(1, '#c9bfa5');
+  g.fillStyle = paper; g.fillRect(0, 0, w, h);
+  const m = w * 0.07, ph = w - 2 * m;                                                          // foto quadrada, borda inferior larga
+  g.fillStyle = '#bfc9c6'; g.fillRect(m, m, ph, ph);                                            // foto desbotada
+  const photo = g.createLinearGradient(0, m, 0, m + ph);
+  photo.addColorStop(0, 'rgba(20,50,70,0.35)'); photo.addColorStop(1, 'rgba(10,20,30,0.15)');
+  g.fillStyle = photo; g.fillRect(m, m, ph, ph);
+  const qs = ph * 0.62, qx = m + (ph - qs) / 2, qy = m + ph * 0.1;
+  qr(g, config.faucetUrl, qx, qy, qs);                                                         // QR (branco/preto, legível)
+  g.fillStyle = '#1b2a38'; g.textAlign = 'center';
+  g.font = 'bold 26px "Space Grotesk",system-ui,sans-serif'; g.fillText('FREE SEPOLIA ETH', w / 2, m + ph * 0.85);
+  g.font = '15px "Fira Code",monospace'; g.fillText('scan  ·  or press [E]', w / 2, m + ph * 0.94);
+  g.fillStyle = '#2a2622'; g.font = 'italic 700 44px "Bradley Hand","Segoe Script","Snell Roundhand",cursive';   // legenda à mão
+  g.fillText('need gas?', w / 2, m + ph + (h - m - ph) * 0.52);
+  for (let i = 0; i < 9; i++) {                                                                // manchas e sujeira
+    g.fillStyle = `rgba(${70 + rand() * 40},${50 + rand() * 30},20,${0.05 + rand() * 0.1})`;
+    g.beginPath(); g.ellipse(rand() * w, rand() * h, 20 + rand() * 60, 10 + rand() * 40, rand() * 3, 0, Math.PI * 2); g.fill();
+  }
+  g.strokeStyle = 'rgba(255,255,255,0.35)'; g.lineWidth = 1.5;                                  // vincos e arranhões
+  for (let i = 0; i < 14; i++) { g.beginPath(); const x = rand() * w, y = rand() * h; g.moveTo(x, y); g.lineTo(x + (rand() - 0.5) * 120, y + (rand() - 0.5) * 120); g.stroke(); }
+  g.strokeStyle = 'rgba(0,0,0,0.25)'; g.lineWidth = 2; g.beginPath(); g.moveTo(0, h * 0.5); g.lineTo(w, h * 0.52); g.stroke();
+  g.strokeStyle = 'rgba(255,255,255,0.4)'; g.beginPath(); g.moveTo(0, h * 0.5 + 2); g.lineTo(w, h * 0.52 + 2); g.stroke();
+  const edge = g.createLinearGradient(0, 0, w, 0);                                              // bordas escurecidas
+  edge.addColorStop(0, 'rgba(0,0,0,0.3)'); edge.addColorStop(0.08, 'rgba(0,0,0,0)'); edge.addColorStop(0.92, 'rgba(0,0,0,0)'); edge.addColorStop(1, 'rgba(0,0,0,0.3)');
+  g.fillStyle = edge; g.fillRect(0, 0, w, h);
+  g.globalCompositeOperation = 'destination-out';                                              // canto rasgado (recorta o papel)
+  g.beginPath(); g.moveTo(w, 0); g.lineTo(w - 70, 0); g.lineTo(w - 48, 26); g.lineTo(w - 22, 18); g.lineTo(w, 62); g.closePath(); g.fill();
+  g.beginPath(); g.moveTo(0, h); g.lineTo(34, h); g.lineTo(18, h - 24); g.lineTo(0, h - 30); g.closePath(); g.fill();
+  g.globalCompositeOperation = 'source-over';
+  g.fillStyle = 'rgba(225,205,120,0.65)';                                                       // fitas adesivas nos cantos
+  g.save(); g.translate(18, 14); g.rotate(-0.6); g.fillRect(-34, -9, 70, 18); g.restore();
+  g.save(); g.translate(w - 90, 12); g.rotate(0.35); g.fillRect(-34, -9, 70, 18); g.restore();
 }
 
 // Placa de alerta amarela com OVNI raptando uma pessoa.
@@ -145,7 +186,7 @@ export function buildScenery() {
   const b = createBatch();
   b.add(WALL_W, 0.28, 0.05, 0x222a3a, 0.7, 0, 0.14, -0.49);                  // rodapé
   b.add(0.14, WALL_H, 0.14, 0x1a2030, 0.5, 2.7, WALL_H / 2, -0.44);           // cano
-  b.add(0.5, 0.7, 0.16, 0x2a3348, 0.7, -3.0, 1.8, -0.42);                     // caixa elétrica
+  b.add(0.5, 0.7, 0.16, 0x2a3348, 0.7, -3.9, 1.8, -0.42);                     // caixa elétrica
   b.add(0.16, POST.h, 0.16, 0x232b3c, 0.8, POST.x, POST.h / 2, POST.z);        // poste de luz
   b.add(0.3, 0.3, 0.3, 0x232b3c, 0.8, POST.x, 0.15, POST.z);
   b.add(1.0, 0.1, 0.1, 0x232b3c, 0.8, POST.x - 0.45, POST.h - 0.05, POST.z);
@@ -167,6 +208,11 @@ export function buildScenery() {
   const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.9),
     new THREE.MeshBasicMaterial({ map: canvasTex(512, 210, (c, w, h) => paintNeon(c, w, h)), transparent: true, depthWrite: false }));
   sign.position.set(-0.1, 3.35, WALL_Z + WALL_D / 2 + 0.01); sign.renderOrder = 4; g.add(sign);
+
+  const poster = new THREE.Mesh(new THREE.PlaneGeometry(POSTER.w, POSTER.h),
+    new THREE.MeshBasicMaterial({ map: canvasTex(512, 610, (c, w, h) => paintPoster(c, w, h, drawQr)), transparent: true, alphaTest: 0.5, color: 0xe2deef }));
+  poster.name = 'faucet-poster'; poster.rotation.z = -0.045;
+  poster.position.set(POSTER.x, POSTER.y, WALL_Z + WALL_D / 2 + 0.012); g.add(poster);
 
   // placa de alerta triangular: abdução por OVNI (alpha recortado, sem ordenação)
   const disc = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 0.9),

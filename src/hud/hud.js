@@ -11,7 +11,7 @@ export function createHud(root) {
   root.innerHTML = '';
   const hud = el(`<div id="hud" class="mode-walk">
     <div class="cross"></div>
-    <div class="prompt"><span class="key">E</span><span class="label"><small>DEFI VENDING MACHINE</small>Usar a máquina</span></div>
+    <div class="prompt"><span class="key">E</span><span class="label"><small></small><b></b></span></div>
     <div class="info">
       <div class="slot"></div>
       <div class="detail"><div class="name"></div><div class="meta"><span class="price"></span><span class="stock"></span></div></div>
@@ -51,7 +51,15 @@ export function createHud(root) {
     el: hud,
     onUse: f => cbs.use = f, onConfirm: f => cbs.ok = f, onBack: f => cbs.back = f, onDpad: f => cbs.dpad = f, onJoystick: f => cbs.joy = f,
     setMode(mode) { hud.className = `mode-${mode}`; if (mode !== 'walk') hud.classList.remove('can-use'); },
-    showPrompt(on) { hud.classList.toggle('can-use', !!on && hud.classList.contains('mode-walk')); },
+    // kind: null | 'machine' | 'faucet'
+    showPrompt(kind) {
+      const on = !!kind && hud.classList.contains('mode-walk');
+      hud.classList.toggle('can-use', on);
+      if (on) {
+        const t = { machine: ['DEFI VENDING MACHINE', 'Usar a máquina'], faucet: ['SEPOLIA FAUCET · GOOGLE', 'Abrir o faucet'] }[kind];
+        q('.prompt small').textContent = t[0]; q('.prompt b').textContent = t[1]; q('.m-use').textContent = kind === 'faucet' ? 'FAUCET' : 'USAR';
+      }
+    },
     showCard(id, meta, info) {
       q('.slot').textContent = cardIdToSlot(id).label;
       q('.name').textContent = meta ? meta.name.replace(/^Card #\d+:\s*/, '') : `Card #${String(id).padStart(2, '0')}`;
