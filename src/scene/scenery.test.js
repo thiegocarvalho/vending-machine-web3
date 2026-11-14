@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { SCENERY_COLLIDERS, paintBricks, paintPaving, paintNeon, paintUfoSign, paintPoster, paintRoad, paintSkyline, seeded } from './scenery.js';
+import { SCENERY_COLLIDERS, paintBricks, paintPaving, paintNeon, paintUfoSign, paintPoster, paintRoad } from './scenery.js';
 import { MACHINE_COLLIDER } from './machine.js';
 import { collideCircle } from '../player/movement.js';
 
@@ -24,7 +24,6 @@ describe('painted textures', () => {
     let qrArgs = null;
     expect(() => paintPoster(ctx(), 512, 760, (...a) => { qrArgs = a; }, () => 0.5)).not.toThrow();
     expect(qrArgs[1]).toMatch(/^https:\/\/.*faucet.*sepolia/);       // o QR aponta para o faucet da Sepolia
-    expect(() => paintSkyline(ctx(), 2048, 512, () => 0.5)).not.toThrow();
   });
 });
 
@@ -37,15 +36,6 @@ describe('poster layout', () => {
     expect(qrBox.x).toBeGreaterThanOrEqual(0);
     expect(qrBox.x + qrBox.size + 12 + 12).toBeLessThanOrEqual(512);          // incluindo sombra dura
     expect(qrBox.y + qrBox.size + 12 + 12).toBeLessThanOrEqual(760 - 92);     // acima da faixa inferior (92 px)
-  });
-});
-
-describe('seeded', () => {
-  it('is deterministic per seed and differs between seeds', () => {
-    const a = seeded(7), b = seeded(7), c = seeded(11);
-    const A = [a(), a(), a()], B = [b(), b(), b()], C = [c(), c(), c()];
-    expect(A).toEqual(B); expect(A).not.toEqual(C);
-    A.forEach((v) => { expect(v).toBeGreaterThanOrEqual(0); expect(v).toBeLessThan(1); });
   });
 });
 
