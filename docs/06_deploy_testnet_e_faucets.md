@@ -38,13 +38,15 @@ O Remix IDE é a ferramenta mais didática para demonstrar o deploy em sala de a
 1. Acesse [remix.ethereum.org](https://remix.ethereum.org).
 2. Crie um novo arquivo: `VendingMachine1155.sol` e cole o código do contrato.
 3. No painel de compilação (**Solidity Compiler**):
-   - Escolha a versão `0.8.20` ou superior.
+   - Escolha a versão `0.8.24` (EVM `cancun`, otimizador ligado com 200 execuções).
    - Clique em **Compile VendingMachine1155.sol**.
 4. No painel de deploy (**Deploy & Run Transactions**):
    - Em **Environment**, selecione **Injected Provider - MetaMask** (certifique-se de que sua carteira está conectada na rede **Sepolia**).
    - Nos parâmetros do construtor:
-     - `baseURI`: `"ipfs://bafybeicardplaceholder/{id}.json"`
-     - `defaultPrice`: `100000000000000` (0.0001 ETH em Wei)
-     - `defaultStock`: `100` (100 cópias de cada card)
+     - `baseMetadataURI`: `"ipfs://<CID>/{id}.json"`
+     - `initialContractURI`: `"ipfs://<CID>/contractURI.json"`
+     - `defaultPrice`: `4600000000000000` (0,0046 ETH em Wei: com 0,05 ETH de faucet dá para 10 cards)
+     - `royaltyReceiver`: a carteira que recebe a comissão de revenda
+     - `royaltyFeeNumerator`: `500` (5%; o máximo é 1000)
    - Clique em **transact** e confirme a transação na carteira.
 5. Copie o endereço gerado do contrato e abra no [Sepolia Etherscan](https://sepolia.etherscan.io) para conferir o contrato ativo no estado global!

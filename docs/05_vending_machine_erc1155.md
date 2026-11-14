@@ -47,16 +47,15 @@ Nossa máquina funciona exatamente como uma máquina física de salgadinhos/refr
    - Existem 30 slots numerados de 1 a 30 (grid 5x6).
    - O contrato valida estritamente: `cardId >= 1 && cardId <= 30`.
 
-2. **Compra com Troco Automático:**
-   - O usuário escolhe o Card e a quantidade.
-   - Envia o valor em ETH/Wei da transação (`msg.value`).
-   - Se `msg.value < custoTotal`, a transação reverte com erro claro.
-   - Se `msg.value > custoTotal`, o contrato calcula o troco e devolve o excesso imediatamente para quem comprou (`payable(msg.sender).transfer(troco)`).
+2. **Compra de 1 em 1, com pagamento exato:**
+   - O usuário escolhe o Card; cada compra entrega exatamente 1 unidade (não existe campo de quantidade).
+   - Envia o valor em ETH/Wei da transação (`msg.value`), que precisa ser exatamente o preço do card.
+   - Se `msg.value` for diferente do preço, a transação reverte com `IncorrectPayment`. Por isso o contrato nunca devolve troco.
 
-3. **Controle Estrito de Estoque:**
-   - Antes de entregar, verifica se `estoque[cardId] >= quantidade`.
-   - Se não houver estoque suficiente, reverte com erro `EstoqueInsuficiente`.
-   - Ao vender, decrementa o estoque e emite o token ERC-1155 diretamente para o comprador (`_mint`).
+3. **Controle Estrito de Estoque, por card:**
+   - Cada card tem o seu estoque (100 unidades no início). Antes de entregar, verifica se o card está ativo e se `stock > 0`.
+   - Se o estoque acabou, reverte com `CardIsSoldOut`.
+   - Ao vender, decrementa o estoque do card e emite o token ERC-1155 diretamente para o comprador (`_mint`).
 
 4. **Eventos para a Experiência 3D:**
    - Quando a compra é confirmada, o contrato emite o evento:
@@ -64,15 +63,17 @@ Nossa máquina funciona exatamente como uma máquina física de salgadinhos/refr
      event CardPurchased(
          address indexed buyer,
          uint256 indexed cardId,
-         uint256 amount,
-         uint256 totalCost
+         uint256 amount,        // sempre 1
+         uint256 totalCost,
+         uint256 remainingStock
      );
      ```
    - O jogo 3D (a máquina na rua escura estilo PS1) escuta esse evento via WebSocket/RPC. No segundo em que o evento é emitido na cadeia, a câmera do jogo foca na gaveta, o som mecânico toca e o card escolhido cai liberado na gaveta!
 
 5. **Administração Segura:**
-   - Apenas o dono (`Owner`) pode alterar preços ou reabastecer o estoque da máquina.
+   - Apenas o dono (`Owner`) pode criar cards novos, ligar ou desligar a venda de um card, pausar a máquina, ajustar royalties e trocar os endereços dos metadados. O preço e o estoque de um card já criado não mudam.
    - Apenas o dono pode sacar o faturamento acumulado em ETH da máquina (`withdraw`).
+   - A posse só muda em duas etapas (`transferOwnership` + `acceptOwnership`), e `renounceOwnership` está desativado.
 
 ---
 

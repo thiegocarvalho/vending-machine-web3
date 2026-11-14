@@ -60,7 +60,7 @@ sequenceDiagram
     Player->>Scene: Escolhe slot (ex: B3 / Card #09)
     Scene->>Scene: Câmera foca na tela LCD de pagamento
     Scene->>Scene: Renderiza QR Code nativo (EIP-681) e botão "Conectar Carteira"
-    Player->>Contract: Executa buyCard(9, 1) com envio de ETH
+    Player->>Contract: Executa buyCard(9) com envio de ETH
     Contract-->>Scene: Emite evento CardPurchased(buyer, 9, 1, cost)
     Scene->>Scene: Toca SFX mecânico de mola soltando
     Scene->>Scene: Card cai animado na gaveta da máquina
@@ -74,10 +74,10 @@ sequenceDiagram
 O QR Code gerado na telinha da máquina segue o padrão **EIP-681** para URLs de pagamento EVM:
 
 ```text
-ethereum:<ENDERECO_DO_CONTRATO>@11155111/buyCard?uint256=9&uint256=1&value=100000000000000
+ethereum:<ENDERECO_DO_CONTRATO>@11155111/buyCard?uint256=9&value=4600000000000000
 ```
 
 Isso permite que:
 1. O usuário que está jogando no PC possa simplesmente apontar a câmera do celular (com MetaMask Mobile, Rainbow ou Rabby) para a tela do jogo.
-2. O app da carteira abre diretamente com a função `buyCard(9, 1)` e o valor de 0.0001 ETH preenchidos.
+2. O app da carteira abre diretamente com a função `buyCard(9)` e o valor de 0,0046 ETH preenchidos.
 3. Ou, se preferir, clica no botão "Pagar com Carteira do Navegador" e a extensão do navegador abre para aprovação.

@@ -24,3 +24,6 @@ Veja o README de `game/` ("Publicar").
 
 ## Alternativa: deploy pela carteira do navegador
 `node scripts/make-deploy-page.js` gera `deploy-web/` (ignorado pelo git); sirva com `cd deploy-web && python3 -m http.server 8080 --bind 127.0.0.1` e abra `http://127.0.0.1:8080/`. A página conecta a carteira, troca para a Sepolia, estima o custo, faz o deploy e confere 6 valores do contrato. Depois envie o endereço para atualizar `game/.env.production` e verificar no Etherscan.
+
+## Contrato publicado
+Sepolia: `0x80F3Ace1F4e3eA3Ae4E42F893c885CD927c0634d`, verificado no Etherscan (Standard-Json-Input, solc 0.8.24, otimizador 200, EVM cancun, licença MIT). Para verificar sem chave de API, use o formulário do Etherscan com o `input` do `artifacts/build-info` e os argumentos do construtor em `scripts/verify-args.js`; com `ETHERSCAN_API_KEY` no `.env`, `npx hardhat verify --network sepolia <endereço> --constructor-args scripts/verify-args.js`.
