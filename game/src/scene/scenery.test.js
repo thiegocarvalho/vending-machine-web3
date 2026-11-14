@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { SCENERY_COLLIDERS, paintBricks, paintPaving, paintNeon, paintPoster, paintRoad } from './scenery.js';
+import { SCENERY_COLLIDERS, paintBricks, paintPaving, paintNeon, paintPoster, paintAsphalt, paintRoadWear, addRoadMarkings } from './scenery.js';
 import { MACHINE_COLLIDER } from './machine.js';
 import { collideCircle } from '../player/movement.js';
 
@@ -19,7 +19,10 @@ describe('painted textures', () => {
   it('all painters run on a canvas context without throwing', () => {
     expect(() => paintPaving(ctx(), 64, 64)).not.toThrow();
     expect(() => paintNeon(ctx(), 512, 210)).not.toThrow();
-    expect(() => paintRoad(ctx(), 4096, 512, () => 0.5)).not.toThrow();
+    expect(() => paintAsphalt(ctx(), 256, 256, () => 0.5)).not.toThrow();
+    expect(() => paintRoadWear(ctx(), 1024, 128, () => 0.5)).not.toThrow();
+    const adds = []; addRoadMarkings({ add: (...a) => adds.push(a) });
+    expect(adds.length).toBeGreaterThan(10);
     let qrArgs = null;
     expect(() => paintPoster(ctx(), 512, 760, (...a) => { qrArgs = a; }, () => 0.5)).not.toThrow();
     expect(qrArgs[1]).toMatch(/^https:\/\/.*faucet.*sepolia/);       // o QR aponta para o faucet da Sepolia

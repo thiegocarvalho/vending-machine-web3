@@ -30,41 +30,51 @@ export function paintPaving(ctx, w, h) {
 }
 
 export const ROAD = { z0: 4.2, z1: 14.6, w: 60 };           // 10,4 m: duas faixas
-// Rua de asfalto (60 m x 10,4 m, duas faixas): granulado fino, variação tonal suave, poucas rachaduras, linhas de borda,
-// faixa dupla amarela e faixa de pedestres (com tinta levemente gasta). Coordenadas em metros, convertidas para pixels.
-export function paintRoad(g, w, h, rand = Math.random) {
-  const mx = w / ROAD.w, mz = h / (ROAD.z1 - ROAD.z0), X = (x) => (x + ROAD.w / 2) * mx, Zm = (z) => z * mz;
-  const area = w * h / (4096 * 512);                                                              // escala as quantidades pela resolução
+const ROAD_H = ROAD.z1 - ROAD.z0, ROAD_TILE = 2;           // largura em z (m); o asfalto repete a cada 2 m
+
+// Asfalto: um ladrilho pequeno e repetido (nítido de perto, quase sem memória). Só granulado fino, que repete sem emenda visível.
+export function paintAsphalt(g, w, h, rand = Math.random) {
+  const k = w / 256;                                                                             // escala as quantidades pela resolução
   g.fillStyle = '#2b2d34'; g.fillRect(0, 0, w, h);
-  for (let i = 0, n = Math.round(9 * 4096 * 512 / 1000 * area); i < n; i++) {                       // variação tonal suave (manchas largas e quase invisíveis)
-    const dark = rand() < 0.5, rx = 60 + rand() * 240;
-    g.save(); g.translate(rand() * w, rand() * h); g.scale(1, (14 + rand() * 30) / rx);
+  for (let i = 0, n = Math.round(5200 * k * k); i < n; i++) {                                   // pedrinhas escuras e claras
+    const v = rand() < 0.55 ? 14 + rand() * 24 : 52 + rand() * 40;
+    g.fillStyle = `rgba(${v},${v},${v + 5},${0.3 + rand() * 0.3})`; const sz = rand() < 0.8 ? 1 : 2; g.fillRect(rand() * w, rand() * h, sz, sz);
+  }
+}
+
+// Desgaste: camada translúcida (manchas, trilhas de roda, rachaduras e tinta gasta sobre as faixas) que quebra a repetição do ladrilho.
+// Mesmo mapeamento da rua inteira: x em [-30, 30] m, y = 0 na borda de z0.
+export function paintRoadWear(g, w, h, rand = Math.random) {
+  const mx = w / ROAD.w, mz = h / ROAD_H, X = (x) => (x + ROAD.w / 2) * mx, Zm = (z) => z * mz;
+  g.clearRect(0, 0, w, h);
+  for (let i = 0, n = 70; i < n; i++) {                                                          // manchas largas e suaves
+    const dark = rand() < 0.55, rx = (2 + rand() * 7) * mx;
+    g.save(); g.translate(rand() * w, rand() * h); g.scale(1, (0.5 + rand() * 1.2) * mz / rx);
     const gr = g.createRadialGradient(0, 0, 0, 0, 0, rx);
-    gr.addColorStop(0, dark ? 'rgba(10,10,14,0.10)' : 'rgba(80,84,96,0.07)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    gr.addColorStop(0, dark ? 'rgba(6,6,10,0.20)' : 'rgba(90,94,108,0.12)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
     g.fillStyle = gr; g.beginPath(); g.arc(0, 0, rx, 0, Math.PI * 2); g.fill(); g.restore();
   }
-  for (let i = 0, n = Math.round(60000 * area); i < n; i++) {                                       // granulado fino: pedrinhas escuras e claras
-    const v = rand() < 0.55 ? 14 + rand() * 24 : 52 + rand() * 40;
-    g.fillStyle = `rgba(${v},${v},${v + 5},${0.28 + rand() * 0.3})`; const sz = rand() < 0.85 ? 1 : 2; g.fillRect(rand() * w, rand() * h, sz, sz);
-  }
-  g.strokeStyle = 'rgba(6,6,9,0.5)'; g.lineWidth = Math.max(1, w / 3000);                          // poucas rachaduras finas
-  for (let i = 0; i < 7; i++) { let x = rand() * w, y = rand() * h; g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 8; k++) { x += (rand() - 0.2) * 26 * area ** 0.5; y += (rand() - 0.5) * 9; g.lineTo(x, y); } g.stroke(); }
-  for (const zc of [2.0, 3.6, 6.8, 8.4]) {                                                          // desgaste leve das trilhas de roda (gradiente suave, sem bordas duras)
+  for (const zc of [2.0, 3.6, 6.8, 8.4]) {                                                       // trilhas de roda
     const gr = g.createLinearGradient(0, Zm(zc - 0.7), 0, Zm(zc + 0.7));
-    gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(0.5, 'rgba(8,8,12,0.10)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(0.5, 'rgba(8,8,12,0.16)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
     g.fillStyle = gr; g.fillRect(0, Zm(zc - 0.7), w, Zm(1.4));
   }
-  g.fillStyle = '#0f1016'; g.fillRect(0, 0, w, Zm(0.45)); g.fillRect(0, h - Zm(0.45), w, Zm(0.45));   // sarjetas
-  g.fillStyle = 'rgba(225,225,210,0.8)'; g.fillRect(0, Zm(0.75), w, mz * 0.12); g.fillRect(0, h - Zm(0.87), w, mz * 0.12);   // linhas de borda
-  g.fillStyle = '#d9b82e'; const mid = h / 2;                                                       // faixa dupla amarela
-  g.fillRect(0, mid - mz * 0.17, w, mz * 0.1); g.fillRect(0, mid + mz * 0.07, w, mz * 0.1);
-  g.fillStyle = 'rgba(225,225,210,0.85)';                                                           // faixa de pedestres: listras paralelas ao tráfego, de um meio-fio ao outro
-  for (let z = 1.0; z + 0.5 <= (ROAD.z1 - ROAD.z0) - 0.9; z += 0.95) g.fillRect(X(-9.5), Zm(z), mx * 4.2, mz * 0.5);
-  // Tinta desgastada: pontinhos de asfalto por cima das marcações (faixa central e faixa de pedestres), sem apagá-las
-  for (let i = 0, n = Math.round(14000 * area); i < n; i++) {
-    const x = rand() * w, y = rand() * h; const v = 36 + rand() * 18;
-    if (Math.abs(y - mid) < mz * 0.5 || (x > X(-9.6) && x < X(-5.2)) ) { g.fillStyle = `rgba(${v},${v},${v + 4},0.55)`; g.fillRect(x, y, 1 + rand() * 1.5, 1 + rand() * 1.5); }
+  g.strokeStyle = 'rgba(6,6,9,0.55)'; g.lineWidth = Math.max(1, w / 2400);                       // poucas rachaduras finas
+  for (let i = 0; i < 9; i++) { let x = rand() * w, y = rand() * h; g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 8; k++) { x += (rand() - 0.2) * 0.5 * mx; y += (rand() - 0.5) * 0.18 * mz; g.lineTo(x, y); } g.stroke(); }
+  const mid = Zm(ROAD_H / 2);                                                                    // tinta gasta: pontos de asfalto sobre a faixa central e a de pedestres
+  for (let i = 0, n = Math.round(9000 * w * h / (2048 * 256)); i < n; i++) {
+    const x = rand() * w, y = rand() * h;
+    if (Math.abs(y - mid) < mz * 0.4 || (x > X(-9.6) && x < X(-5.2))) { g.fillStyle = `rgba(40,42,50,${0.4 + rand() * 0.3})`; g.fillRect(x, y, 1 + rand(), 1 + rand()); }
   }
+}
+
+// Marcações da rua como caixas finas no lote estático (nítidas em qualquer resolução, sem textura).
+export function addRoadMarkings(batch, y = -0.145) {
+  const T = 0.01, L = 0.78, zc = (z) => ROAD.z0 + z, bar = (w, d, x, z, hex) => batch.add(w, T, d, hex, L, x, y, zc(z));
+  bar(ROAD.w, 0.45, 0, 0.225, 0x0f1016); bar(ROAD.w, 0.45, 0, ROAD_H - 0.225, 0x0f1016);        // sarjetas
+  bar(ROAD.w, 0.12, 0, 0.81, 0xdcdcd0); bar(ROAD.w, 0.12, 0, ROAD_H - 0.81, 0xdcdcd0);          // linhas de borda
+  bar(ROAD.w, 0.1, 0, ROAD_H / 2 - 0.12, 0xd9b82e); bar(ROAD.w, 0.1, 0, ROAD_H / 2 + 0.12, 0xd9b82e);   // faixa dupla amarela
+  for (let z = 1.0; z + 0.5 <= ROAD_H - 0.9; z += 0.95) bar(4.2, 0.5, -9.5 + 2.1, z + 0.25, 0xe1e1d2);   // faixa de pedestres
 }
 
 // Luz sobre o chão molhado: brilho frio da máquina, reflexo violeta do neon e poça quente do poste (aditiva).
@@ -219,9 +229,13 @@ export function buildScenery({ aniso = 4, roadPx = 4096 } = {}) {
   };
   flat(60, 4.5, 0, 1.75, 0, pave, 0xa0a8c4, SLAB);                                 // calçada z -0.5..4.0
   flat(60, 16, 0, ROAD.z1 + 0.2 + 8, 0, pave, 0x8890ac, SLAB);                     // calçada do outro lado
-  const roadTex = canvasTex(roadPx, roadPx / 8, (c, w, h) => paintRoad(c, w, h));
+  const tilePx = roadPx <= 1024 ? 128 : 256;                                       // asfalto: ladrilho de 2 m (64 a 128 px/m), repetido
+  const roadTex = canvasTex(tilePx, tilePx, (c, w, h) => paintAsphalt(c, w, h), { repeat: [1, 1] });
   roadTex.anisotropy = Math.max(1, aniso * 2);
-  flat(ROAD.w, ROAD.z1 - ROAD.z0, 0, (ROAD.z0 + ROAD.z1) / 2, -0.15, roadTex, 0xd2d6ec);
+  flat(ROAD.w, ROAD_H, 0, (ROAD.z0 + ROAD.z1) / 2, -0.15, roadTex, 0xd2d6ec, ROAD_TILE);
+  const wearTex = canvasTex(roadPx / 2, roadPx / 16, (c, w, h) => paintRoadWear(c, w, h));    // desgaste: baixa resolução basta (é suave)
+  const wear = flat(ROAD.w, ROAD_H, 0, (ROAD.z0 + ROAD.z1) / 2, -0.1485, wearTex, 0xffffff);
+  wear.material.transparent = true; wear.material.depthWrite = false;
 
   const wet = new THREE.Mesh(new THREE.PlaneGeometry(LIGHT.size, LIGHT.size),                  // luz/reflexos sobre o chão molhado
     new THREE.MeshBasicMaterial({ map: groundLightTexture(), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
@@ -237,6 +251,7 @@ export function buildScenery({ aniso = 4, roadPx = 4096 } = {}) {
   b.add(0.55, 0.1, 0.3, 0x2c3650, 0.9, POST.x - 0.95, POST.h - 0.05, POST.z);
   b.add(60, 0.15, 0.2, 0x8a93a8, 0.9, 0, -0.075, 4.1);                         // meio-fio (lado da calçada)
   b.add(60, 0.15, 0.2, 0x8a93a8, 0.9, 0, -0.075, ROAD.z1 + 0.1);                         // meio-fio (outro lado)
+  addRoadMarkings(b);
   g.add(b.build());
 
   const wall = new THREE.Mesh(new THREE.PlaneGeometry(WALL_W, WALL_H),
