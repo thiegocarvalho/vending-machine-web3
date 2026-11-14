@@ -1,5 +1,7 @@
 # Vending Machine 3D (navegador) — Design
 
+> **Atualização (2026-11-13):** o visual PS1 foi trocado por **low-poly moderno** (render suave, sem pixelização nem vertex snapping), a cena virou uma rua noturna, e a performance usa luz assada, geometria estática fundida, resolução dinâmica e render sob demanda. Sem modo 2D e sem atlas de texturas: as imagens vêm do contrato/IPFS como NFTs separados (o campo padrão `image` segue apontando para a arte completa; `image_thumbnail` é um campo extra leve). Cache de navegador e otimização das imagens ficam para depois.
+
 Data: 2026-11-13 · Status: aguardando aprovação (rev. 2 — cenário, pagamento e referência visual)
 
 ## Intenção

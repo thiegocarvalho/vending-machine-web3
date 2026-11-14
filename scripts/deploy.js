@@ -34,8 +34,8 @@ async function main() {
 
   const local = net.chainId === 31337n;
   setEnv(path.join(GAME_DIR, '.env'), local
-    ? { VITE_CONTRACT_ADDRESS: address, VITE_CHAIN_ID: '31337', VITE_CHAIN_NAME: 'Local', VITE_RPC_URL: 'http://127.0.0.1:8545', VITE_EXPLORER_URL: '' }
-    : { VITE_CONTRACT_ADDRESS: address, VITE_CHAIN_ID: String(net.chainId) });
+    ? { VITE_CONTRACT_ADDRESS: address, VITE_METADATA_CID: metadataCid, VITE_CHAIN_ID: '31337', VITE_CHAIN_NAME: 'Local', VITE_RPC_URL: 'http://127.0.0.1:8545', VITE_EXPLORER_URL: '' }
+    : { VITE_CONTRACT_ADDRESS: address, VITE_METADATA_CID: metadataCid, VITE_CHAIN_ID: String(net.chainId) });
   console.log('Atualizado', path.join(GAME_DIR, '.env'));
 
   if (!local && process.env.ETHERSCAN_API_KEY) {

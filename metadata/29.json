@@ -2,6 +2,7 @@
   "name": "Card #29: Perplexo no Terminal",
   "description": "The shock when the smart contract deploy script compiles on the first attempt with zero warnings. Official DeFi Vending Machine collectible card (Slot E5). Edition 001.",
   "image": "ipfs://bafybeie4zqipkiubavbv2n5o6yszri5wuaufply3fv4nmsu5ty33t4ys3e/29_E5.png",
+  "image_thumbnail": "ipfs://bafybeibnkd7yymvbyesnk6qd4rm7iltprndz2auvf2j7q43q4xzmnvfnli/29_E5.webp",
   "external_url": "https://vendingmachine.cards/cards/29",
   "attributes": [
     {

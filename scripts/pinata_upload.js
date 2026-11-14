@@ -7,6 +7,7 @@ const ROOT = path.join(__dirname, '..');
 const CARDS_DIR = path.join(ROOT, 'generated_cards');
 const METADATA_DIR = path.join(ROOT, 'metadata');
 const CIDS_FILE = path.join(ROOT, 'ipfs-cids.json');
+const THUMBS_DIR = path.join(ROOT, 'thumbs');
 const COLLECTION_IMAGE = path.join(ROOT, 'assets', 'card_back.png');
 
 function buildImageUri(imagesCid, fileName) {
@@ -67,13 +68,19 @@ async function main() {
     return;
   }
   if (!process.env.PINATA_JWT) throw new Error('PINATA_JWT missing in .env');
-  const imagesCid = await pinDirectory('defi-vending-machine-images', images);
-  fs.writeFileSync(CIDS_FILE, JSON.stringify({ imagesCid }, null, 2));
-  generateAll();                       // rewrites `image` fields with the real images CID
-  const metadataCid = await pinDirectory('defi-vending-machine-metadata', metadataEntries());
-  fs.writeFileSync(CIDS_FILE, JSON.stringify({ imagesCid, metadataCid }, null, 2));
-  console.log('imagesCid  :', imagesCid);
-  console.log('metadataCid:', metadataCid);
+  // Conteúdo no IPFS é endereçado por hash: imagens inalteradas mantêm o CID, então só reenviamos com --all.
+  const prev = fs.existsSync(CIDS_FILE) ? JSON.parse(fs.readFileSync(CIDS_FILE, 'utf8')) : {};
+  const save = (c) => fs.writeFileSync(CIDS_FILE, JSON.stringify(c, null, 2));
+  const imagesCid = prev.imagesCid && !process.argv.includes('--all') ? prev.imagesCid : await pinDirectory('defi-vending-machine-images', images);
+  const cids = { imagesCid }; save(cids);
+  if (fs.existsSync(THUMBS_DIR)) {      // miniaturas WebP geradas por scripts/make_thumbs.py
+    const thumbs = fs.readdirSync(THUMBS_DIR).filter(f => f.endsWith('.webp')).sort().map(f => ({ name: f, file: path.join(THUMBS_DIR, f) }));
+    cids.thumbsCid = await pinDirectory('defi-vending-machine-thumbs', thumbs); save(cids);
+  }
+  generateAll();                       // reescreve image / image_thumbnail com os CIDs reais
+  cids.metadataCid = await pinDirectory('defi-vending-machine-metadata', metadataEntries());
+  save(cids);
+  console.log(cids);
 }
 
 module.exports = { buildImageUri, selectMetadataFiles };

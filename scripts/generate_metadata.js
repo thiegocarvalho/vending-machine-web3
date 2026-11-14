@@ -5,10 +5,10 @@ const METADATA_DIR = path.join(__dirname, '..', 'metadata');
 const CIDS_FILE = path.join(__dirname, '..', 'ipfs-cids.json');
 
 // Images directory CID: read from ipfs-cids.json after the Pinata upload, placeholder before it.
-function readImagesCid() {
-  try { return JSON.parse(fs.readFileSync(CIDS_FILE, 'utf8')).imagesCid || "bafybeicards1155"; }
-  catch { return "bafybeicards1155"; }
+function readCids() {
+  try { return JSON.parse(fs.readFileSync(CIDS_FILE, 'utf8')); } catch { return {}; }
 }
+function readImagesCid() { return readCids().imagesCid || "bafybeicards1155"; }
 const CONTRACT_EXTERNAL_URL = "https://vendingmachine.cards";
 
 const CARDS_DATA = [
@@ -48,11 +48,14 @@ const CARDS_DATA = [
   { id: 30, slot: "E6", file: "zeru_sem_barba.png", name: "Foto Sem Barba Mythic", format: "Horizontal", size: "1024x585", desc: "The rare and forbidden photograph that rewrites community lore." }
 ];
 
-function buildMetadata(card, imagesCid) {
+function buildMetadata(card, imagesCid, thumbsCid) {
+  const stem = `${String(card.id).padStart(2, '0')}_${card.slot}`;
   return {
     name: `Card #${String(card.id).padStart(2, '0')}: ${card.name}`,
     description: `${card.desc} Official DeFi Vending Machine collectible card (Slot ${card.slot}). Edition 001.`,
-    image: `ipfs://${imagesCid}/${String(card.id).padStart(2, '0')}_${card.slot}.png`,
+    image: `ipfs://${imagesCid}/${stem}.png`,
+    // miniatura leve (300x400 WebP) para o jogo 3D: ~30 KB em vez de ~1 MB por card
+    ...(thumbsCid ? { image_thumbnail: `ipfs://${thumbsCid}/${stem}.webp` } : {}),
     external_url: `${CONTRACT_EXTERNAL_URL}/cards/${card.id}`,
     attributes: [
       { trait_type: "Machine Slot", value: card.slot },
@@ -68,11 +71,12 @@ function buildMetadata(card, imagesCid) {
 
 function generateAll() {
   const IPFS_IMAGES_CID = readImagesCid();
+  const THUMBS_CID = readCids().thumbsCid;
   if (!fs.existsSync(METADATA_DIR)) fs.mkdirSync(METADATA_DIR, { recursive: true });
   console.log(`Generating 30 ERC-1155 metadata files in ${METADATA_DIR} (images CID: ${IPFS_IMAGES_CID})...`);
   CARDS_DATA.forEach(card => {
     const hexId = card.id.toString(16).padStart(64, '0');
-    const metadata = buildMetadata(card, IPFS_IMAGES_CID);
+    const metadata = buildMetadata(card, IPFS_IMAGES_CID, THUMBS_CID);
     // Strict ERC-1155 standard (64-character lowercase hex)
     fs.writeFileSync(path.join(METADATA_DIR, `${hexId}.json`), JSON.stringify(metadata, null, 2), 'utf8');
     // Human-friendly decimal copy (e.g. 1.json)
