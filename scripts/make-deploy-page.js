@@ -7,7 +7,7 @@ const art = JSON.parse(fs.readFileSync(path.join(ROOT, 'artifacts/contracts/Vend
 const { metadataCid } = JSON.parse(fs.readFileSync(path.join(ROOT, 'ipfs-cids.json'), 'utf8'));
 try { process.loadEnvFile(path.join(ROOT, '.env')); } catch {}
 const env = (k, d) => process.env[k] || d;
-const price = ethers.parseEther(env('DEFAULT_PRICE_ETH', '0.0001'));
+const price = ethers.parseEther(env('DEFAULT_PRICE_ETH', '0.0046'));
 const receiver = ethers.getAddress(env('ROYALTY_RECEIVER', '0xa78276259faC49aF008Be85D855e0Cb0F1aD9433'));
 const bps = Number(env('ROYALTY_BPS', '500'));
 const args = [`ipfs://${metadataCid}/{id}.json`, `ipfs://${metadataCid}/contractURI.json`, price, receiver, bps];

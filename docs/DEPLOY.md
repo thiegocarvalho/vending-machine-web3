@@ -7,7 +7,7 @@ A chave privada **nunca** vai no chat nem em arquivo `.env`: ela fica num keysto
 2. `npm run wallet:address` mostra o endereço. Peça ETH de teste num faucet Sepolia (veja `docs/06`). `npm run wallet:balance` confere.
 3. No `.env` (copie de `.env.example` se existir), preencha:
    - `ETHERSCAN_API_KEY` (verificação automática do contrato)
-   - opcionais: `SEPOLIA_RPC_URL` (RPC seu; padrão público), `ROYALTY_RECEIVER` (padrão: o deployer), `ROYALTY_BPS` (padrão 500 = 5%, máx. 1000), `DEFAULT_PRICE_ETH` (padrão 0.0001), `FINAL_OWNER` (transfere a posse ao fim; o novo dono precisa chamar `acceptOwnership`).
+   - opcionais: `SEPOLIA_RPC_URL` (RPC seu; padrão público), `ROYALTY_RECEIVER` (padrão: o deployer), `ROYALTY_BPS` (padrão 500 = 5%, máx. 1000), `DEFAULT_PRICE_ETH` (padrão 0.0046: com os 0,05 ETH de um faucet dá para 10 cards e ainda sobra gás; o 11º não cabe), `FINAL_OWNER` (transfere a posse ao fim; o novo dono precisa chamar `acceptOwnership`).
 4. Antes, corrija nos metadados o que o deploy avisar (`external_url`, royalties do `contractURI`) e suba de novo no Pinata se mudar (novo CID em `ipfs-cids.json`).
 
 ## 2. Ensaiar (não gasta nada)

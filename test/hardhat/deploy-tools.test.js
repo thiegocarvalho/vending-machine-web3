@@ -8,9 +8,9 @@ const { createKeystore, saveKeystore, readKeystoreAddress, decryptKeystore } = r
 const A = '0xa78276259faC49aF008Be85D855e0Cb0F1aD9433', B = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8';
 
 describe('deploy: parâmetros e redes', () => {
-  it('padrões: 0,0001 ETH, royalty 5%, receptor = deployer, sem troca de dono', () => {
+  it('padrões: 0,0046 ETH, royalty 5%, receptor = deployer, sem troca de dono', () => {
     const p = readParams({});
-    expect(p).to.deep.equal({ price: 100000000000000n, royaltyReceiver: null, royaltyBps: 500, finalOwner: null });
+    expect(p).to.deep.equal({ price: 4600000000000000n, royaltyReceiver: null, royaltyBps: 500, finalOwner: null });
     expect(validateParams(p, { deployer: A })).to.deep.equal([]);
   });
   it('lê preço em ETH ou wei e royalties do ambiente', () => {

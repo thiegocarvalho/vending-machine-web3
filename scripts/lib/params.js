@@ -11,7 +11,7 @@ const NETWORKS = {
 const MAX_ROYALTY_BPS = 1000;
 
 function readParams(env = process.env) {
-  const price = env.DEFAULT_PRICE_WEI ? BigInt(env.DEFAULT_PRICE_WEI) : env.DEFAULT_PRICE_ETH ? ethers.parseEther(env.DEFAULT_PRICE_ETH) : 100000000000000n;   // 0,0001 ETH
+  const price = env.DEFAULT_PRICE_WEI ? BigInt(env.DEFAULT_PRICE_WEI) : env.DEFAULT_PRICE_ETH ? ethers.parseEther(env.DEFAULT_PRICE_ETH) : 4600000000000000n;   // 0,0046 ETH: com 0,05 ETH de faucet dá para 10 cards (+ gás) e não para 11
   return {
     price,
     royaltyReceiver: env.ROYALTY_RECEIVER || null,           // padrão: o deployer
