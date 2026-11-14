@@ -17,7 +17,7 @@ function radialTexture(stops, size = 256) {
 // Foco sobre o card selecionado: escurece em volta (vinheta) e acende um halo suave atrás do card.
 export function createSpotlight(scene) {
   const dim = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 2.6), new THREE.MeshBasicMaterial({
-    map: radialTexture([[0, 'rgba(2,4,12,0)'], [0.1, 'rgba(2,4,12,0)'], [0.27, 'rgba(2,4,12,0.78)'], [0.5, 'rgba(2,4,12,0.9)'], [1, 'rgba(2,4,12,0.92)']]),
+    map: radialTexture([[0, 'rgba(2,4,12,0.22)'], [0.1, 'rgba(2,4,12,0.22)'], [0.27, 'rgba(2,4,12,0.82)'], [0.5, 'rgba(2,4,12,0.9)'], [1, 'rgba(2,4,12,0.92)']]),
     transparent: true, depthWrite: false, opacity: 0
   }));
   const halo = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.72), new THREE.MeshBasicMaterial({
@@ -39,7 +39,7 @@ export function createSpotlight(scene) {
       const moving = cur.distanceToSquared(target) > 1e-6;
       cur.set(approach(cur.x, target.x, 14, dt), approach(cur.y, target.y, 14, dt), approach(cur.z, target.z, 14, dt));
       dim.position.set(cur.x, cur.y, cur.z + 0.1); halo.position.set(cur.x, cur.y, cur.z + 0.015);   // vinheta à frente do gabinete, halo atrás da moldura
-      dim.material.opacity = level; halo.material.opacity = level;
+      dim.material.opacity = level; halo.material.opacity = level * 0.3;   // halo discreto: o brilho forte escondia o card
       if (!on && level < 0.01) { dim.visible = halo.visible = false; level = 0; }
       return Math.abs(level - goal) > 0.01 || moving;
     },
