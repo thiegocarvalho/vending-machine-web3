@@ -41,6 +41,8 @@
   .minimap b{font-size:9px}
   .panel{right:0;left:0;top:auto;bottom:0;width:100%;max-height:44vh;border-width:2px 0 0;padding:14px 14px calc(14px + var(--safe-b));transform:translateY(105%);transition:transform .2s}
   #hud.sheet .panel{transform:none}
+  .panel{display:flex;flex-direction:column}
+  .panel .slot{order:0}.panel h2{order:1;padding-right:52px}.panel .actions{order:2;margin:8px 0}.panel .desc{order:3}.panel dl{order:4}.panel canvas.qr{order:5}.panel .status{order:6}
   .panel .close{display:block}
   .dpad,.joy{display:grid}
   .joy{display:block}
