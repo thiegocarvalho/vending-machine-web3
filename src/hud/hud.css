@@ -13,7 +13,7 @@
 .can-use .cross{width:8px;height:8px;margin:-4px 0 0 -4px;background:transparent;border:1.5px solid #fff;box-shadow:0 0 6px rgba(255,255,255,.7)}
 
 /* prompt de interação: tecla em caixa + rótulo */
-.prompt{position:absolute;left:50%;top:66%;transform:translateX(-50%);display:none;align-items:center;gap:14px;pointer-events:auto;cursor:pointer}
+.prompt{position:absolute;left:50%;top:76%;transform:translateX(-50%);display:none;align-items:center;gap:14px;pointer-events:auto;cursor:pointer}
 .prompt{background:linear-gradient(90deg,rgba(0,0,0,.6),rgba(0,0,0,.35));padding:10px 22px 10px 12px;border-left:2px solid #fff}
 .can-use .prompt{display:flex;animation:pulse 1.8s ease-in-out infinite}
 .key{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;padding:0 8px;border:1.5px solid #fff;border-radius:4px;font:600 14px 'Fira Code',monospace;background:rgba(0,0,0,.35);margin:0 3px}

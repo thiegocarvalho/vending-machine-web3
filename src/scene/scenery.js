@@ -60,43 +60,78 @@ export function paintNeon(g, w, h) {
   g.strokeRect(w * 0.08, h * 0.08, w * 0.84, h * 0.84);
 }
 
-// Cartaz velho estilo Polaroid, colado na parede, com o QR do faucet da Sepolia. Fica à esquerda da máquina.
-export const POSTER = { x: -2.3, y: 1.75, w: 1.05, h: 1.25 };
+// Cartaz vintage-brutalista colado na parede (à esquerda da máquina): tipografia pesada, blocos duros, uma cor de tinta,
+// papel envelhecido e o QR do faucet da Sepolia.
+export const POSTER = { x: -2.3, y: 1.9, w: 1.05, h: 1.4 };
+const HEAVY = '"Impact","Haettenschweiler","Arial Narrow",sans-serif', MONO = '"Fira Code","Courier New",monospace';
+function fit(g, text, font, maxW, startPx) {                 // ajusta o corpo do texto para caber na largura
+  let px = startPx; g.font = `${px}px ${font}`;
+  const w = g.measureText?.(text)?.width;
+  if (w && w > maxW) px = Math.floor(px * maxW / w);
+  g.font = `${px}px ${font}`; return px;
+}
 export function paintPoster(g, w, h, qr = () => {}, rand = Math.random) {
+  const INK = '#15110e', RED = '#d9302f', PAPER = '#d8d0b8', M = 26;
   g.clearRect(0, 0, w, h);
-  const paper = g.createLinearGradient(0, 0, w, h);                                            // papel amarelado e gasto
-  paper.addColorStop(0, '#e6dfcb'); paper.addColorStop(1, '#c9bfa5');
-  g.fillStyle = paper; g.fillRect(0, 0, w, h);
-  const m = w * 0.07, ph = w - 2 * m;                                                          // foto quadrada, borda inferior larga
-  g.fillStyle = '#bfc9c6'; g.fillRect(m, m, ph, ph);                                            // foto desbotada
-  const photo = g.createLinearGradient(0, m, 0, m + ph);
-  photo.addColorStop(0, 'rgba(20,50,70,0.35)'); photo.addColorStop(1, 'rgba(10,20,30,0.15)');
-  g.fillStyle = photo; g.fillRect(m, m, ph, ph);
-  const qs = ph * 0.62, qx = m + (ph - qs) / 2, qy = m + ph * 0.1;
-  qr(g, config.faucetUrl, qx, qy, qs);                                                         // QR (branco/preto, legível)
-  g.fillStyle = '#1b2a38'; g.textAlign = 'center';
-  g.font = 'bold 26px "Space Grotesk",system-ui,sans-serif'; g.fillText('FREE SEPOLIA ETH', w / 2, m + ph * 0.85);
-  g.font = '15px "Fira Code",monospace'; g.fillText('scan  ·  or press [E]', w / 2, m + ph * 0.94);
-  g.fillStyle = '#2a2622'; g.font = 'italic 700 44px "Bradley Hand","Segoe Script","Snell Roundhand",cursive';   // legenda à mão
-  g.fillText('need gas?', w / 2, m + ph + (h - m - ph) * 0.52);
-  for (let i = 0; i < 9; i++) {                                                                // manchas e sujeira
-    g.fillStyle = `rgba(${70 + rand() * 40},${50 + rand() * 30},20,${0.05 + rand() * 0.1})`;
-    g.beginPath(); g.ellipse(rand() * w, rand() * h, 20 + rand() * 60, 10 + rand() * 40, rand() * 3, 0, Math.PI * 2); g.fill();
+  g.fillStyle = PAPER; g.fillRect(0, 0, w, h);                                              // papel envelhecido
+  const tone = g.createLinearGradient(0, 0, 0, h); tone.addColorStop(0, 'rgba(120,90,40,0.18)'); tone.addColorStop(1, 'rgba(60,40,20,0.28)');
+  g.fillStyle = tone; g.fillRect(0, 0, w, h);
+
+  g.fillStyle = INK; g.fillRect(0, 0, w, 54);                                               // faixa superior
+  g.fillStyle = PAPER; g.textBaseline = 'middle'; g.textAlign = 'left'; g.font = `bold 17px ${MONO}`;
+  g.fillText('SEPOLIA TESTNET', M, 28); g.textAlign = 'right'; g.fillText('Nº 11155111', w - M, 28);
+
+  g.textBaseline = 'alphabetic'; g.textAlign = 'left';
+  fit(g, 'FREE', HEAVY, w - 2 * M, 230);                                                    // título gigante
+  g.fillStyle = INK; g.fillText('FREE', M, 250);
+  const px = fit(g, 'GAS', HEAVY, w - 2 * M, 230);
+  g.fillStyle = INK; g.fillText('GAS', M + 7, 250 + px * 0.86 + 5);                          // erro de registro: sombra preta deslocada
+  g.fillStyle = RED; g.fillText('GAS', M, 250 + px * 0.86);
+  const ruleY = 250 + px * 0.86 + 24;
+  g.fillStyle = INK; g.fillRect(M, ruleY, w - 2 * M, 12);                                    // régua grossa
+
+  const qs = 200, qx = M + 10, qy = ruleY + 40;                                              // QR com sombra dura
+  g.fillStyle = INK; g.fillRect(qx + 12, qy + 12, qs + 24, qs + 24);
+  g.fillStyle = '#fff'; g.fillRect(qx, qy, qs + 24, qs + 24);
+  g.strokeStyle = INK; g.lineWidth = 8; g.strokeRect(qx, qy, qs + 24, qs + 24);
+  qr(g, config.faucetUrl, qx + 12, qy + 12, qs);
+
+  const tx = qx + qs + 24 + 40;                                                              // coluna de texto à direita do QR
+  g.fillStyle = INK; g.font = `bold 20px ${MONO}`; g.textAlign = 'left';
+  ['ESCANEIE', 'OU APERTE', '[ E ]'].forEach((t, i) => g.fillText(t, tx, qy + 34 + i * 30));
+  g.fillStyle = RED; g.font = `bold 60px ${HEAVY}`; g.fillText('→', tx, qy + 168);           // seta
+  g.fillStyle = INK; g.save(); g.translate(w - 22, qy + qs + 20); g.rotate(-Math.PI / 2);
+  g.font = `bold 15px ${MONO}`; g.fillText('ETH DE TESTE · 0 CUSTO', 0, 0); g.restore();     // texto vertical
+
+  g.fillStyle = INK; g.fillRect(0, h - 78, w, 78);                                           // faixa inferior
+  g.fillStyle = PAPER; g.textBaseline = 'middle'; g.font = `bold 18px ${MONO}`;
+  g.fillText('cloud.google.com/web3/faucet', M, h - 50); g.font = `15px ${MONO}`; g.fillStyle = RED;
+  g.fillText('FAUCET  ·  GOOGLE  ·  SEPOLIA', M, h - 24); g.textBaseline = 'alphabetic';
+
+  for (let i = 0; i < 520; i++) {                                                            // retícula de pontos (meio-tom) no canto
+    const x = w - 150 + (i % 26) * 6, y = 74 + Math.floor(i / 26) * 6;
+    if (x < w - 8 && y < 150 && rand() > 0.15) { g.fillStyle = `rgba(21,17,14,${0.15 + (y - 74) / 300})`; g.beginPath(); g.arc(x, y, 1.6, 0, Math.PI * 2); g.fill(); }
   }
-  g.strokeStyle = 'rgba(255,255,255,0.35)'; g.lineWidth = 1.5;                                  // vincos e arranhões
-  for (let i = 0; i < 14; i++) { g.beginPath(); const x = rand() * w, y = rand() * h; g.moveTo(x, y); g.lineTo(x + (rand() - 0.5) * 120, y + (rand() - 0.5) * 120); g.stroke(); }
-  g.strokeStyle = 'rgba(0,0,0,0.25)'; g.lineWidth = 2; g.beginPath(); g.moveTo(0, h * 0.5); g.lineTo(w, h * 0.52); g.stroke();
-  g.strokeStyle = 'rgba(255,255,255,0.4)'; g.beginPath(); g.moveTo(0, h * 0.5 + 2); g.lineTo(w, h * 0.52 + 2); g.stroke();
-  const edge = g.createLinearGradient(0, 0, w, 0);                                              // bordas escurecidas
-  edge.addColorStop(0, 'rgba(0,0,0,0.3)'); edge.addColorStop(0.08, 'rgba(0,0,0,0)'); edge.addColorStop(0.92, 'rgba(0,0,0,0)'); edge.addColorStop(1, 'rgba(0,0,0,0.3)');
+  for (let i = 0; i < 10; i++) {                                                             // manchas de umidade
+    g.fillStyle = `rgba(${80 + rand() * 40},${55 + rand() * 30},20,${0.05 + rand() * 0.1})`;
+    g.beginPath(); g.ellipse(rand() * w, rand() * h, 20 + rand() * 70, 10 + rand() * 45, rand() * 3, 0, Math.PI * 2); g.fill();
+  }
+  g.strokeStyle = 'rgba(255,255,255,0.3)'; g.lineWidth = 1.5;                                // arranhões
+  for (let i = 0; i < 16; i++) { g.beginPath(); const x = rand() * w, y = rand() * h; g.moveTo(x, y); g.lineTo(x + (rand() - 0.5) * 140, y + (rand() - 0.5) * 140); g.stroke(); }
+  for (const f of [0.33, 0.66]) {                                                            // dobras do papel
+    g.strokeStyle = 'rgba(0,0,0,0.28)'; g.lineWidth = 2; g.beginPath(); g.moveTo(0, h * f); g.lineTo(w, h * f + 3); g.stroke();
+    g.strokeStyle = 'rgba(255,255,255,0.4)'; g.beginPath(); g.moveTo(0, h * f + 2); g.lineTo(w, h * f + 5); g.stroke();
+  }
+  const edge = g.createLinearGradient(0, 0, w, 0);                                           // bordas gastas
+  edge.addColorStop(0, 'rgba(0,0,0,0.3)'); edge.addColorStop(0.07, 'rgba(0,0,0,0)'); edge.addColorStop(0.93, 'rgba(0,0,0,0)'); edge.addColorStop(1, 'rgba(0,0,0,0.3)');
   g.fillStyle = edge; g.fillRect(0, 0, w, h);
-  g.globalCompositeOperation = 'destination-out';                                              // canto rasgado (recorta o papel)
-  g.beginPath(); g.moveTo(w, 0); g.lineTo(w - 70, 0); g.lineTo(w - 48, 26); g.lineTo(w - 22, 18); g.lineTo(w, 62); g.closePath(); g.fill();
-  g.beginPath(); g.moveTo(0, h); g.lineTo(34, h); g.lineTo(18, h - 24); g.lineTo(0, h - 30); g.closePath(); g.fill();
+  g.globalCompositeOperation = 'destination-out';                                            // cantos rasgados
+  g.beginPath(); g.moveTo(w, 0); g.lineTo(w - 80, 0); g.lineTo(w - 52, 30); g.lineTo(w - 24, 20); g.lineTo(w, 70); g.closePath(); g.fill();
+  g.beginPath(); g.moveTo(0, h); g.lineTo(46, h); g.lineTo(24, h - 30); g.lineTo(0, h - 40); g.closePath(); g.fill();
   g.globalCompositeOperation = 'source-over';
-  g.fillStyle = 'rgba(225,205,120,0.65)';                                                       // fitas adesivas nos cantos
-  g.save(); g.translate(18, 14); g.rotate(-0.6); g.fillRect(-34, -9, 70, 18); g.restore();
-  g.save(); g.translate(w - 90, 12); g.rotate(0.35); g.fillRect(-34, -9, 70, 18); g.restore();
+  g.fillStyle = 'rgba(210,190,110,0.7)';                                                     // fita nos cantos de cima
+  g.save(); g.translate(22, 16); g.rotate(-0.6); g.fillRect(-36, -10, 76, 20); g.restore();
+  g.save(); g.translate(w - 100, 14); g.rotate(0.35); g.fillRect(-36, -10, 76, 20); g.restore();
 }
 
 // Placa de alerta amarela com OVNI raptando uma pessoa.
@@ -210,7 +245,7 @@ export function buildScenery() {
   sign.position.set(-0.1, 3.35, WALL_Z + WALL_D / 2 + 0.01); sign.renderOrder = 4; g.add(sign);
 
   const poster = new THREE.Mesh(new THREE.PlaneGeometry(POSTER.w, POSTER.h),
-    new THREE.MeshBasicMaterial({ map: canvasTex(512, 610, (c, w, h) => paintPoster(c, w, h, drawQr)), transparent: true, alphaTest: 0.5, color: 0xe2deef }));
+    new THREE.MeshBasicMaterial({ map: canvasTex(512, 683, (c, w, h) => paintPoster(c, w, h, drawQr)), transparent: true, alphaTest: 0.5, color: 0xe2deef }));
   poster.name = 'faucet-poster'; poster.rotation.z = -0.045;
   poster.position.set(POSTER.x, POSTER.y, WALL_Z + WALL_D / 2 + 0.012); g.add(poster);
 

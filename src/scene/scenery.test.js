@@ -21,7 +21,7 @@ describe('painted textures', () => {
     expect(() => paintNeon(ctx(), 512, 210)).not.toThrow();
     expect(() => paintUfoSign(ctx(), 256, 230)).not.toThrow();
     let qrArgs = null;
-    expect(() => paintPoster(ctx(), 512, 610, (...a) => { qrArgs = a; }, () => 0.5)).not.toThrow();
+    expect(() => paintPoster(ctx(), 512, 683, (...a) => { qrArgs = a; }, () => 0.5)).not.toThrow();
     expect(qrArgs[1]).toMatch(/^https:\/\/.*faucet.*sepolia/);       // o QR aponta para o faucet da Sepolia
     expect(() => paintSkyline(ctx(), 1024, 256, () => 0.5)).not.toThrow();
   });
