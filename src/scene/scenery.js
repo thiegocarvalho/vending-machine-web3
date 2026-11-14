@@ -33,25 +33,33 @@ export function paintPaving(ctx, w, h, rand = Math.random) {
   for (let i = 0; i <= n; i++) { ctx.beginPath(); ctx.moveTo(i * sw, 0); ctx.lineTo(i * sw, h); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, i * sh); ctx.lineTo(w, i * sh); ctx.stroke(); }
 }
 
-// Rua de asfalto (60 m x 4,8 m): remendos, rachaduras, manchas de óleo, poças, marcas de pneu, faixa central tracejada e bueiros.
-export const ROAD = { z0: 4.2, z1: 9.0, w: 60 };
+export const ROAD = { z0: 4.2, z1: 14.6, w: 60 };           // 10,4 m: duas faixas
+// Rua de asfalto (60 m x 10,4 m, duas faixas): granulado, remendos, rachaduras, óleo, poças, marcas de pneu, linhas de borda,
+// faixa dupla amarela, faixa de pedestres, setas e bueiros. Coordenadas em metros, convertidas para pixels.
 export function paintRoad(g, w, h, rand = Math.random) {
-  g.fillStyle = '#23252e'; g.fillRect(0, 0, w, h);
-  for (let i = 0; i < 2600; i++) { const v = 28 + rand() * 22; g.fillStyle = `rgba(${v},${v},${v + 6},0.55)`; g.fillRect(rand() * w, rand() * h, 1 + rand() * 2, 1 + rand() * 2); }   // granulado
-  for (let i = 0; i < 6; i++) { g.fillStyle = `rgba(14,14,18,${0.25 + rand() * 0.2})`; g.beginPath(); g.ellipse(rand() * w, rand() * h, 30 + rand() * 90, 6 + rand() * 18, rand(), 0, Math.PI * 2); g.fill(); }   // remendos/óleo
-  g.strokeStyle = 'rgba(8,8,10,0.6)'; g.lineWidth = 1.5;                                        // rachaduras
-  for (let i = 0; i < 14; i++) { let x = rand() * w, y = rand() * h; g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 6; k++) { x += (rand() - 0.3) * 30; y += (rand() - 0.5) * 14; g.lineTo(x, y); } g.stroke(); }
-  g.fillStyle = 'rgba(8,8,12,0.22)'; g.fillRect(0, h * 0.2, w, h * 0.09); g.fillRect(0, h * 0.34, w, h * 0.09);      // marcas de pneu
-  g.fillRect(0, h * 0.62, w, h * 0.09); g.fillRect(0, h * 0.76, w, h * 0.09);
-  g.fillStyle = '#d9d9c8';                                                                       // faixa central tracejada
-  for (let x = 20; x < w; x += 110) g.fillRect(x, h * 0.5 - 3, 62, 6);
-  g.fillStyle = '#0d0e14'; g.fillRect(0, 0, w, h * 0.07);                                        // sarjeta escura junto ao meio-fio
+  const mx = w / ROAD.w, mz = h / (ROAD.z1 - ROAD.z0), X = (x) => (x + ROAD.w / 2) * mx, Zm = (z) => z * mz;
+  g.fillStyle = '#24262f'; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 16000; i++) { const v = 28 + rand() * 24; g.fillStyle = `rgba(${v},${v},${v + 6},0.55)`; g.fillRect(rand() * w, rand() * h, 1 + rand() * 2, 1 + rand() * 2); }   // granulado
+  for (let i = 0; i < 18; i++) { g.fillStyle = `rgba(14,14,18,${0.2 + rand() * 0.2})`; g.beginPath(); g.ellipse(rand() * w, rand() * h, 30 + rand() * 120, 8 + rand() * 24, rand(), 0, Math.PI * 2); g.fill(); }   // remendos/óleo
+  g.fillStyle = 'rgba(8,8,12,0.2)';                                                              // marcas de pneu (duas por faixa)
+  for (const z of [1.7, 2.3, 3.3, 3.9, 6.4, 7.0, 8.1, 8.7]) g.fillRect(0, Zm(z), w, mz * 0.35);
+  g.strokeStyle = 'rgba(8,8,10,0.6)'; g.lineWidth = 1.6;                                        // rachaduras
+  for (let i = 0; i < 40; i++) { let x = rand() * w, y = rand() * h; g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 7; k++) { x += (rand() - 0.3) * 40; y += (rand() - 0.5) * 18; g.lineTo(x, y); } g.stroke(); }
+  g.fillStyle = '#0d0e14'; g.fillRect(0, 0, w, Zm(0.45)); g.fillRect(0, h - Zm(0.45), w, Zm(0.45));   // sarjetas
+  g.fillStyle = 'rgba(225,225,210,0.8)'; g.fillRect(0, Zm(0.75), w, mz * 0.12); g.fillRect(0, h - Zm(0.87), w, mz * 0.12);   // linhas de borda
+  g.fillStyle = '#d9b82e'; const mid = h / 2;                                                   // faixa dupla amarela
+  g.fillRect(0, mid - mz * 0.17, w, mz * 0.1); g.fillRect(0, mid + mz * 0.07, w, mz * 0.1);
+  g.fillStyle = 'rgba(225,225,210,0.85)';                                                       // faixa de pedestres: listras paralelas ao tráfego, de um meio-fio ao outro
+  for (let z = 1.0; z + 0.5 <= (ROAD.z1 - ROAD.z0) - 0.9; z += 0.95) g.fillRect(X(-9.5), Zm(z), mx * 4.2, mz * 0.5);
+  const arrow = (x, z, dir) => { g.save(); g.translate(X(x), Zm(z)); g.scale(dir, 1); g.beginPath();   // seta de sentido
+    g.moveTo(mx * 1.1, 0); g.lineTo(0, -mz * 0.7); g.lineTo(0, -mz * 0.25); g.lineTo(-mx * 1.1, -mz * 0.25); g.lineTo(-mx * 1.1, mz * 0.25); g.lineTo(0, mz * 0.25); g.lineTo(0, mz * 0.7); g.closePath(); g.fill(); g.restore(); };
+  g.fillStyle = 'rgba(225,225,210,0.7)'; arrow(5, 2.6, -1); arrow(-14, 2.6, -1); arrow(6, 7.7, 1); arrow(-13, 7.7, 1);
   g.fillStyle = 'rgba(120,130,190,0.14)';                                                        // poças que refletem a luz
-  for (let i = 0; i < 5; i++) { g.beginPath(); g.ellipse(rand() * w, h * (0.25 + rand() * 0.5), 40 + rand() * 60, 8 + rand() * 10, 0, 0, Math.PI * 2); g.fill(); }
-  for (const bx of [w * 0.28, w * 0.7]) {                                                        // bueiros
-    g.fillStyle = '#0a0b0f'; g.beginPath(); g.arc(bx, h * 0.62, 14, 0, Math.PI * 2); g.fill();
+  for (let i = 0; i < 14; i++) { g.beginPath(); g.ellipse(rand() * w, h * (0.15 + rand() * 0.7), 50 + rand() * 90, 8 + rand() * 12, 0, 0, Math.PI * 2); g.fill(); }
+  for (const [bx, bz] of [[3, 3.2], [-4, 7.4], [14, 2.8], [-17, 7.2]]) {                         // bueiros
+    g.fillStyle = '#0a0b0f'; g.beginPath(); g.arc(X(bx), Zm(bz), mx * 0.38, 0, Math.PI * 2); g.fill();
     g.strokeStyle = '#3a3d4a'; g.lineWidth = 2; g.stroke();
-    g.beginPath(); g.moveTo(bx - 10, h * 0.62); g.lineTo(bx + 10, h * 0.62); g.moveTo(bx, h * 0.62 - 10); g.lineTo(bx, h * 0.62 + 10); g.stroke();
+    g.beginPath(); g.moveTo(X(bx) - mx * 0.28, Zm(bz)); g.lineTo(X(bx) + mx * 0.28, Zm(bz)); g.moveTo(X(bx), Zm(bz) - mx * 0.28); g.lineTo(X(bx), Zm(bz) + mx * 0.28); g.stroke();
   }
 }
 
@@ -209,10 +217,12 @@ export function paintSkyline(g, w, h, rand = Math.random) {
 
 // Parede de tijolos atrás da máquina, até o horizonte (a névoa esconde o fim). Fonte única para geometria e colisão.
 const WALL_H = 4.5, WALL_W = 60, WALL_Z = -0.8, WALL_D = 0.6;
+const CAR1 = { x: 4.6, z: 6.4 };                                       // carro estacionado na faixa de perto (sólido)
 export const SCENERY_COLLIDERS = [
   { minX: -WALL_W / 2, maxX: WALL_W / 2, minZ: WALL_Z - WALL_D / 2, maxZ: WALL_Z + WALL_D / 2 },
   { minX: POST.x - 0.15, maxX: POST.x + 0.15, minZ: POST.z - 0.15, maxZ: POST.z + 0.15 },
-  { minX: SIGN.x - 0.3, maxX: SIGN.x + 0.3, minZ: SIGN.z - 0.3, maxZ: SIGN.z + 0.3 }
+  { minX: SIGN.x - 0.3, maxX: SIGN.x + 0.3, minZ: SIGN.z - 0.3, maxZ: SIGN.z + 0.3 },
+  { minX: CAR1.x - 2.15, maxX: CAR1.x + 2.15, minZ: CAR1.z - 0.95, maxZ: CAR1.z + 0.95 }
 ];
 
 // Textura de tijolos (1 tile = 2,0 m x 0,8 m: 4 tijolos x 4 fiadas), repetida pela parede.
@@ -245,8 +255,8 @@ export function buildScenery() {
     m.rotation.x = -Math.PI / 2; m.position.set(x, y, z); g.add(m); return m;
   };
   const near = flat(60, 4.5, 0, 1.75, 0, pave, 0xa0a8c4);                       // calçada z -0.5..4.0
-  const farWalk = flat(60, 21, 0, 19.7, 0, pave.clone(), 0x8890ac); farWalk.material.map.repeat.set(30, 10.5); farWalk.material.map.needsUpdate = true;
-  const roadTex = canvasTex(1024, 128, (c, w, h) => paintRoad(c, w, h));
+  const farWalk = flat(60, 16, 0, ROAD.z1 + 0.2 + 8, 0, pave.clone(), 0x8890ac); farWalk.material.map.repeat.set(30, 8); farWalk.material.map.needsUpdate = true;
+  const roadTex = canvasTex(4096, 512, (c, w, h) => paintRoad(c, w, h));
   roadTex.anisotropy = 8;
   flat(ROAD.w, ROAD.z1 - ROAD.z0, 0, (ROAD.z0 + ROAD.z1) / 2, -0.15, roadTex, 0xd2d6ec);
 
@@ -264,12 +274,23 @@ export function buildScenery() {
   b.add(1.0, 0.1, 0.1, 0x232b3c, 0.8, POST.x - 0.45, POST.h - 0.05, POST.z);
   b.add(0.55, 0.1, 0.3, 0x2c3650, 0.9, POST.x - 0.95, POST.h - 0.05, POST.z);
   b.add(60, 0.15, 0.2, 0x8a93a8, 0.9, 0, -0.075, 4.1);                         // meio-fio (lado da calçada)
-  b.add(60, 0.15, 0.2, 0x8a93a8, 0.9, 0, -0.075, 9.1);                         // meio-fio (outro lado)
+  b.add(60, 0.15, 0.2, 0x8a93a8, 0.9, 0, -0.075, ROAD.z1 + 0.1);                         // meio-fio (outro lado)
   b.add(0.6, 0.55, 0.6, 0x7a8294, 0.8, SIGN.x, 0.275, SIGN.z);                 // bloco de concreto
   b.add(0.07, 2.4, 0.07, 0x20262f, 0.8, SIGN.x, 1.75, SIGN.z);                 // haste da placa
   b.add(0.1, 0.1, 0.12, 0x4a4f5a, 0.7, -1.9, 0.05, 2.2); b.add(0.1, 0.1, 0.1, 0x6a5a4a, 0.7, 2.0, 0.05, 2.7);   // latas no chão
   b.add(0.1, 0.1, 0.1, 0x4a4f5a, 0.7, 0.9, 0.05, 3.1);
-  g.add(b.build());
+  const lit = createBatch({ flat: true });                                    // luzes acesas dos carros
+  const car = (x, z, body, glass) => {                                        // carro low-poly, frente para +x
+    b.add(4.3, 0.55, 1.85, body, 0.9, x, 0.62, z);                            // carroceria
+    b.add(2.2, 0.55, 1.65, glass, 0.8, x - 0.25, 1.17, z);                    // cabine envidraçada
+    b.add(1.8, 0.06, 1.5, body, 0.9, x - 0.25, 1.48, z);                      // teto
+    for (const dx of [-1.4, 1.4]) for (const dz of [-0.82, 0.82]) b.add(0.72, 0.72, 0.26, 0x08090c, 0.6, x + dx, 0.36, z + dz);   // rodas
+    for (const dz of [-0.62, 0.62]) { lit.add(0.06, 0.14, 0.4, 0xfff0c8, 1, x + 2.17, 0.7, z + dz); lit.add(0.06, 0.12, 0.4, 0xff2a2a, 1, x - 2.17, 0.74, z + dz); }
+  };
+  car(CAR1.x, CAR1.z, 0x2a3552, 0x131c2c);
+  car(-8.5, 12.9, 0x4a4f5e, 0x161d2a);                                         // carro distante, outro lado da rua (não alcançável)
+  car(9.5, 13.0, 0x3a2a4a, 0x161d2a);
+  g.add(b.build()); g.add(lit.build());
 
   const wall = new THREE.Mesh(new THREE.PlaneGeometry(WALL_W, WALL_H),
     new THREE.MeshBasicMaterial({ map: canvasTex(256, 128, (c, w, h) => paintBricks(c, w, h), { repeat: [WALL_W / 2.0, WALL_H / 0.8] }), color: 0x9a96b0 }));
@@ -301,11 +322,12 @@ export function buildScenery() {
   const sky = new THREE.Mesh(new THREE.PlaneGeometry(220, 55),
     new THREE.MeshBasicMaterial({ map: canvasTex(1024, 256, (c, w, h) => paintSkyline(c, w, h)), fog: false }));
   sky.position.set(0, 20, -40); g.add(sky);
+  const sky2 = sky.clone(); sky2.position.set(0, 20, 45); sky2.rotation.y = Math.PI; g.add(sky2);       // fundo do outro lado da rua
   return g;
 }
 
 export function addLighting(scene) {
   // Sem luzes dinâmicas: a iluminação está assada nas cores (baked.js) e no chão; só névoa e fundo.
-  scene.fog = new THREE.Fog(FOG, 7, 20);
+  scene.fog = new THREE.Fog(FOG, 9, 28);
   scene.background = new THREE.Color(FOG);
 }
