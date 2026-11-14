@@ -49,7 +49,7 @@ export function createMachineScreen(screenMesh) {
   }
 
   // state: idle | select | awaiting | sent | confirmed | error
-  function draw({ state = 'idle', slot = '', name = '', price = '', stock, qrText = '', message = '', hover = false, wallet = 'ok' } = {}) {
+  function draw({ state = 'idle', slot = '', name = '', price = '', stock, soldOut = false, qrText = '', message = '', hover = false, wallet = 'ok' } = {}) {
     paintLcdBackground(ctx, SCREEN_W, SCREEN_H);
     if (state === 'idle') {
       line('DEFI', 96, 8); line('VENDING', 168, 3); line('MACHINE', 196, 3);
@@ -57,9 +57,8 @@ export function createMachineScreen(screenMesh) {
     } else if (state === 'select') {
       line(slot, 40, 9);
       lines(name, 130, 3, 14);
-      line(price, 214, 4);
-      if (stock !== undefined) line(stock <= 0 ? 'ESGOTADO' : `ESTOQUE ${stock}/100`, 262, 2);
-      line('CONFIRME PARA PAGAR', 330, 2);
+      if (soldOut) { line('ESGOTADO', 206, 5); line('INDISPONIVEL', 330, 2); }
+      else { line(price, 214, 4); if (stock !== undefined) line(`ESTOQUE ${stock}/100`, 262, 2); line('CONFIRME PARA PAGAR', 330, 2); }
     } else if (state === 'awaiting') {
       line(`${slot} · ${price}`, 14, 2);
       if (qrText) drawQr(ctx, qrText, 28, 36, 200, QR_COLORS); else line('MODO DEMO', 130, 3);

@@ -7,6 +7,7 @@ import { createRig } from './player/rig.js';
 import { createSpotlight, approach as approachNum } from './scene/spotlight.js';
 import { populateCards, loadFullTexture, loadBackTexture } from './scene/cards.js';
 import { createCardViewer } from './scene/cardViewer.js';
+import { createPriceTags } from './scene/priceTags.js';
 import { createInventory, isAddress } from './data/inventory.js';
 import { createInventoryPanel } from './hud/inventory.js';
 import { loadCardsInfo, loadPaused } from './data/chain.js';
@@ -73,6 +74,9 @@ const viewer = createCardViewer();
 let infos = await loadCardsInfo();
 const cardsApi = populateCards(machine.slotAnchors, infos, tier);
 cardsApi.done.then(() => { loading = false; wake(); });
+machine.group.updateMatrixWorld(true);
+const tags = createPriceTags(machine.slotAnchors, infos);                       // etiquetas de preço (ETH) à frente de cada card
+scene.add(tags.mesh);
 window.__game = { get state() { return { loopRuns, rafId, loading, activeUntil, now: performance.now(), hidden: document.hidden, mode: modes.mode }; }, renderer, scene, camera, machine, controls, cardsApi, selection, tier, adaptive, wake, modes, rig, hud };
 
 const priceText = (i) => `${formatEther(infos[i - 1].price)} ETH`;
@@ -100,6 +104,14 @@ const payPose = () => ({ x: PANEL.screen.x, y: (PANEL.led.y + PANEL.screen.y) / 
 // ---------- painel LED e telinha ----------
 // Painel LED vermelho: só o estado do contrato (DISPONIVEL / INDISPONIVEL quando pausado). Relido ao entrar na máquina e ao voltar para a aba.
 let paused = false;
+const isSoldOut = (i) => !i || i.stock <= 0 || !i.active;
+// Estoque/preço/ativo vêm do contrato: relidos ao entrar na máquina, ao voltar à aba e antes de pagar (outros jogadores também compram).
+async function refreshInfos() {
+  if (config.demoMode) return;                                                   // demo: o estoque simulado é local
+  try { infos = await loadCardsInfo(); } catch { return; }
+  infos.forEach((inf, i) => cardsApi.setSoldOut(i + 1, isSoldOut(inf)));
+  tags.update(infos); refresh(); wake();
+}
 async function refreshAvailability() {
   try { paused = await loadPaused(); } catch { /* mantém o último estado conhecido */ }
   machine.led.setText(paused ? 'INDISPONIVEL' : 'DISPONIVEL'); wake();
@@ -107,7 +119,7 @@ async function refreshAvailability() {
 function drawScreen(args = screenArgs) {
   screenArgs = args;
   const id = selection.id, meta = cardsApi.metas[id - 1];
-  screen.draw({ slot: cardIdToSlot(id).label, name: meta?.name?.replace(/^Card #\d+:\s*/, '') ?? '', price: priceText(id), stock: infos[id - 1].stock,
+  screen.draw({ slot: cardIdToSlot(id).label, name: meta?.name?.replace(/^Card #\d+:\s*/, '') ?? '', price: priceText(id), stock: infos[id - 1].stock, soldOut: isSoldOut(infos[id - 1]),
     hover: hoverBtn, wallet: hasWallet(window) ? 'ok' : 'none', ...args });
   wake();
 }
@@ -135,6 +147,7 @@ function onConfirmed(id, hash, buyer) {
   stopWatcher();
   infos[id - 1] = { ...infos[id - 1], stock: infos[id - 1].stock - 1 };
   if (infos[id - 1].stock <= 0) cardsApi.setSoldOut(id, true);
+  tags.update(infos);
   setState('confirmed', { hash }); busy = false;
   if (buyer && !inventory.address) inventory.setAddress(buyer, 'manual');        // pagou por QR (sem extensão): o comprador do evento vira o endereço consultado
   inventory.add(id);
@@ -155,6 +168,8 @@ async function payNow() {
   if (busy) return;
   if (paused) return setState('error', { message: 'Máquina indisponível: contrato pausado.' });
   busy = true;
+  await refreshInfos();                                                          // estoque mais recente antes de gastar gás
+  if (isSoldOut(infos[selection.id - 1])) { busy = false; return setState('error', { message: 'Card esgotado.' }); }
   const id = selection.id, info = infos[id - 1];
   try {
     setState('awaiting');
@@ -283,7 +298,7 @@ modes.onChange((mode) => {
     stopWatcher(); highlight.setVisible(false); spot.setOn(false); controls.setEnabled(false); pendingWalk = true;
     rig.flyTo(walkPose(), 600); drawScreen({ state: 'idle' });
   } else if (mode === 'select') {
-    refreshAvailability(); stopWatcher(); busy = false; controls.setEnabled(false); highlight.setVisible(true); spot.setOn(true);
+    refreshMachine(); stopWatcher(); busy = false; controls.setEnabled(false); highlight.setVisible(true); spot.setOn(true);
     rig.flyTo(selectPose(selection.id), 650); refresh();
   } else if (mode === 'pay') {
     spot.setOn(false); rig.flyTo(payPose(), 550); startPayment();
@@ -291,7 +306,8 @@ modes.onChange((mode) => {
 });
 hud.setMode('walk');
 refresh(); refreshAvailability();
-window.addEventListener('focus', refreshAvailability); document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshAvailability(); });
+const refreshMachine = () => { refreshAvailability(); refreshInfos(); };
+window.addEventListener('focus', refreshMachine); document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshMachine(); });
 
 function tryConfirm() {
   if (paused) return hud.setStatus('Máquina indisponível no momento (contrato pausado).', { error: true });
