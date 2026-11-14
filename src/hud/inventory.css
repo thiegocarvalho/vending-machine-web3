@@ -72,6 +72,13 @@
 .inv-cell.sel::after{content:'';position:absolute;inset:3px;border:1px solid rgba(255,255,255,.55);pointer-events:none}
 .inv-empty{grid-column:1/-1;font-size:13px;line-height:1.45;color:var(--dim);padding:2px 2px 8px}
 
+/* card recém-adquirido */
+.inv-cell.new::after{content:'NOVO';position:absolute;left:0;top:0;padding:2px 6px;background:#fff;color:#0a0d1c;font:700 9px 'Fira Code',monospace;letter-spacing:.14em;text-shadow:none;border:0;inset:auto;animation:pop 1.2s ease-in-out infinite}
+.inv-cell.new{border-color:#fff;box-shadow:0 0 16px rgba(255,255,255,.5)}
+.inv-cell.new .lbl{top:18px}
+@keyframes pop{50%{opacity:.55}}
+.inv-detail .fresh{font:700 11px 'Fira Code',monospace;letter-spacing:.22em;padding:4px 10px;background:#fff;color:#0a0d1c;text-shadow:none;margin-bottom:6px;animation:pop 1.2s ease-in-out infinite}
+
 /* detalhe do card selecionado, canto inferior direito */
 .inv-detail{position:absolute;right:clamp(18px,4vw,60px);bottom:calc(28px + env(safe-area-inset-bottom,0px));max-width:min(440px,52vw);text-align:right;display:flex;flex-direction:column;gap:2px;align-items:flex-end}
 .inv-detail .owned{font:600 13px 'Fira Code',monospace;letter-spacing:.18em;padding:3px 10px;background:var(--accent);color:#fff;text-shadow:none;margin-bottom:6px}

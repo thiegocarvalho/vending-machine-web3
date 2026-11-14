@@ -55,7 +55,6 @@ const camera = new THREE.PerspectiveCamera(65, 1, 0.1, 100);
 addLighting(scene);
 const sceneryGroup = buildScenery(tier);
 scene.add(sceneryGroup);
-const poster = sceneryGroup.getObjectByName('faucet-poster');
 const machine = buildMachine();
 scene.add(machine.group);
 const controls = createControls(camera, canvas, { colliders: [...SCENERY_COLLIDERS, MACHINE_COLLIDER] });
@@ -127,31 +126,21 @@ cardsApi.onLoaded((id) => { wake(); if (id === selection.id) refresh(); });
 function setState(state, { message = '', hash } = {}) {
   const qrText = state === 'awaiting' ? buildEip681(contractForQr, config.chainId, selection.id, infos[selection.id - 1].price) : '';
   drawScreen({ state, message, qrText });
-  hud.setStatus({ awaiting: '', sent: 'Transação enviada, aguardando bloco…', confirmed: 'ADQUIRIDO! Aperte I para ver no inventário.', error: message, idle: '', select: '' }[state] ?? '',
+  hud.setStatus({ awaiting: '', sent: 'Transação enviada, aguardando bloco…', confirmed: 'ADQUIRIDO! Abrindo o seu inventário…', error: message, idle: '', select: '' }[state] ?? '',
     { error: state === 'error', hash });
 }
 
-function dropCard(id) {
-  wake(5000);
-  const src = cardsApi.cards[id - 1];
-  const copy = src.clone(); copy.material = src.material;
-  scene.add(copy);
-  src.getWorldPosition(copy.position); const t0 = performance.now(), from = copy.position.clone();
-  const to = machine.trayAnchor.getWorldPosition(new THREE.Vector3());
-  (function step(now) {
-    const k = Math.min(1, (now - t0) / 900); copy.position.lerpVectors(from, to, k * k);
-    k < 1 ? requestAnimationFrame(step) : setTimeout(() => scene.remove(copy), 4000);
-  })(t0);
-}
 
 function stopWatcher() { watcher?.stop(); watcher = null; }
-function onConfirmed(id, hash) {
+function onConfirmed(id, hash, buyer) {
   stopWatcher();
   infos[id - 1] = { ...infos[id - 1], stock: infos[id - 1].stock - 1 };
   if (infos[id - 1].stock <= 0) cardsApi.setSoldOut(id, true);
-  setState('confirmed', { hash }); machine.led.setText('OK'); dropCard(id); busy = false;
-  inventory.add(id); if (!config.demoMode) inventory.refresh().catch(() => {});                 // saldo novo no inventário (I)
-  setTimeout(() => { if (modes.mode === 'pay') modes.back(); }, 2200);
+  setState('confirmed', { hash }); machine.led.setText('OK'); busy = false;
+  if (buyer && !inventory.address) inventory.setAddress(buyer, 'manual');        // pagou por QR (sem extensão): o comprador do evento vira o endereço consultado
+  inventory.add(id);
+  // Depois do "PAGO!" na telinha, abre o inventário já no card recém-adquirido (em vez de animação de queda na bandeja).
+  setTimeout(() => { if (modes.mode === 'pay' && !invOpen) openInventory({ fresh: id }); }, 1300);
 }
 
 function startPayment() {
@@ -159,7 +148,7 @@ function startPayment() {
   setState('awaiting');
   if (!config.demoMode) import('./payment/watcher.js').then(({ watchPurchase }) => {
     if (modes.mode !== 'pay' || selection.id !== id) return;
-    stopWatcher(); watcher = watchPurchase(id); watcher.on(({ hash }) => onConfirmed(id, hash));
+    stopWatcher(); watcher = watchPurchase(id); watcher.on(({ hash, buyer }) => onConfirmed(id, hash, buyer));
   });
 }
 
@@ -183,7 +172,7 @@ async function payNow() {
 }
 
 // ---------- inventário (tecla I) ----------
-let invOpen = false, invSel = 0, invPrevEnabled = true;
+let invOpen = false, invSel = 0, invPrevEnabled = true, invFresh = 0;
 const fullCache = new Map();                                                    // id -> textura em alta (LRU de 3)
 const session = createWalletSession({ cfg: config });
 let connecting = false, walletChain = null, walletError = '';
@@ -263,21 +252,24 @@ async function ensureBack() {                                                   
   try { backTex = await loadBackTexture(meta, { aniso: tier.aniso }); viewer.setBack(backTex); wake(); } catch { /* fica o verso desenhado */ }
   backLoading = false;
 }
-async function openInventory() {
-  if (invOpen || rig.active || modes.mode === 'pay') return;
+async function openInventory({ fresh = 0 } = {}) {
+  if (invOpen || (rig.active && !fresh) || (modes.mode === 'pay' && !fresh)) return;
   invOpen = true; invPrevEnabled = controls.enabled; controls.setEnabled(false);
   hud.el.style.display = 'none'; canvas.style.cursor = 'default';
-  layoutViewer(); viewer.attach(canvas, () => wake(400)); invPanel.open(); paintInventory(); wake(600); ensureBack();
+  invFresh = fresh; invSel = fresh || invSel;                                    // compra nova: já seleciona e destaca o card adquirido
+  layoutViewer(); viewer.attach(canvas, () => wake(400)); invPanel.open(); invPanel.setNew(fresh); paintInventory(); wake(600); ensureBack();
   if (!config.demoMode) {                                                        // reconcilia com a carteira sem abrir pop-up
     const a = await session.silentAccount();
     if (a && (!inventory.address || inventory.source === 'wallet')) inventory.setAddress(a, 'wallet');
     else if (!a && inventory.source === 'wallet') inventory.setAddress(null);   // a carteira revogou o acesso
   }
   await refreshInventory();
+  if (fresh && inventory.balances[fresh - 1] > 0) selectInv(fresh);              // compra nova: mostra o card adquirido em 3D
 }
 function closeInventory() {
   if (!invOpen) return;
-  invOpen = false; viewer.detach(); invPanel.close(); hud.el.style.display = '';
+  invOpen = false; viewer.detach(); invPanel.close(); invPanel.setNew(0); invFresh = 0; hud.el.style.display = '';
+  if (modes.mode === 'pay') modes.back();                                        // veio da compra: volta à seleção de cards
   if (modes.mode === 'walk' && invPrevEnabled) controls.setEnabled(true);
   wake(800);
 }
@@ -366,13 +358,7 @@ canvas.addEventListener('pointermove', (e) => {
 canvas.addEventListener('pointerup', (e) => {
   if (invOpen) return;
   if (rig.active || controls.moved > 8) return;
-  if (modes.mode === 'walk') {                                   // clicar no cartaz abre o faucet (com a mira travada, vale o centro da tela)
-    const locked = document.pointerLockElement === canvas;
-    cast(locked ? { clientX: innerWidth / 2, clientY: innerHeight / 2 } : e);
-    const hit = ray.intersectObject(poster, false)[0];
-    if (hit && hit.distance < 4.5) openFaucet();
-    return;
-  }
+  if (modes.mode === 'walk') return;                              // andando, o clique não faz nada (o cartaz abre só por E / botão do celular)
   if (modes.mode === 'select') {
     cast(e); const id = pickCard(ray, cardsApi.cards);
     if (!id) return;

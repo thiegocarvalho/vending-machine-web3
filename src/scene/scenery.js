@@ -238,8 +238,6 @@ export function buildScenery({ aniso = 4, roadPx = 4096 } = {}) {
   b.add(0.55, 0.1, 0.3, 0x2c3650, 0.9, POST.x - 0.95, POST.h - 0.05, POST.z);
   b.add(60, 0.15, 0.2, 0x8a93a8, 0.9, 0, -0.075, 4.1);                         // meio-fio (lado da calçada)
   b.add(60, 0.15, 0.2, 0x8a93a8, 0.9, 0, -0.075, ROAD.z1 + 0.1);                         // meio-fio (outro lado)
-  b.add(0.1, 0.1, 0.12, 0x4a4f5a, 0.7, -1.9, 0.05, 2.2); b.add(0.1, 0.1, 0.1, 0x6a5a4a, 0.7, 2.0, 0.05, 2.7);   // latas no chão
-  b.add(0.1, 0.1, 0.1, 0x4a4f5a, 0.7, 0.9, 0.05, 3.1);
   g.add(b.build());
 
   const wall = new THREE.Mesh(new THREE.PlaneGeometry(WALL_W, WALL_H),

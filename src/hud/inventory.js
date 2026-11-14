@@ -26,7 +26,7 @@ export function createInventoryPanel(root, cb) {
       <div class="inv-grid"></div>
     </div>
     <div class="inv-detail">
-      <div class="owned"></div><div class="slot"></div><h3></h3><p class="bal"></p>
+      <div class="fresh" hidden>ADQUIRIDO AGORA</div><div class="owned"></div><div class="slot"></div><h3></h3><p class="bal"></p>
       <span class="loading">carregando arte completa…</span>
     </div>`;
   root.appendChild(el);
@@ -105,6 +105,11 @@ export function createInventoryPanel(root, cb) {
     setThumb(id, srcCanvas) {
       const g = cells[id - 1].c.getContext('2d'); g.save(); g.translate(0, 120); g.scale(1, -1);
       try { g.drawImage(srcCanvas, 0, 0, 90, 120); } catch { /* textura ainda não carregada */ } g.restore();
+    },
+    // destaca o card recém-adquirido (faixa "NOVO" na célula e selo no detalhe); 0 limpa
+    setNew(id) {
+      cells.forEach(({ b }, i) => b.classList.toggle('new', i + 1 === id));
+      q('.fresh').hidden = !id;
     },
     setLoading(on) { q('.loading').classList.toggle('on', !!on); }
   };
