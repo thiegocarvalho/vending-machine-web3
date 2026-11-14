@@ -104,15 +104,10 @@ export function paintPoster(g, w, h, qr = () => 0, rand = Math.random) {
   g.fillStyle = INK; g.fillRect(qx + box, qy + 12, 12, box); g.fillRect(qx + 12, qy + box, box, 12);   // sombra dura (direita e abaixo)
   g.strokeStyle = INK; g.lineWidth = 8; g.strokeRect(qx - 4, qy - 4, box + 8, box + 8);
 
-  const tx = qx + box + 40, tw = w - tx - M - 26;                                            // coluna de texto
-  g.fillStyle = INK; g.textAlign = 'left';
-  g.font = `bold 27px ${MONO}`; g.fillText('ESCANEIE', tx, qy + 34);
-  g.font = `bold 22px ${MONO}`; g.fillText('OU APERTE', tx, qy + 66);
-  g.lineWidth = 4; g.strokeStyle = INK; g.strokeRect(tx, qy + 82, 70, 46);                    // tecla [E]
-  g.font = `bold 34px ${MONO}`; g.textAlign = 'center'; g.fillText('E', tx + 35, qy + 117); g.textAlign = 'left';
-  stretch(g, '←', tx, qy + box - 6, 96, Math.min(tw, 120), RED);
-  g.save(); g.translate(w - 14, qy + box); g.rotate(-Math.PI / 2); g.fillStyle = INK;         // texto vertical (sem sair da área)
-  g.font = `bold 16px ${MONO}`; g.fillText('ETH DE TESTE · CUSTO ZERO', 0, 0); g.restore();
+  const tx = qx + box + 36, tw = w - tx - M;                                                 // coluna de texto (sem instruções de teclado)
+  const lines = [['ETH', INK], ['DE TESTE', INK], ['CUSTO', INK], ['ZERO', RED]];
+  const lh = box / lines.length;
+  lines.forEach(([t, c], i) => stretch(g, t, tx, qy + lh * (i + 1) - lh * 0.18, lh * 0.9, tw * (t === 'DE TESTE' ? 1 : 0.8), c));
 
   g.fillStyle = INK; g.fillRect(0, h - FOOT, w, FOOT);                                       // faixa inferior
   g.fillStyle = PAPER; g.textBaseline = 'middle'; g.font = `bold 21px ${MONO}`;
