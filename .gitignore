@@ -1,5 +1,8 @@
 node_modules/
 dist/
 .env
+.env.development
+.env.local
+.env.*.local
 public/dev-images
 public/dev-metadata
