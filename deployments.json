@@ -12,5 +12,14 @@
       "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
       "note": "deploy de limpeza (abandonado)"
     }
+  ],
+  "sepolia": [
+    {
+      "address": "0x80F3Ace1F4e3eA3Ae4E42F893c885CD927c0634d",
+      "tx": "0x479c0cac43982f8616b0af3f551e05603ac12a631e48ab284cdbbba58abd4e75",
+      "block": 12135409,
+      "deployer": "0xa78276259faC49aF008Be85D855e0Cb0F1aD9433",
+      "note": "deploy oficial (pela página de deploy com a carteira do navegador)"
+    }
   ]
 }
