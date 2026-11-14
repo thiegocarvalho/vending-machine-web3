@@ -251,6 +251,12 @@ export function paintSkyline(g, w, h, rand = seeded(7)) {
     haze.addColorStop(0, 'rgba(110,60,120,0)'); haze.addColorStop(1, `rgba(140,70,120,${0.5 - li * 0.18})`);
     g.fillStyle = haze; g.fillRect(0, 0, w, h);
   });
+  // Banco de névoa na base: o horizonte se dissolve na cor da neblina do chão (sem corte entre o que é desenhado e o que não é).
+  // No plano de 55 m, o nível do chão fica em ~86% da altura da textura.
+  const bank = g.createLinearGradient(0, h * 0.45, 0, h);
+  bank.addColorStop(0, 'rgba(110,62,128,0)'); bank.addColorStop(0.35, 'rgba(78,50,112,0.22)');
+  bank.addColorStop(0.62, 'rgba(34,32,66,0.6)'); bank.addColorStop(0.78, 'rgba(20,26,46,0.95)'); bank.addColorStop(1, 'rgba(20,26,46,1)');
+  g.fillStyle = bank; g.fillRect(0, 0, w, h);
 }
 
 // Parede de tijolos atrás da máquina, até o horizonte (a névoa esconde o fim). Fonte única para geometria e colisão.
