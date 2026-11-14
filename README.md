@@ -57,8 +57,8 @@ Contratos/
 ├── test/                          # Suíte de testes unitários de regras de negócio
 │   └── vending_machine.test.js
 ├── metadata/                      # 30 JSONs de metadados prontos para IPFS ({id}.json)
-└── scripts/                       # Scripts auxiliares (geração de metadados)
-    └── generate_metadata.js
+├── scripts/                       # Metadados, upload no Pinata, carteira e deploy seguro (veja docs/DEPLOY.md)
+└── game/                          # Jogo 3D (Vite + Three.js), publicado no GitHub Pages (veja game/README.md)
 ```
 
 ---

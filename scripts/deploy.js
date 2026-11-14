@@ -13,7 +13,7 @@ const { readParams, validateParams, resolveNetwork } = require('./lib/params');
 const { checkMetadata } = require('./lib/preflight');
 
 const ROOT = path.resolve(__dirname, '..');
-const GAME_DIR = process.env.GAME_DIR || path.resolve(ROOT, '../Contratos-3D');
+const GAME_DIR = process.env.GAME_DIR || path.resolve(ROOT, 'game');
 const flag = (name) => process.env[name] === '1';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const fmt = (wei) => `${hre.ethers.formatEther(wei)} ETH`;

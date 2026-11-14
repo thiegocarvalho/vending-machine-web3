@@ -14,10 +14,10 @@ A chave privada **nunca** vai no chat nem em arquivo `.env`: ela fica num keysto
 `npm run deploy:dry` mostra rede, quem assina, dono, royalties, preço, custo estimado e saldo, e confere os metadados no IPFS. Para aqui.
 
 ## 3. Deploy de verdade
-`npm run deploy:sepolia` repete o resumo, pede a senha e uma confirmação digitada (`sepolia`), faz o deploy, relê 9 valores do contrato, grava `deployments.json` e **preenche `../Contratos-3D/.env.production`**, e verifica no Etherscan (com novas tentativas). Mainnet é bloqueada no script.
+`npm run deploy:sepolia` repete o resumo, pede a senha e uma confirmação digitada (`sepolia`), faz o deploy, relê 9 valores do contrato, grava `deployments.json` e **preenche `game/.env.production`**, e verifica no Etherscan (com novas tentativas). Mainnet é bloqueada no script.
 
 ## 4. Publicar o jogo
-Veja o README do `Contratos-3D` ("Publicar").
+Veja o README de `game/` ("Publicar").
 
 ## Testes
 `npm test` (todos) · `npx hardhat test` (on-chain + ferramentas de deploy).

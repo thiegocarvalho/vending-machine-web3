@@ -12,7 +12,7 @@ npm run build    # gera dist/
 Qualidade gráfica: o jogo escolhe sozinho (baixa/média/alta) pelo aparelho e ajusta a resolução em tempo real. Para forçar: `?quality=low`, `?quality=medium` ou `?quality=high`.
 
 ## Configuração (variáveis `VITE_`, lidas no **build**)
-`npm run dev` lê `.env.development` (local, não vai para o git; o deploy local em `../Contratos` já o preenche). `npm run build` lê `.env.production` (público, versionado). Variáveis do ambiente/GitHub Actions têm prioridade sobre os arquivos.
+`npm run dev` lê `.env.development` (local, não vai para o git; o deploy local em `..` já o preenche). `npm run build` lê `.env.production` (público, versionado). Variáveis do ambiente/GitHub Actions têm prioridade sobre os arquivos.
 
 | Variável | Para quê |
 | --- | --- |
@@ -26,7 +26,7 @@ Qualidade gráfica: o jogo escolhe sozinho (baixa/média/alta) pelo aparelho e a
 
 Tudo que começa com `VITE_` vai para o JavaScript público: **nunca coloque chaves ou segredos aqui** (nem RPC com chave de API).
 
-Sem `VITE_METADATA_CID`, o modo demo lê metadados e imagens de `public/dev-metadata` e `public/dev-images` (links simbólicos para `../Contratos`, só para desenvolvimento; ficam fora do build).
+Sem `VITE_METADATA_CID`, o modo demo lê metadados e imagens de `public/dev-metadata` e `public/dev-images` (links simbólicos para `..`, só para desenvolvimento; ficam fora do build).
 
 ## Como usar
 - **Andando:** mouse olha (o primeiro clique ou tecla captura o cursor), `WASD` move, mira no centro. Perto da máquina e olhando para ela aparece **[E] Usar a máquina**. O cartaz do faucet também usa **E** (no celular, o botão da direita).
@@ -51,12 +51,12 @@ Preço, estoque, ativo e quantos cards existem (`getAllCardsInfo`), emitidos (`g
 Compatibilidade alvo: Chrome/Brave 89+, Firefox 89+, Safari/iOS 15+ (WebGL2). O jogo só desenha quando algo muda (economiza bateria) e se recupera se o sistema derrubar o contexto WebGL.
 
 ## Publicar (GitHub Pages)
-1. Faça o deploy do contrato na Sepolia (`../Contratos`, veja `docs/DEPLOY.md`): ele grava o endereço em `.env.production` daqui.
+1. Faça o deploy do contrato na Sepolia (`..`, veja `docs/DEPLOY.md`): ele grava o endereço em `.env.production` daqui.
 2. Opcional: preencha `VITE_SITE_URL` (imagem de compartilhamento).
 3. **Pelo GitHub Actions:** em *Settings > Pages* escolha "GitHub Actions"; faça push na `main`. O workflow `.github/workflows/pages.yml` roda os testes e publica. Para trocar valores sem commit, use *Settings > Secrets and variables > Actions > Variables* (`VITE_CONTRACT_ADDRESS`, `VITE_RPC_URL`...).
 4. **Pelo seu computador:** `npm run build` e publique a pasta `dist/` (o build usa `base: './'`, funciona em `usuario.github.io/repo/`).
 
-O build de produção **falha** se `VITE_CONTRACT_ADDRESS` estiver vazio ou se apontar para a rede local, para nunca publicar o modo demo por engano. Antes de publicar, confira também `external_url` e royalties dos metadados (`../Contratos`).
+O build de produção **falha** se `VITE_CONTRACT_ADDRESS` estiver vazio ou se apontar para a rede local, para nunca publicar o modo demo por engano. Antes de publicar, confira também `external_url` e royalties dos metadados (`..`).
 
 ## Licença
 Código sob licença MIT (veja `LICENSE`). **As imagens dos cards não são cobertas por esta licença**: pertencem aos respectivos autores/detentores.
