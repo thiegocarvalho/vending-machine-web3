@@ -32,4 +32,16 @@ describe('revisão: pontos de atenção', () => {
     await vm.transferOwnership(alice.address); expect(await vm.owner()).to.equal(owner.address);
     await vm.connect(alice).acceptOwnership(); expect(await vm.owner()).to.equal(alice.address);
   });
+  it('ERC1155Supply: totalSupply acompanha as compras e confere com o emitido', async () => {
+    await vm.connect(alice)['buyCard(uint256)'](4, { value: PRICE }); await vm.connect(alice).buyCardsBatch([4, 5], [2, 1], { value: PRICE * 3n });
+    expect(await vm.totalSupply(4)).to.equal(3n); expect(await vm.getMintedCount(4)).to.equal(3n); expect(await vm.totalSupply(5)).to.equal(1n);
+  });
+  it('pausa bloqueia compra e transferência; despausar libera', async () => {
+    await vm.connect(alice)['buyCard(uint256)'](6, { value: PRICE });
+    await vm.pause();
+    await expect(vm.connect(alice)['buyCard(uint256)'](6, { value: PRICE })).to.be.revertedWithCustomError(vm, 'EnforcedPause');
+    await expect(vm.connect(alice).safeTransferFrom(alice.address, owner.address, 6, 1, '0x')).to.be.revertedWithCustomError(vm, 'EnforcedPause');
+    await vm.unpause(); await vm.connect(alice).safeTransferFrom(alice.address, owner.address, 6, 1, '0x');
+    expect(await vm.balanceOf(owner.address, 6)).to.equal(1n);
+  });
 });

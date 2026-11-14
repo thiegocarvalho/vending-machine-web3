@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity 0.8.24;
 
 import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import {ERC1155Pausable} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Pausable.sol";
+import {ERC1155Supply} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import {ERC2981} from "@openzeppelin/contracts/token/common/ERC2981.sol";
 import {Ownable2Step, Ownable} from "@openzeppelin/contracts/access/Ownable2Step.sol";
-import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {ReentrancyGuardTransient} from "@openzeppelin/contracts/utils/ReentrancyGuardTransient.sol";
 
 /**
  * @title DefiVendingMachine1155
@@ -23,7 +24,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
  * 6. Bulletproof Governance: Uses Ownable2Step to prevent irrevocable ownership loss via typos.
  * 7. Defensive Royalties: Enforces a strict 10.00% cap on ERC-2981 royalties to prevent human configuration errors.
  */
-contract DefiVendingMachine1155 is ERC1155, ERC2981, Ownable2Step, Pausable, ReentrancyGuard {
+contract DefiVendingMachine1155 is ERC1155, ERC1155Pausable, ERC1155Supply, ERC2981, Ownable2Step, ReentrancyGuardTransient {
 
     // =========================================================================
     //                           TYPE DECLARATIONS
@@ -666,15 +667,15 @@ contract DefiVendingMachine1155 is ERC1155, ERC2981, Ownable2Step, Pausable, Ree
     // =========================================================================
 
     /**
-     * @dev OpenZeppelin v5 update hook. Controls token mints, burns, and transfers.
-     * Enforces whenNotPaused so token transfers are paused alongside purchases during emergencies.
+     * @dev OpenZeppelin v5 update hook shared by ERC1155Pausable (blocks mints, burns and transfers while paused)
+     * and ERC1155Supply (tracks totalSupply per card).
      */
     function _update(
         address from,
         address to,
         uint256[] memory ids,
         uint256[] memory values
-    ) internal virtual override(ERC1155) whenNotPaused {
+    ) internal virtual override(ERC1155, ERC1155Pausable, ERC1155Supply) {
         super._update(from, to, ids, values);
     }
 
