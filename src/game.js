@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { createPs1Renderer } from './render/ps1Renderer.js';
 import { buildMachine } from './scene/machine.js';
-import { buildParkingLot, addLighting } from './scene/parkingLot.js';
+import { buildScenery, addLighting } from './scene/scenery.js';
 import { createControls } from './player/controls.js';
 import { populateCards } from './scene/cards.js';
 import { loadCardsInfo } from './data/chain.js';
@@ -19,7 +19,7 @@ const { resize, render } = createPs1Renderer(canvas);
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(65, 1, 0.1, 60);
 addLighting(scene);
-scene.add(buildParkingLot());
+scene.add(buildScenery());
 const machine = buildMachine();
 scene.add(machine.group);
 const controls = createControls(camera, canvas);

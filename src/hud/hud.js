@@ -10,7 +10,7 @@ const el = (html) => { const t = document.createElement('template'); t.innerHTML
 export function createHud(root) {
   root.innerHTML = '';
   const hud = el(`<div id="hud">
-    <div class="top"><div class="title">DEFI VENDING MACHINE<small>SEPOLIA TESTNET</small></div><button class="wallet">Carteira</button></div>
+    <div class="top"><div class="title">DEFI VENDING MACHINE<small>${config.chainName.toUpperCase()} TESTNET</small></div><button class="wallet">Carteira</button></div>
     <div class="minimap"></div>
     <div class="hint">WASD andar · arrastar olhar · ←↑↓→ escolher card · Enter pagar</div>
     <aside class="panel"><button class="close" aria-label="Fechar">✕</button>
