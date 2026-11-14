@@ -14,7 +14,14 @@ export function applyPs1Snap(material, grid = 160) {
 }
 
 export function createPs1Renderer(canvas) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
+  // Alguns navegadores/GPUs (ex.: Brave em Linux) recusam powerPreference; tenta variações até uma funcionar.
+  const attempts = [{ powerPreference: 'high-performance' }, {}, { powerPreference: 'low-power' }];
+  let renderer, lastError;
+  for (const extra of attempts) {
+    try { renderer = new THREE.WebGLRenderer({ canvas, antialias: false, ...extra }); break; }
+    catch (e) { lastError = e; }
+  }
+  if (!renderer) throw lastError;
   renderer.setPixelRatio(1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   canvas.style.imageRendering = 'pixelated';
