@@ -1,3 +1,4 @@
+import './fonts.js';
 import { hasWebGL2, showWebGLError } from './render/webglCheck.js';
 
 if (hasWebGL2()) {

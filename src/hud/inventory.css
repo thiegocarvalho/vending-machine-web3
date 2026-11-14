@@ -111,7 +111,7 @@
 .w-meta a{color:var(--neon);text-decoration:none}.w-meta a:hover{text-decoration:underline}
 .w-balance{color:var(--ink)}
 
-/* detalhe: estoque, enviar e OpenSea */
+/* detalhe: estoque, enviar e link do explorer */
 .inv-detail .stockline{margin:0;font:500 10.5px 'Fira Code',monospace;letter-spacing:.2em;color:var(--dim)}
 .inv-detail .stockline:empty{display:none}
 .d-actions{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap;justify-content:flex-end}

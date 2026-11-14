@@ -1,29 +1,57 @@
 # DeFi Vending Machine 3D
 
-Jogo 3D de navegador (Three.js, low-poly): uma vending machine numa rua noturna com os 30 cards ERC-1155 (grade 5 linhas A–E × 6 colunas 1–6). Compra por QR Code (EIP-681) ou pela carteira do navegador, na Sepolia.
+Jogo 3D de navegador (Three.js, low-poly) para a coleção ERC-1155 **DeFi Vending Machine**: uma vending machine numa rua noturna com 30 cards (grade 5 linhas A–E × 6 colunas 1–6). Você anda até a máquina, escolhe um card e paga com a carteira do navegador ou por QR Code (EIP-681). Funciona 100% no navegador, sem servidor: lê o contrato por RPC e as imagens por gateways IPFS.
 
 ## Rodar
 ```bash
 npm install
 npm run dev      # http://127.0.0.1:5173
 npm test         # vitest
-npm run build
+npm run build    # gera dist/
 ```
+Qualidade gráfica: o jogo escolhe sozinho (baixa/média/alta) pelo aparelho e ajusta a resolução em tempo real. Para forçar: `?quality=low`, `?quality=medium` ou `?quality=high`.
 
-## Configuração (`.env`, prefixo `VITE_`)
+## Configuração (`.env`, variáveis `VITE_`, lidas no **build**)
 | Variável | Para quê |
 | --- | --- |
-| `VITE_CONTRACT_ADDRESS` | endereço do contrato na Sepolia. **Vazio = modo demo** (compra simulada) |
-| `VITE_METADATA_CID` | CID da pasta de metadados no Pinata/IPFS |
-| `VITE_PINATA_GATEWAY` | (opcional) domínio do gateway dedicado do Pinata |
-| `VITE_SEPOLIA_RPC_URL` | (opcional) RPC da Sepolia |
+| `VITE_CONTRACT_ADDRESS` | endereço do contrato. **Vazio = modo demo** (compra simulada, só para desenvolver) |
+| `VITE_METADATA_CID` | CID da pasta de metadados (usado só no modo demo; com contrato, a URI vem do próprio contrato) |
+| `VITE_CHAIN_ID` / `VITE_CHAIN_NAME` | rede do contrato (padrão: 11155111 / Sepolia; 31337 / Local no Hardhat) |
+| `VITE_RPC_URL` | RPC usado para ler o contrato (padrão: RPC público da Sepolia) |
+| `VITE_EXPLORER_URL` | explorer para links de transação/contrato/card (padrão Sepolia; vazio na rede local) |
+| `VITE_PINATA_GATEWAY` | (opcional) domínio do gateway dedicado do Pinata, tentado antes dos públicos |
+| `VITE_SITE_URL` | (opcional) URL pública do site, para a imagem de compartilhamento (`og:image`) |
 
-Sem `VITE_METADATA_CID` o jogo lê metadados e imagens de `public/dev-metadata` e `public/dev-images` (links simbólicos para `../Contratos`, só para desenvolvimento).
+Tudo que começa com `VITE_` vai para o JavaScript público: **nunca coloque chaves ou segredos aqui** (nem RPC com chave de API).
 
-Com o contrato configurado, tudo vem do contrato (`uri`, `getAllCardsInfo`) e dos gateways IPFS (Pinata dedicado → gateway.pinata.cloud → ipfs.filebase.io; ipfs.io e dweb.link não servem mais por fetch).
+Sem `VITE_METADATA_CID`, o modo demo lê metadados e imagens de `public/dev-metadata` e `public/dev-images` (links simbólicos para `../Contratos`, só para desenvolvimento; ficam fora do build).
 
-## Controles e modos
-- **Andar:** mouse olha sem precisar clicar (o primeiro clique ou tecla captura o cursor), WASD move, mira no centro. Perto da máquina e olhando para ela aparece o prompt **[E] Usar a máquina**.
-- **Selecionar:** a câmera segue o card; setas/WASD ou o mouse escolhem, o painel LED vermelho mostra o slot (ex.: `B3 #09`), Enter/clique confirma, Esc sai.
-- **Pagar:** a câmera vai para a telinha da máquina com o QR Code e o botão **PAGAR COM CARTEIRA** (clique no 3D). Esc volta.
-- **Mobile:** joystick + botão USAR; na seleção, D-pad + CONFIRMAR + VOLTAR; toque num card seleciona e toca de novo confirma.
+## Como usar
+- **Andando:** mouse olha (o primeiro clique ou tecla captura o cursor), `WASD` move, mira no centro. Perto da máquina e olhando para ela aparece **[E] Usar a máquina**. O cartaz do faucet também usa **E** (no celular, o botão da direita).
+- **Selecionando:** a câmera segue o card. Mouse, setas ou `WASD` escolhem; Enter ou clique confirma; `Esc` sai. No celular, toque escolhe e toque de novo confirma.
+- **Pagando:** a câmera vai para a telinha LCD da máquina com o QR Code e o botão **PAGAR COM CARTEIRA** (clique no 3D). Sem extensão, no celular, aparece **ABRIR NA CARTEIRA**.
+- **Inventário (`I`):** saldos de todos os cards, card em 3D (arrastar gira, roda/pinça dá zoom, duplo clique restaura), estoque e emitidos, **enviar card** a outro endereço (irreversível, com aviso e confirmação), links do contrato e do card no explorer, conexão/desconexão da carteira.
+- **Painel LED vermelho:** mostra só `DISPONIVEL` / `INDISPONIVEL` (contrato pausado) ou `SEM REDE`.
+
+## O que vem do contrato
+Preço, estoque, ativo e quantos cards existem (`getAllCardsInfo`), emitidos (`getMintedCount`), pausa (`paused`), saldos (`balanceOfBatch`), URI dos metadados (`uri`), compra (`buyCard(id)`, sempre 1 unidade) e envio (`safeTransferFrom`). Enquanto você está na máquina ou no inventário, o jogo observa os eventos (`CardPurchased`, `CardSoldOut`, `CardStatusUpdated`, `CardAdded`, `Paused`, `Unpaused`) e atualiza o estoque sozinho. Se faltar conexão com a rede, mostra um aviso e tenta de novo.
+
+## Organização
+| Pasta | Conteúdo |
+| --- | --- |
+| `src/scene` | cena 3D: máquina, cenário, cards, etiquetas de preço, seletor, visualizador de card |
+| `src/player` | movimento, câmera suave, seleção |
+| `src/payment` | carteira (EIP-1193), pagamento, envio, LCD da telinha, QR |
+| `src/data` | RPC enxuto (sem biblioteca), cache de inventário, IPFS, decodificação de imagens |
+| `src/hud` | HUD e inventário (DOM) |
+| `src/render` | renderizador, qualidade adaptativa |
+
+Compatibilidade alvo: Chrome/Brave 89+, Firefox 89+, Safari/iOS 15+ (WebGL2). O jogo só desenha quando algo muda (economiza bateria) e se recupera se o sistema derrubar o contexto WebGL.
+
+## Antes de publicar
+- Faça o build com as variáveis da rede pública (contrato real, `VITE_CHAIN_ID=11155111`, explorer, RPC). **Um build com o `.env` de desenvolvimento embute a rede local.**
+- Em GitHub Pages o site fica em `/nome-do-repositorio/`: o Vite precisa de `base` ajustado.
+- O contrato e os metadados (IPFS) ficam em `../Contratos`; confira `external_url` e royalties dos metadados antes do deploy.
+
+## Licença
+Código sob licença MIT (veja `LICENSE`). **As imagens dos cards não são cobertas por esta licença**: pertencem aos respectivos autores/detentores.

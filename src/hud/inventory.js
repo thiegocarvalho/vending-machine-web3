@@ -27,7 +27,7 @@ export function createInventoryPanel(root, cb) {
       <div class="inv-grid"></div>
     </div>
     <div class="inv-detail">
-      <div class="fresh" hidden>ADQUIRIDO AGORA</div><div class="owned"></div><div class="slot"></div><h3></h3><p class="bal"></p><p class="stockline"></p><div class="d-actions"><button class="send-btn">Enviar</button><a class="os-link" target="_blank" rel="noopener noreferrer" hidden>Ver no OpenSea ↗</a></div>
+      <div class="fresh" hidden>ADQUIRIDO AGORA</div><div class="owned"></div><div class="slot"></div><h3></h3><p class="bal"></p><p class="stockline"></p><div class="d-actions"><button class="send-btn">Enviar</button><a class="os-link" target="_blank" rel="noopener noreferrer" hidden>Ver no Etherscan ↗</a></div>
       <span class="loading">carregando arte completa…</span>
     </div>`;
   el.insertAdjacentHTML('beforeend', `
@@ -150,10 +150,10 @@ export function createInventoryPanel(root, cb) {
       q('.w-actions').hidden = !(q('.w-primary').textContent || q('.w-secondary').textContent);
       q('.w-paste').hidden = !['nowallet', 'disconnected', 'readonly'].includes(status);
     },
-    // extra: { info (estoque/emitidos do contrato), openseaUrl }
+    // extra: { info (estoque/emitidos do contrato), explorerUrl }
     setSelected(id, meta, balance, extra = {}) {
       cells.forEach(({ b }, i) => b.classList.toggle('sel', i + 1 === id));
-      const os = q('.os-link'); os.hidden = !(id && extra.openseaUrl); if (!os.hidden) os.href = extra.openseaUrl;
+      const os = q('.os-link'); os.hidden = !(id && extra.explorerUrl); if (!os.hidden) os.href = extra.explorerUrl;
       q('.send-btn').hidden = !id;
       const inf = extra.info; q('.stockline').textContent = id && inf && !inf.missing ? `ESTOQUE ${inf.stock}/${inf.max ?? 100}${inf.minted != null ? ` · EMITIDOS ${inf.minted}` : ''}` : '';
       if (!id) { q('.slot').textContent = ''; q('h3').textContent = ''; q('.bal').textContent = ''; q('.owned').textContent = ''; return; }

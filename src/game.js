@@ -19,7 +19,7 @@ import { buildEip681 } from './payment/eip681.js';
 import { hasWallet, payWithWallet, transferWithWallet } from './payment/wallet.js';
 import { createWalletSession, walletStatus } from './payment/session.js';
 import { validateSend } from './payment/transfer.js';
-import { openseaCardUrl, explorerAddressUrl, shortAddress } from './links.js';
+import { explorerNftUrl, explorerAddressUrl, shortAddress } from './links.js';
 import { config } from './config.js';
 import { cardIdToSlot } from './grid.js';
 import { createModes } from './interaction.js';
@@ -83,7 +83,7 @@ cardsApi.done.then(() => { loading = false; wake(); });
 machine.group.updateMatrixWorld(true);
 const tags = createPriceTags(machine.slotAnchors, infos);                       // etiquetas de preço (ETH) à frente de cada card
 scene.add(tags.mesh);
-window.__game = { checkFunds: () => checkFunds().then(() => ({ lowFunds })), aimNow() { camera.rotation.set(controls.pose().pitch, controls.pose().yaw, 0); scene.updateMatrixWorld(true); camera.updateMatrixWorld(true); return aimTarget(controls.pose().yaw, controls.pose().pitch); }, get state() { return { loopRuns, rafId, loading, activeUntil, now: performance.now(), hidden: document.hidden, mode: modes.mode, paused, netDown, live: !!live }; }, renderer, scene, camera, machine, controls, cardsApi, selection, tier, adaptive, wake, modes, rig, hud };
+if (import.meta.env.DEV) window.__game = { checkFunds: () => checkFunds().then(() => ({ lowFunds })), aimNow() { camera.rotation.set(controls.pose().pitch, controls.pose().yaw, 0); scene.updateMatrixWorld(true); camera.updateMatrixWorld(true); return aimTarget(controls.pose().yaw, controls.pose().pitch); }, get state() { return { loopRuns, rafId, loading, activeUntil, now: performance.now(), hidden: document.hidden, mode: modes.mode, paused, netDown, live: !!live }; }, renderer, scene, camera, machine, controls, cardsApi, selection, tier, adaptive, wake, modes, rig, hud };
 
 const priceText = (i) => `${formatEther(infos[i - 1].price)} ETH`;
 const contractForQr = config.contractAddress || '0x0000000000000000000000000000000000000000';
@@ -115,7 +115,7 @@ async function refreshInfos() {
   catch { setNetDown(true); return; }
   infos.forEach((inf, i) => cardsApi.setSoldOut(i + 1, isSoldOut(inf)));
   tags.update(infos); refresh(); wake();
-  if (invOpen && invSel) invPanel.setSelected(invSel, cardsApi.metas[invSel - 1], inventory.balances[invSel - 1], { info: infos[invSel - 1], openseaUrl: openseaCardUrl(config, invSel) });
+  if (invOpen && invSel) invPanel.setSelected(invSel, cardsApi.metas[invSel - 1], inventory.balances[invSel - 1], { info: infos[invSel - 1], explorerUrl: explorerNftUrl(config, invSel) });
 }
 let retryTimer = null;
 function setNetDown(v) {
@@ -316,7 +316,7 @@ async function refreshInventory() {
   if (!invSel || inventory.balances[invSel - 1] <= 0) selectInv(inventory.balances.findIndex((n) => n > 0) + 1 || 0);
 }
 async function selectInv(id) {
-  invSel = id; invPanel.setSelected(id, id ? cardsApi.metas[id - 1] : null, id ? inventory.balances[id - 1] : 0, { info: id ? infos[id - 1] : null, openseaUrl: id ? openseaCardUrl(config, id) : null });
+  invSel = id; invPanel.setSelected(id, id ? cardsApi.metas[id - 1] : null, id ? inventory.balances[id - 1] : 0, { info: id ? infos[id - 1] : null, explorerUrl: id ? explorerNftUrl(config, id) : null });
   if (!id) { viewer.setFront(null); viewer.showBack(); wake(); return; }
   viewer.reset();                                                              // cada card começa de frente
   viewer.setFront(fullCache.get(id) ?? cardsApi.cards[id - 1].material.map);     // mostra já a miniatura e troca pela arte completa quando chegar
