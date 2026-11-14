@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 // ---------- matemática pura (testável) ----------
-export const CARD = { w: 0.75, h: 1.0, d: 0.03 };
+export const CARD = { w: 0.75, h: 1.0, d: 0.009 };   // ~1% da altura: espessura de carta de verdade
 const FOV = 40, TAN = Math.tan((FOV * Math.PI) / 360);
 export const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
@@ -56,7 +56,7 @@ export function createCardViewer() {
   const camera = new THREE.PerspectiveCamera(FOV, 1, 0.05, 30);
   const group = new THREE.Group(); scene.add(group);
 
-  const edge = new THREE.MeshBasicMaterial({ color: 0x1a2038 });
+  const edge = new THREE.MeshBasicMaterial({ color: 0x8c92a8 });   // miolo claro do papel-cartão
   const front = new THREE.MeshBasicMaterial({ color: 0x20243a }), back = new THREE.MeshBasicMaterial({ map: canvasTexture(384, 512, (g, w, h) => paintCardBack(g, w, h)) });
   const body = new THREE.Mesh(new THREE.BoxGeometry(CARD.w, CARD.h, CARD.d), [edge, edge, edge, edge, front, back]);   // +x -x +y -y +z -z
   group.add(body);
