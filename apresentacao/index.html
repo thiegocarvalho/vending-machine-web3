@@ -1950,23 +1950,23 @@
       </div>
 
       <div class="flow grid grid-cols-1 md:grid-cols-6 gap-5 md:gap-6 pt-2 relative z-10">
-        <div class="fstep u cx" data-x="f1-1" data-kind="step" data-code="buyCard(7)   // sempre 1 unidade" tabindex="0" role="button"><span class="fnum">1</span><span class="fico">👆</span><span class="fti">VOCÊ ESCOLHE</span><span class="fde">Aperta o card no jogo.</span><span class="ftag">buyCard(7)</span></div>
-        <div class="fstep u cx" data-x="f1-2" data-kind="step" data-code="msg.value = 0,0046 ETH" tabindex="0" role="button"><span class="fnum">2</span><span class="fico">👛</span><span class="fti">PAGA O PREÇO</span><span class="fde">A carteira pede a sua aprovação.</span><span class="ftag">msg.value</span></div>
-        <div class="fstep c cx" data-x="f1-3" data-kind="step" data-code="if (…) revert …;   // as 4 conferências" tabindex="0" role="button"><span class="fnum">3</span><span class="fico">🔎</span><span class="fti">CONFERE TUDO</span><span class="fde">Card existe, à venda, com estoque e valor exato.</span><span class="ftag">4 conferências</span></div>
-        <div class="fstep c cx" data-x="f1-4" data-kind="step" data-code="card.stock = remaining;" tabindex="0" role="button"><span class="fnum">4</span><span class="fico">📉</span><span class="fti">BAIXA O ESTOQUE</span><span class="fde">Só o estoque deste card diminui.</span><span class="ftag">card.stock</span></div>
-        <div class="fstep r cx" data-x="f1-5" data-kind="step" data-code="_mint(msg.sender, cardId, 1, &quot;&quot;);" tabindex="0" role="button"><span class="fnum">5</span><span class="fico">🎁</span><span class="fti">ENTREGA O CARD</span><span class="fde">O card aparece na sua carteira.</span><span class="ftag">_mint</span></div>
-        <div class="fstep r cx" data-x="f1-6" data-kind="step" data-code="emit CardPurchased(…);" tabindex="0" role="button"><span class="fnum">6</span><span class="fico">📣</span><span class="fti">AVISA TODO MUNDO</span><span class="fde">O jogo escuta o aviso e atualiza a tela.</span><span class="ftag">emit CardPurchased</span></div>
+        <div class="fstep u cx" data-x="f1-1" data-kind="step" data-code="buyCard(7)   // sempre 1 unidade" tabindex="0" role="button"><span class="fnum">1</span><span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M5 3l14 7-6 2-2 6z"/></svg></span><span class="fti">VOCÊ ESCOLHE</span><span class="fde">Aperta o card no jogo.</span><span class="ftag">buyCard(7)</span></div>
+        <div class="fstep u cx" data-x="f1-2" data-kind="step" data-code="msg.value = 0,0046 ETH" tabindex="0" role="button"><span class="fnum">2</span><span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M3 8h16v12H3z"/><path d="M3 8l12-4v4"/><path d="M15 13h4v3h-4z"/></svg></span><span class="fti">PAGA O PREÇO</span><span class="fde">A carteira pede a sua aprovação.</span><span class="ftag">msg.value</span></div>
+        <div class="fstep c cx" data-x="f1-3" data-kind="step" data-code="if (…) revert …;   // as 4 conferências" tabindex="0" role="button"><span class="fnum">3</span><span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></span><span class="fti">CONFERE TUDO</span><span class="fde">Card existe, à venda, com estoque e valor exato.</span><span class="ftag">4 conferências</span></div>
+        <div class="fstep c cx" data-x="f1-4" data-kind="step" data-code="card.stock = remaining;" tabindex="0" role="button"><span class="fnum">4</span><span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M3 6l6 6 4-4 8 8"/><path d="M21 11v5h-5"/></svg></span><span class="fti">BAIXA O ESTOQUE</span><span class="fde">Só o estoque deste card diminui.</span><span class="ftag">card.stock</span></div>
+        <div class="fstep r cx" data-x="f1-5" data-kind="step" data-code="_mint(msg.sender, cardId, 1, &quot;&quot;);" tabindex="0" role="button"><span class="fnum">5</span><span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M4 10h16v10H4z"/><path d="M2 6h20v4H2z"/><path d="M12 6v14"/></svg></span><span class="fti">ENTREGA O CARD</span><span class="fde">O card aparece na sua carteira.</span><span class="ftag">_mint</span></div>
+        <div class="fstep r cx" data-x="f1-6" data-kind="step" data-code="emit CardPurchased(…);" tabindex="0" role="button"><span class="fnum">6</span><span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M3 10v4h4l8 5V5L7 10z"/><path d="M18 9a4 4 0 010 6"/></svg></span><span class="fti">AVISA TODO MUNDO</span><span class="fde">O jogo escuta o aviso e atualiza a tela.</span><span class="ftag">emit CardPurchased</span></div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3 relative z-10 pt-1">
         <div class="fstep x cx" data-x="f1-err" data-kind="step" data-code="revert  →  tudo é desfeito" tabindex="0" role="button">
-          <span class="fico">↩️</span><span class="fti">DEU ERRADO NO PASSO 3?</span><span class="fde">A compra inteira é cancelada e o ETH volta para você. Só sobra a taxa da rede.</span>
+          <span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M9 5L4 10l5 5"/><path d="M4 10h11a5 5 0 010 10h-3"/></svg></span><span class="fti">DEU ERRADO NO PASSO 3?</span><span class="fde">A compra inteira é cancelada e o ETH volta para você. Só sobra a taxa da rede.</span>
         </div>
         <div class="fstep c cx" data-x="f1-money" data-kind="step" data-code="address(this).balance" tabindex="0" role="button">
-          <span class="fico">🏦</span><span class="fti">PARA ONDE VAI O DINHEIRO?</span><span class="fde">Fica guardado no próprio contrato. Só o dono consegue sacar.</span>
+          <span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M3 9l9-6 9 6"/><path d="M5 11v7M10 11v7M14 11v7M19 11v7"/><path d="M3 21h18"/></svg></span><span class="fti">PARA ONDE VAI O DINHEIRO?</span><span class="fde">Fica guardado no próprio contrato. Só o dono consegue sacar.</span>
         </div>
         <div class="fstep u cx" data-x="f1-who" data-kind="step" data-code="msg.sender  =  a sua carteira" tabindex="0" role="button">
-          <span class="fico">🔑</span><span class="fti">QUEM ASSINA?</span><span class="fde">Só você: ninguém compra no seu nome, e o jogo nunca vê a sua chave.</span>
+          <span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v4M15 12v3"/></svg></span><span class="fti">QUEM ASSINA?</span><span class="fde">Só você: ninguém compra no seu nome, e o jogo nunca vê a sua chave.</span>
         </div>
       </div>
     </section>
@@ -1982,22 +1982,22 @@
       </div>
 
       <div class="flow grid grid-cols-1 md:grid-cols-5 gap-5 md:gap-6 pt-2 relative z-10">
-        <div class="fstep u cx" data-x="f2-1" data-kind="step" data-code="safeTransferFrom(você, amigo, cardId, 1, &quot;&quot;)" tabindex="0" role="button"><span class="fnum">1</span><span class="fico">✍️</span><span class="fti">VOCÊ PEDE O ENVIO</span><span class="fde">Escolhe o card, a quantidade e o endereço de quem recebe.</span><span class="ftag">safeTransferFrom</span></div>
-        <div class="fstep c cx" data-x="f2-2" data-kind="step" data-code="whenNotPaused  ·  saldo suficiente  ·  destino válido" tabindex="0" role="button"><span class="fnum">2</span><span class="fico">🔎</span><span class="fti">CONFERE</span><span class="fde">Máquina em operação? Você tem o card? O destino é válido?</span><span class="ftag">conferências</span></div>
-        <div class="fstep c cx" data-x="f2-3" data-kind="step" data-code="saldo[você] -= 1;   saldo[amigo] += 1;" tabindex="0" role="button"><span class="fnum">3</span><span class="fico">⇄</span><span class="fti">MOVE O SALDO</span><span class="fde">Tira 1 da sua conta e coloca 1 na dele.</span><span class="ftag">_update</span></div>
-        <div class="fstep c cx" data-x="f2-4" data-kind="step" data-code="onERC1155Received(…)   // se o destino for um contrato" tabindex="0" role="button"><span class="fnum">4</span><span class="fico">🤝</span><span class="fti">DESTINO ACEITA?</span><span class="fde">Se quem recebe for um contrato, ele precisa dizer que aceita.</span><span class="ftag">onERC1155Received</span></div>
-        <div class="fstep r cx" data-x="f2-5" data-kind="step" data-code="emit TransferSingle(…);" tabindex="0" role="button"><span class="fnum">5</span><span class="fico">📣</span><span class="fti">AVISA</span><span class="fde">Registra o envio publicamente.</span><span class="ftag">emit TransferSingle</span></div>
+        <div class="fstep u cx" data-x="f2-1" data-kind="step" data-code="safeTransferFrom(você, amigo, cardId, 1, &quot;&quot;)" tabindex="0" role="button"><span class="fnum">1</span><span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M4 20l1-5L16 4l4 4L9 19z"/><path d="M14 6l4 4"/></svg></span><span class="fti">VOCÊ PEDE O ENVIO</span><span class="fde">Escolhe o card, a quantidade e o endereço de quem recebe.</span><span class="ftag">safeTransferFrom</span></div>
+        <div class="fstep c cx" data-x="f2-2" data-kind="step" data-code="whenNotPaused  ·  saldo suficiente  ·  destino válido" tabindex="0" role="button"><span class="fnum">2</span><span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></span><span class="fti">CONFERE</span><span class="fde">Máquina em operação? Você tem o card? O destino é válido?</span><span class="ftag">conferências</span></div>
+        <div class="fstep c cx" data-x="f2-3" data-kind="step" data-code="saldo[você] -= 1;   saldo[amigo] += 1;" tabindex="0" role="button"><span class="fnum">3</span><span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M4 8h15M15 4l4 4-4 4"/><path d="M20 16H5M9 12l-4 4 4 4"/></svg></span><span class="fti">MOVE O SALDO</span><span class="fde">Tira 1 da sua conta e coloca 1 na dele.</span><span class="ftag">_update</span></div>
+        <div class="fstep c cx" data-x="f2-4" data-kind="step" data-code="onERC1155Received(…)   // se o destino for um contrato" tabindex="0" role="button"><span class="fnum">4</span><span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg></span><span class="fti">DESTINO ACEITA?</span><span class="fde">Se quem recebe for um contrato, ele precisa dizer que aceita.</span><span class="ftag">onERC1155Received</span></div>
+        <div class="fstep r cx" data-x="f2-5" data-kind="step" data-code="emit TransferSingle(…);" tabindex="0" role="button"><span class="fnum">5</span><span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M3 10v4h4l8 5V5L7 10z"/><path d="M18 9a4 4 0 010 6"/></svg></span><span class="fti">AVISA</span><span class="fde">Registra o envio publicamente.</span><span class="ftag">emit TransferSingle</span></div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3 relative z-10 pt-1">
         <div class="fstep x cx" data-x="f2-irrev" data-kind="step" data-code="não existe “desfazer” depois de confirmado" tabindex="0" role="button">
-          <span class="fico">⚠️</span><span class="fti">NÃO TEM VOLTA</span><span class="fde">Enviou para o endereço errado? Só quem recebeu pode devolver.</span>
+          <span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v1"/></svg></span><span class="fti">NÃO TEM VOLTA</span><span class="fde">Enviou para o endereço errado? Só quem recebeu pode devolver.</span>
         </div>
         <div class="fstep c cx" data-x="f2-stock" data-kind="step" data-code="card.stock  (não muda)" tabindex="0" role="button">
-          <span class="fico">📦</span><span class="fti">O ESTOQUE NÃO MUDA</span><span class="fde">Enviar não é vender: só muda quem tem o card.</span>
+          <span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/></svg></span><span class="fti">O ESTOQUE NÃO MUDA</span><span class="fde">Enviar não é vender: só muda quem tem o card.</span>
         </div>
         <div class="fstep u cx" data-x="f2-approve" data-kind="step" data-code="setApprovalForAll(operador, true)" tabindex="0" role="button">
-          <span class="fico">🪪</span><span class="fti">OUTRA PERMISSÃO</span><span class="fde">Você pode autorizar um app (como um marketplace) a mover os seus cards.</span>
+          <span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="3" y="5" width="18" height="14"/><circle cx="9" cy="11" r="2"/><path d="M14 10h4M14 14h4M6 16h6"/></svg></span><span class="fti">OUTRA PERMISSÃO</span><span class="fde">Você pode autorizar um app (como um marketplace) a mover os seus cards.</span>
         </div>
       </div>
     </section>
@@ -2073,23 +2073,23 @@
       </div>
 
       <div class="flow grid grid-cols-1 md:grid-cols-6 gap-5 md:gap-6 pt-2 relative z-10">
-        <div class="fstep u cx" data-x="f3-1" data-kind="step" data-code="IPFS: 31.json + imagem do card" tabindex="0" role="button"><span class="fnum">1</span><span class="fico">🖼️</span><span class="fti">PREPARA A ARTE</span><span class="fde">Imagem e descrição vão para o IPFS, com o número do novo card.</span><span class="ftag">fora do contrato</span></div>
-        <div class="fstep u cx" data-x="f3-2" data-kind="step" data-code="addCard(4600000000000000, 100)" tabindex="0" role="button"><span class="fnum">2</span><span class="fico">👤</span><span class="fti">DONO CHAMA</span><span class="fde">Informa o preço e a tiragem do novo card.</span><span class="ftag">addCard</span></div>
-        <div class="fstep c cx" data-x="f3-3" data-kind="step" data-code="public onlyOwner" tabindex="0" role="button"><span class="fnum">3</span><span class="fico">🔑</span><span class="fti">É O DONO?</span><span class="fde">Qualquer outra carteira é recusada.</span><span class="ftag">onlyOwner</span></div>
-        <div class="fstep c cx" data-x="f3-4" data-kind="step" data-code="newCardId = ++totalCardTypes;   // 31" tabindex="0" role="button"><span class="fnum">4</span><span class="fico">🔢</span><span class="fti">PRÓXIMO NÚMERO</span><span class="fde">O contador sobe de 30 para 31.</span><span class="ftag">totalCardTypes</span></div>
-        <div class="fstep c cx" data-x="f3-5" data-kind="step" data-code="cards[31] = Card(price, stock, stock, true, true);" tabindex="0" role="button"><span class="fnum">5</span><span class="fico">🏷️</span><span class="fti">CRIA A FICHA</span><span class="fde">Preço, estoque e “à venda” ligados.</span><span class="ftag">cards[31]</span></div>
-        <div class="fstep r cx" data-x="f3-6" data-kind="step" data-code="emit CardAdded(31, price, stock);" tabindex="0" role="button"><span class="fnum">6</span><span class="fico">📣</span><span class="fti">AVISA</span><span class="fde">O card já pode ser comprado por qualquer um.</span><span class="ftag">emit CardAdded</span></div>
+        <div class="fstep u cx" data-x="f3-1" data-kind="step" data-code="IPFS: 31.json + imagem do card" tabindex="0" role="button"><span class="fnum">1</span><span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="3" y="4" width="18" height="16"/><circle cx="9" cy="10" r="2"/><path d="M3 18l6-5 4 3 4-4 4 4"/></svg></span><span class="fti">PREPARA A ARTE</span><span class="fde">Imagem e descrição vão para o IPFS, com o número do novo card.</span><span class="ftag">fora do contrato</span></div>
+        <div class="fstep u cx" data-x="f3-2" data-kind="step" data-code="addCard(4600000000000000, 100)" tabindex="0" role="button"><span class="fnum">2</span><span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-5 4-7 8-7s8 2 8 7"/></svg></span><span class="fti">DONO CHAMA</span><span class="fde">Informa o preço e a tiragem do novo card.</span><span class="ftag">addCard</span></div>
+        <div class="fstep c cx" data-x="f3-3" data-kind="step" data-code="public onlyOwner" tabindex="0" role="button"><span class="fnum">3</span><span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v4M15 12v3"/></svg></span><span class="fti">É O DONO?</span><span class="fde">Qualquer outra carteira é recusada.</span><span class="ftag">onlyOwner</span></div>
+        <div class="fstep c cx" data-x="f3-4" data-kind="step" data-code="newCardId = ++totalCardTypes;   // 31" tabindex="0" role="button"><span class="fnum">4</span><span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M9 3L7 21M17 3l-2 18M4 9h17M3 15h17"/></svg></span><span class="fti">PRÓXIMO NÚMERO</span><span class="fde">O contador sobe de 30 para 31.</span><span class="ftag">totalCardTypes</span></div>
+        <div class="fstep c cx" data-x="f3-5" data-kind="step" data-code="cards[31] = Card(price, stock, stock, true, true);" tabindex="0" role="button"><span class="fnum">5</span><span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M3 12V3h9l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></span><span class="fti">CRIA A FICHA</span><span class="fde">Preço, estoque e “à venda” ligados.</span><span class="ftag">cards[31]</span></div>
+        <div class="fstep r cx" data-x="f3-6" data-kind="step" data-code="emit CardAdded(31, price, stock);" tabindex="0" role="button"><span class="fnum">6</span><span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M3 10v4h4l8 5V5L7 10z"/><path d="M18 9a4 4 0 010 6"/></svg></span><span class="fti">AVISA</span><span class="fde">O card já pode ser comprado por qualquer um.</span><span class="ftag">emit CardAdded</span></div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3 relative z-10 pt-1">
         <div class="fstep c cx" data-x="f3-batch" data-kind="step" data-code="addCardsBatch(prices[], stocks[])" tabindex="0" role="button">
-          <span class="fico">📚</span><span class="fti">VÁRIOS DE UMA VEZ</span><span class="fde">Existe uma versão que cria vários cards numa só operação.</span>
+          <span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></span><span class="fti">VÁRIOS DE UMA VEZ</span><span class="fde">Existe uma versão que cria vários cards numa só operação.</span>
         </div>
         <div class="fstep x cx" data-x="f3-locked" data-kind="step" data-code="não existe setPrice() nem setStock()" tabindex="0" role="button">
-          <span class="fico">🔒</span><span class="fti">DEPOIS NÃO MUDA</span><span class="fde">Preço e estoque de um card criado ficam fixos. Só dá para ligar ou desligar a venda.</span>
+          <span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="5" y="11" width="14" height="10"/><path d="M8 11V7a4 4 0 018 0v4"/></svg></span><span class="fti">DEPOIS NÃO MUDA</span><span class="fde">Preço e estoque de um card criado ficam fixos. Só dá para ligar ou desligar a venda.</span>
         </div>
         <div class="fstep u cx" data-x="f3-game" data-kind="step" data-code="SLOTS = 30   // 5 × 6 no jogo" tabindex="0" role="button">
-          <span class="fico">🎮</span><span class="fti">E NO JOGO?</span><span class="fde">A máquina do jogo desenha 30 slots (5×6). Cards além disso existem no contrato, mas a tela precisaria crescer.</span>
+          <span class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="2" y="7" width="20" height="11"/><path d="M7 10v5M5 12.5h4M16 11h.01M18 14h.01"/></svg></span><span class="fti">E NO JOGO?</span><span class="fde">A máquina do jogo desenha 30 slots (5×6). Cards além disso existem no contrato, mas a tela precisaria crescer.</span>
         </div>
       </div>
     </section>
@@ -2125,7 +2125,7 @@
           </div>
           <div class="cl" data-x="g-gs"><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">getStock</span>(uint256 cardId) <span class="text-noir-red font-bold">external view returns</span> (uint256) {</div>
           <div class="cl pl-6" data-x="g-gs1">if (cardId &lt; 1 || cardId &gt; totalCardTypes) <span class="text-noir-red font-bold">revert</span> InvalidCardId(cardId);</div>
-          <div class="cl pl-6" data-x="g-gs2"><span class="text-noir-red font-bold">return</span> uint256(cards[cardId].stock); <span class="text-emerald-400 font-bold">// ⚡ de graça</span></div>
+          <div class="cl pl-6" data-x="g-gs2"><span class="text-noir-red font-bold">return</span> uint256(cards[cardId].stock); </div>
           <div>}</div>
           <div class="cl pt-1.5" data-x="g-all"><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">getAllCardsInfo</span>() <span class="text-noir-red font-bold">external view returns</span> (</div>
           <div class="cl pl-6" data-x="g-all1">uint256[] prices, uint256[] stocks, bool[] activeStatuses</div>
@@ -2165,18 +2165,18 @@
 
       <div class="grid grid-cols-1 md:grid-cols-4 gap-3 relative z-10">
         <div class="space-y-1.5">
-          <div class="border-b border-white/60 pb-1"><span class="font-display text-2xl text-white tracking-wide">🛒 COMPRAR</span><span class="block text-[10px] font-mono text-gray-300">QUALQUER UM · PAGA</span></div>
+          <div class="border-b border-white/60 pb-1"><span class="font-display text-2xl text-white tracking-wide inline-flex items-center gap-2"><svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M3 4h3l3 11h10l2-8H7"/><circle cx="10" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>COMPRAR</span><span class="block text-[10px] font-mono text-gray-300">QUALQUER UM · PAGA</span></div>
           <button type="button" class="fn-chip cx" data-x="m-buy" data-kind="fn" data-code="buyCard(cardId)">buyCard<small>compra 1 card (sempre 1)</small></button>
           <button type="button" class="fn-chip cx" data-x="m-why" data-kind="fn" data-code="não existe quantidade nem lote">1 por vez<small>por que só uma unidade?</small></button>
         </div>
         <div class="space-y-1.5">
-          <div class="border-b border-white/60 pb-1"><span class="font-display text-2xl text-white tracking-wide">🔁 TRANSFERIR</span><span class="block text-[10px] font-mono text-gray-300">QUEM TEM O CARD</span></div>
+          <div class="border-b border-white/60 pb-1"><span class="font-display text-2xl text-white tracking-wide inline-flex items-center gap-2"><svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M4 8h15M15 4l4 4-4 4"/><path d="M20 16H5M9 12l-4 4 4 4"/></svg>TRANSFERIR</span><span class="block text-[10px] font-mono text-gray-300">QUEM TEM O CARD</span></div>
           <button type="button" class="fn-chip cx" data-x="m-send" data-kind="fn" data-code="safeTransferFrom(from, to, id, amount, data)">safeTransferFrom<small>envia card a alguém</small></button>
           <button type="button" class="fn-chip cx" data-x="m-send2" data-kind="fn" data-code="safeBatchTransferFrom(from, to, ids[], amounts[], data)">safeBatchTransferFrom<small>envia vários de uma vez</small></button>
           <button type="button" class="fn-chip cx" data-x="m-appr" data-kind="fn" data-code="setApprovalForAll(operator, approved)">setApprovalForAll<small>autoriza um app a mover</small></button>
         </div>
         <div class="space-y-1.5">
-          <div class="border-b border-noir-red pb-1"><span class="font-display text-2xl text-noir-red tracking-wide">🛠️ SÓ O DONO</span><span class="block text-[10px] font-mono text-gray-300">onlyOwner</span></div>
+          <div class="border-b border-noir-red pb-1"><span class="font-display text-2xl text-noir-red tracking-wide inline-flex items-center gap-2"><svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M15 4a5 5 0 00-4 7L3 19l2 2 8-8a5 5 0 007-4l-3 3-3-1-1-3z"/></svg>SÓ O DONO</span><span class="block text-[10px] font-mono text-gray-300">onlyOwner</span></div>
           <button type="button" class="fn-chip cx" data-x="m-add" data-kind="fn" data-code="addCard(price, initialStock)">addCard<small>cria um card (ou vários)</small></button>
           <button type="button" class="fn-chip cx" data-x="m-active" data-kind="fn" data-code="setCardActive(cardId, active)">setCardActive<small>liga/desliga a venda</small></button>
           <button type="button" class="fn-chip cx" data-x="m-pause" data-kind="fn" data-code="pause()  /  unpause()">pause / unpause<small>botão de emergência</small></button>
@@ -2186,7 +2186,7 @@
           <button type="button" class="fn-chip cx" data-x="m-own" data-kind="fn" data-code="transferOwnership(novo)  →  acceptOwnership()">transferOwnership<small>passa a posse em 2 etapas</small></button>
         </div>
         <div class="space-y-1.5">
-          <div class="border-b border-emerald-400/70 pb-1"><span class="font-display text-2xl text-emerald-400 tracking-wide">🔍 CONSULTAR</span><span class="block text-[10px] font-mono text-gray-300">QUALQUER UM · DE GRAÇA</span></div>
+          <div class="border-b border-emerald-400/70 pb-1"><span class="font-display text-2xl text-emerald-400 tracking-wide inline-flex items-center gap-2"><svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg>CONSULTAR</span><span class="block text-[10px] font-mono text-gray-300">QUALQUER UM · DE GRAÇA</span></div>
           <button type="button" class="fn-chip cx" data-x="m-all" data-kind="fn" data-code="getAllCardsInfo()">getAllCardsInfo<small>a vitrine inteira</small></button>
           <button type="button" class="fn-chip cx" data-x="m-stock" data-kind="fn" data-code="getStock(cardId)  /  getAllStocks()">getStock<small>quantos restam</small></button>
           <button type="button" class="fn-chip cx" data-x="m-info" data-kind="fn" data-code="getCardInfo(cardId)  /  getCardDetails(cardId)">getCardInfo<small>dados de um card</small></button>
@@ -6722,13 +6722,17 @@
     .fstep.u { border-top-color: #FFFFFF; } .fstep.c { border-top-color: #FF0033; } .fstep.r { border-top-color: #34D399; } .fstep.x { border-top-color: #FF0033; border-style: dashed; border-top-style: solid; }
     .fnum { position: absolute; top: -11px; left: 8px; width: 20px; height: 20px; border-radius: 50%; background: #FF0033; color: #fff; font: 700 11px 'Fira Code', monospace; display: flex; align-items: center; justify-content: center; }
     .fstep.u .fnum { background: #fff; color: #040204; } .fstep.r .fnum { background: #34D399; color: #040204; }
-    .fico { font-size: 22px; line-height: 1; }
+    .ficon { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #FF0033; background: rgba(255,0,51,.10); border: 1px solid rgba(255,0,51,.40); }
+    .ficon svg { width: 18px; height: 18px; }
+    .fstep.u .ficon { color: #FFFFFF; background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.28); }
+    .fstep.r .ficon { color: #34D399; background: rgba(52,211,153,.10); border-color: rgba(52,211,153,.40); }
     .fti { font-family: 'Bebas Neue', impact, sans-serif; font-size: 21px; letter-spacing: .03em; color: #fff; line-height: 1.05; }
     .fde { font-size: 12px; line-height: 1.3; color: #D6CBD0; font-family: 'Space Grotesk', sans-serif; }
     .ftag { margin-top: auto; padding-top: 4px; font: 600 10px 'Fira Code', monospace; color: #FF0033; word-break: break-word; }
     .fstep.u .ftag { color: #D6CBD0; } .fstep.r .ftag { color: #34D399; }
     .flow .fstep { min-height: 190px; padding: 18px 12px 12px; gap: 6px; }
-    .flow .fico { font-size: 34px; }
+    .flow .ficon { width: 44px; height: 44px; }
+    .flow .ficon svg { width: 24px; height: 24px; }
     .flow .fti { font-size: 26px; }
     .flow .fde { font-size: 14px; }
     .flow .ftag { font-size: 11px; }
