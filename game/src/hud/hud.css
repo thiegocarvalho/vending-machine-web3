@@ -36,7 +36,7 @@
 
 /* mensagens de estado: logo acima do cartão do card */
 .status{position:absolute;left:var(--gutter);bottom:calc(148px + var(--safe-b));max-width:min(46vw,440px);text-align:left;font-size:15px;line-height:1.45;letter-spacing:.04em;opacity:0;transition:opacity .2s;pointer-events:none}
-.status.on{opacity:1;pointer-events:auto}.status.err{color:#ff6b7d}.status a{color:#fff;text-decoration:underline;text-underline-offset:3px;padding:var(--s2) 0}
+.status.on{opacity:1;pointer-events:auto;background:rgba(4,2,4,.86);border-left:3px solid var(--dim);padding:var(--s3) var(--s4)}.status.err{color:#ff6b7d;border-left-color:#ff6b7d}.status a{color:#fff;text-decoration:underline;text-underline-offset:3px;padding:var(--s2) 0}
 
 /* dicas de teclas */
 .keys{position:absolute;right:var(--gutter);bottom:calc(20px + var(--safe-b));display:none;align-items:center;font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);white-space:nowrap}

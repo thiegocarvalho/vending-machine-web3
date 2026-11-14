@@ -152,7 +152,7 @@ cardsApi.onLoaded((id) => { wake(); if (id === selection.id) refresh(); });
 // ---------- pagamento ----------
 function setState(state, { message = '', hash } = {}) {
   drawScreen({ state, message });
-  hud.setStatus({ awaiting: '', sent: 'Transação enviada, aguardando bloco…', confirmed: 'ADQUIRIDO! Abrindo o seu inventário…', error: message, idle: '', select: '' }[state] ?? '',
+  hud.setStatus({ awaiting: hasWallet(window) ? '' : (matchMedia('(pointer:coarse)').matches ? 'Nenhuma carteira detectada neste navegador. Toque em ABRIR NA CARTEIRA ou abra este endereço dentro do navegador do app da carteira.' : 'Nenhuma carteira detectada neste navegador. Instale a MetaMask (ou outra carteira) para pagar.'), sent: 'Transação enviada, aguardando bloco…', confirmed: 'ADQUIRIDO! Abrindo o seu inventário…', error: message, idle: '', select: '' }[state] ?? '',
     { error: state === 'error', hash });
 }
 
@@ -304,7 +304,7 @@ session.onChange(async (ev) => {
 // então vale para qualquer tamanho de tela (celular pequeno, tablet, desktop, deitado).
 const invLayout = () => {
   const w = innerWidth, h = innerHeight, r = invPanel.el.querySelector('.inv-panel').getBoundingClientRect();
-  if (h > w) { const ph = Math.min(h * 0.8, r.height || h * 0.5); return { sx: w < 480 ? 0.2 : 0, sy: ph / h, availW: w < 480 ? 0.78 : 1, availH: 1 - ph / h }; }          // celular estreito: o card vai um pouco para a direita, livrando o texto à esquerda
+  if (h > w) { const ph = Math.min(h * 0.8, r.height || h * 0.5); return { sx: w < 480 ? 0.3 : 0, sy: ph / h, availW: w < 480 ? 0.72 : 1, availH: 1 - ph / h, fill: w < 480 ? 0.5 : 0.64 }; }          // celular estreito: o card vai um pouco para a direita, livrando o texto à esquerda
   const pw = Math.min(w * 0.8, r.width || Math.min(420, 0.46 * w)); return { sx: pw / w, sy: 0, availW: 1 - pw / w, availH: 1 };
 };
 function layoutViewer() { viewer.setLayout(innerWidth / innerHeight, invLayout()); }
@@ -409,7 +409,20 @@ const tryUse = () => {
 };
 
 hud.onInventory(() => (invOpen ? closeInventory() : openInventory()));
-hud.onOpenWallet(() => { window.location.href = buildEip681(contractForQr, config.chainId, selection.id, infos[selection.id - 1].price); });
+// Celular sem extensão: tenta abrir o app da carteira pelo link de pagamento. Se a página não "sai de cena" (nenhum app abriu),
+// avisa com clareza que não há carteira instalada, em vez de parecer que o botão não faz nada.
+const NO_WALLET_MSG = 'Nenhuma carteira foi aberta. Este aparelho parece não ter uma carteira instalada: instale a MetaMask (ou outra) e abra este endereço dentro do navegador do app da carteira.';
+hud.onOpenWallet(() => {
+  let left = false;
+  const gone = () => { left = true; };
+  document.addEventListener('visibilitychange', gone); window.addEventListener('pagehide', gone); window.addEventListener('blur', gone);
+  const a = document.createElement('a');                                         // âncora, não location.href: se nenhum app atender, a página do jogo continua
+  a.href = buildEip681(contractForQr, config.chainId, selection.id, infos[selection.id - 1].price); a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => {
+    document.removeEventListener('visibilitychange', gone); window.removeEventListener('pagehide', gone); window.removeEventListener('blur', gone);
+    if (!left && !document.hidden) hud.setStatus(NO_WALLET_MSG, { error: true });
+  }, 2200);
+});
 hud.onUse(tryUse); hud.onConfirm(tryConfirm); hud.onBack(() => modes.back());
 hud.onJoystick((x, y) => { wake(); controls.setJoystick(x, y); });
 

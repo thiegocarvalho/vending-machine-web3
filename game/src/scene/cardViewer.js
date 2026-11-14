@@ -82,7 +82,7 @@ export function createCardViewer() {
   scene.add(floorGlow);                                                            // reflexo vermelho sob o card (a marca)
 
   const s = { yaw: 0.45, pitch: -0.12, vyaw: 0, vpitch: 0 };
-  let aspect = 1, fit = fitDistance(1), dist = fit, layout = { sx: 0, sy: 0 };
+  let aspect = 1, fit = fitDistance(1), dist = fit, layout = { sx: 0, sy: 0 }, zoomed = false;    // zoomed: o jogador mexeu no zoom (não recentralizar ao reorganizar a tela)
 
   function placeCamera() {
     camera.aspect = aspect; camera.updateProjectionMatrix();
@@ -102,13 +102,13 @@ export function createCardViewer() {
     const p = pts.get(e.pointerId); if (!p) return;
     const now = performance.now(), dt = Math.max(0.008, (now - lastMove) / 1000); lastMove = now;
     const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
-    if (pts.size === 2) { const d = dist2(); if (pinch) dist = zoomBy(dist, pinch / d, fit); pinch = d; }
+    if (pts.size === 2) { const d = dist2(); if (pinch) { dist = zoomBy(dist, pinch / d, fit); zoomed = true; } pinch = d; }
     else { s.yaw += dx * 0.011; s.pitch = clamp(s.pitch + dy * 0.011, -0.9, 0.9); s.vyaw = clamp((dx * 0.011) / dt, -9, 9); s.vpitch = clamp((dy * 0.011) / dt, -9, 9); }
     placeCamera(); onAnim();
   };
   const up = (e) => { pts.delete(e.pointerId); pinch = 0; if (performance.now() - lastMove > 90) s.vyaw = s.vpitch = 0; onAnim(); };
-  const wheel = (e) => { e.preventDefault(); dist = zoomBy(dist, Math.exp(e.deltaY * 0.0012), fit); placeCamera(); onAnim(); };
-  const reset = () => { Object.assign(s, { yaw: 0.45, pitch: -0.12, vyaw: 0, vpitch: 0 }); dist = fit; placeCamera(); onAnim(); };
+  const wheel = (e) => { e.preventDefault(); dist = zoomBy(dist, Math.exp(e.deltaY * 0.0012), fit); zoomed = true; placeCamera(); onAnim(); };
+  const reset = () => { Object.assign(s, { yaw: 0.45, pitch: -0.12, vyaw: 0, vpitch: 0 }); dist = fit; zoomed = false; placeCamera(); onAnim(); };
 
   return {
     scene, camera,
@@ -125,8 +125,8 @@ export function createCardViewer() {
     // verso oficial (card_back.png do IPFS); enquanto não chega, fica o verso desenhado
     setBack(tex) { if (tex) { back.map = tex; back.needsUpdate = true; } },
     setFront(tex) { front.map = tex || null; front.color.set(tex ? 0xffffff : 0x20243a); front.needsUpdate = true; },
-    setLayout(a, l) { aspect = a; layout = l; fit = fitDistance(a, 0.72, l.availW ?? 1, l.availH ?? 1);   // o card cabe só na região livre ao lado/acima do painel
-      dist = clamp(dist, zoomRange(fit).min, zoomRange(fit).max); placeCamera(); },
+    setLayout(a, l) { aspect = a; layout = l; fit = fitDistance(a, l.fill ?? 0.72, l.availW ?? 1, l.availH ?? 1);   // o card cabe só na região livre ao lado/acima do painel
+      dist = zoomed ? clamp(dist, zoomRange(fit).min, zoomRange(fit).max) : fit; placeCamera(); },      // sem zoom do jogador: começa sempre no enquadramento ideal
     reset, showBack() { Object.assign(s, { yaw: Math.PI - 0.45, pitch: -0.12, vyaw: 0, vpitch: 0 }); placeCamera(); onAnim(); },
     // chamado a cada quadro com o inventário aberto; true se ainda há movimento (inércia/arrasto)
     update(dt) { const moving = stepInertia(s, dt); if (moving) placeCamera(); return moving || pts.size > 0; },
