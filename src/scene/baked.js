@@ -1,14 +1,14 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { applyPs1Snap } from '../render/ps1Renderer.js';
 
+// Look low-poly moderno: faces chapadas com sombreamento e oclusão assados nas cores de vértice.
 // Luz "assada": sem luzes dinâmicas (caras no celular), o sombreamento vira cor de vértice por orientação da face.
 const AMBIENT = [0.88, 0.93, 1];          // tom frio da noite, quase neutro para não distorcer as cores da marca
 const GAIN = 1;
 const FACE = (n) => (n.z > 0.5 ? 1 : n.y > 0.5 ? 0.85 : n.z < -0.5 ? 0.35 : 0.55);
 
 let shared;
-export const bakedMaterial = () => (shared ??= applyPs1Snap(new THREE.MeshBasicMaterial({ vertexColors: true })));
+export const bakedMaterial = () => (shared ??= new THREE.MeshBasicMaterial({ vertexColors: true }));
 
 export function bakeBox(w, h, d, hex, light = 1, x = 0, y = 0, z = 0) {
   const geo = new THREE.BoxGeometry(w, h, d);
@@ -16,7 +16,8 @@ export function bakeBox(w, h, d, hex, light = 1, x = 0, y = 0, z = 0) {
   const col = new Float32Array(pos.count * 3);
   for (let i = 0; i < pos.count; i++) {
     n.fromBufferAttribute(nor, i);
-    const f = FACE(n) * light;
+    const ao = 0.72 + 0.28 * ((pos.getY(i) / h) + 0.5);          // base mais escura, topo mais claro (oclusão falsa)
+    const f = FACE(n) * light * ao;
     for (let k = 0; k < 3; k++) col[i * 3 + k] = Math.pow(Math.min(1, base[k] * AMBIENT[k] * f * GAIN), 2.2);   // sRGB -> linear
   }
   geo.setAttribute('color', new THREE.BufferAttribute(col, 3));

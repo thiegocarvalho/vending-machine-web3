@@ -13,8 +13,9 @@ describe('pickTier', () => {
     expect(pickTier({ hardwareConcurrency: 6 })).toBe('medium');
     expect(pickTier({})).toBe('medium');
   });
-  it('tiers shrink textures and enlarge pixels as they get lower', () => {
-    expect(TIERS.low.pixelScale).toBeGreaterThan(TIERS.high.pixelScale);
+  it('lower tiers render fewer pixels and use smaller textures', () => {
+    expect(TIERS.low.dprCap).toBeLessThan(TIERS.high.dprCap);
+    expect(TIERS.low.antialias).toBe(false);
     expect(TIERS.low.texW).toBeLessThan(TIERS.high.texW);
   });
 });

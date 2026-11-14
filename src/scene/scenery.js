@@ -5,7 +5,7 @@ import { PALETTE } from './palette.js';
 
 const FOG = 0x0c1424;
 
-// Céu noturno pintado em baixa resolução: gradiente, nuvens, montanhas e linha de árvores.
+// Céu noturno pintado: gradiente, nuvens, montanhas e linha de árvores.
 export function paintSky(ctx, w = 512, h = 128, rand = Math.random) {
   const g = ctx.createLinearGradient(0, 0, 0, h);
   g.addColorStop(0, '#05080f'); g.addColorStop(0.55, '#14233d'); g.addColorStop(1, '#2a4468');
@@ -27,10 +27,11 @@ export function paintSky(ctx, w = 512, h = 128, rand = Math.random) {
 }
 
 function skyDome() {
-  const c = document.createElement('canvas'); c.width = 512; c.height = 128;
-  paintSky(c.getContext('2d'));
+  const c = document.createElement('canvas'); c.width = 1024; c.height = 256;
+  const g = c.getContext('2d'); g.scale(2, 2);
+  paintSky(g);
   const tex = new THREE.CanvasTexture(c);
-  tex.magFilter = tex.minFilter = THREE.NearestFilter; tex.colorSpace = THREE.SRGBColorSpace; tex.wrapS = THREE.RepeatWrapping;
+  tex.colorSpace = THREE.SRGBColorSpace; tex.wrapS = THREE.RepeatWrapping;
   const m = new THREE.Mesh(
     new THREE.CylinderGeometry(45, 45, 40, 32, 1, true),
     new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide, fog: false })
@@ -38,7 +39,7 @@ function skyDome() {
   m.position.y = 14; return m;
 }
 
-// Chão com a poça de luz assada (gradiente radial), em baixa resolução.
+// Chão com a poça de luz assada (gradiente radial), 
 function groundTexture() {
   const c = document.createElement('canvas'); c.width = c.height = 128;
   const g = c.getContext('2d');
@@ -46,7 +47,7 @@ function groundTexture() {
   r.addColorStop(0, '#46557a'); r.addColorStop(0.45, '#26324c'); r.addColorStop(1, '#0c1424');
   g.fillStyle = r; g.fillRect(0, 0, 128, 128);
   const t = new THREE.CanvasTexture(c);
-  t.magFilter = t.minFilter = THREE.NearestFilter; t.colorSpace = THREE.SRGBColorSpace; t.generateMipmaps = false;
+  t.colorSpace = THREE.SRGBColorSpace;
   return t;
 }
 

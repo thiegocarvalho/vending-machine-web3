@@ -34,7 +34,7 @@ const LOCAL_DEV = () => config.demoMode && !config.metadataCid;   // dev only: n
 
 export function imageUrlFor(meta) {
   if (LOCAL_DEV()) return `/dev-images/${meta.image.split('/').pop()}`;
-  return meta.image;
+  return meta.image_thumbnail || meta.image;   // miniatura leve quando existir; `image` segue sendo o padrão NFT (arte completa)
 }
 
 export async function loadMetadata(id) {

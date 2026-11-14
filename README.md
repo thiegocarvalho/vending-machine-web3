@@ -1,6 +1,6 @@
 # DeFi Vending Machine 3D
 
-Jogo 3D de navegador (Three.js, estilo PS1): uma vending machine num estacionamento escuro com os 30 cards ERC-1155 (grade 5 linhas A–E × 6 colunas 1–6). Compra por QR Code (EIP-681) ou pela carteira do navegador, na Sepolia.
+Jogo 3D de navegador (Three.js, low-poly): uma vending machine numa rua noturna com os 30 cards ERC-1155 (grade 5 linhas A–E × 6 colunas 1–6). Compra por QR Code (EIP-681) ou pela carteira do navegador, na Sepolia.
 
 ## Rodar
 ```bash

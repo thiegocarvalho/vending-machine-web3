@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { createPs1Renderer } from './render/ps1Renderer.js';
+import { createRenderer } from './render/renderer.js';
 import { buildMachine } from './scene/machine.js';
 import { buildScenery, addLighting } from './scene/scenery.js';
 import { createControls } from './player/controls.js';
@@ -13,18 +13,18 @@ import { hasWallet, payWithWallet } from './payment/wallet.js';
 import { config } from './config.js';
 import { cardIdToSlot } from './grid.js';
 import { formatEther } from 'viem';
-import { TIERS, detectTier, createAdaptiveScale } from './render/quality.js';
+import { TIERS, RESOLUTION_LEVELS, detectTier, createAdaptiveScale } from './render/quality.js';
 
 const canvas = document.getElementById('game');
 const tier = TIERS[detectTier()];
-const { resize, render, setPixelScale } = createPs1Renderer(canvas, tier.pixelScale);
+const { renderer, resize, render, setResolutionFactor } = createRenderer(canvas, tier);
 
 // Renderização sob demanda: só desenha enquanto há atividade (entrada, animação, carregamento).
 let activeUntil = 0, loading = true;              // sempre ativo durante o carregamento inicial
 const wake = (ms = 1500) => { activeUntil = Math.max(activeUntil, performance.now() + ms); };
 ['pointerdown', 'pointermove', 'pointerup', 'keydown', 'keyup', 'wheel', 'touchstart', 'touchmove', 'resize', 'orientationchange', 'visibilitychange']
   .forEach((ev) => window.addEventListener(ev, () => wake(), { passive: true }));
-const adaptive = createAdaptiveScale({ base: tier.pixelScale, max: 8, onChange: (n) => { setPixelScale(n); wake(); } });
+const adaptive = createAdaptiveScale({ base: 0, max: RESOLUTION_LEVELS.length - 1, onChange: (n) => { setResolutionFactor(RESOLUTION_LEVELS[n]); wake(); } });
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(65, 1, 0.1, 60);
 addLighting(scene);
@@ -41,7 +41,7 @@ const hud = createHud(hudRoot);
 let infos = await loadCardsInfo();
 const cardsApi = populateCards(machine.slotAnchors, infos, tier);
 cardsApi.done.then(() => { loading = false; wake(); });
-window.__game = { scene, camera, machine, controls, cardsApi, selection, tier, adaptive, wake };
+window.__game = { renderer, scene, camera, machine, controls, cardsApi, selection, tier, adaptive, wake };
 
 const priceText = (i) => `${formatEther(infos[i - 1].price)} ETH`;
 const contractForQr = config.contractAddress || '0x0000000000000000000000000000000000000000';

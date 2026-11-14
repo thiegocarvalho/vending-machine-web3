@@ -2,9 +2,10 @@ import * as THREE from 'three';
 import { loadMetadata, imageUrlFor } from '../data/chain.js';
 import { fetchIpfs } from '../data/ipfs.js';
 import { config } from '../config.js';
-import { applyPs1Snap } from '../render/ps1Renderer.js';
 
 const CARD_W = 0.17, CARD_H = CARD_W * 4 / 3, CONCURRENCY = 6;
+
+const CARD_GEO = new THREE.PlaneGeometry(CARD_W, CARD_H);   // uma geometria para os 30 cards
 
 function placeholderTexture(label, failed = false) {
   const c = document.createElement('canvas'); c.width = 75; c.height = 100;
@@ -13,7 +14,7 @@ function placeholderTexture(label, failed = false) {
   g.strokeStyle = failed ? '#ff0033' : '#40404a'; g.strokeRect(2, 2, 71, 96);
   g.fillStyle = failed ? '#ff0033' : '#80808a'; g.font = '20px monospace'; g.textAlign = 'center';
   g.fillText(failed ? '!' : label, 37, 56);
-  const t = new THREE.CanvasTexture(c); t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter;
+  const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 
@@ -23,15 +24,14 @@ async function loadTexture(meta, { texW, texH }) {
                                          : await (await fetch(url)).blob();
   const bmp = await createImageBitmap(blob, { resizeWidth: texW, resizeHeight: texH, resizeQuality: 'medium', imageOrientation: 'flipY' });
   // ImageBitmap ignora flipY: a inversão vem de imageOrientation no createImageBitmap
-  const t = new THREE.Texture(bmp); t.flipY = false; t.magFilter = THREE.NearestFilter; t.minFilter = THREE.LinearFilter;
-  t.generateMipmaps = false; t.colorSpace = THREE.SRGBColorSpace; t.needsUpdate = true; return t;
+  const t = new THREE.Texture(bmp); t.flipY = false; t.anisotropy = 4;
+  t.colorSpace = THREE.SRGBColorSpace; t.needsUpdate = true; return t;
 }
 
 export function populateCards(anchors, infos, { texW = 300, texH = 400 } = {}) {
   const cards = [], metas = new Array(anchors.length).fill(null), listeners = [];
   anchors.forEach((anchor, i) => {
-    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(CARD_W, CARD_H),
-      applyPs1Snap(new THREE.MeshBasicMaterial({ map: placeholderTexture(String(i + 1)) })));
+    const mesh = new THREE.Mesh(CARD_GEO, new THREE.MeshBasicMaterial({ map: placeholderTexture(String(i + 1)) }));
     mesh.userData.cardId = i + 1;
     anchor.add(mesh); cards.push(mesh);
   });

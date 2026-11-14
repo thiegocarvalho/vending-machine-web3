@@ -13,6 +13,5 @@ export const config = {
     'https://ipfs.filebase.io/ipfs/'
   ],
   get demoMode() { return !this.contractAddress; },
-  wallRadius: 7,
-  pixelScale: 3
+  wallRadius: 7
 };
