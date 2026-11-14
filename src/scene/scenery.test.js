@@ -17,7 +17,7 @@ describe('paintBricks', () => {
 describe('painted textures', () => {
   const ctx = () => new Proxy({}, { get: (t, k) => (k === 'createLinearGradient' || k === 'createRadialGradient' ? () => ({ addColorStop() {} }) : () => {}), set: () => true });
   it('all painters run on a canvas context without throwing', () => {
-    expect(() => paintPaving(ctx(), 128, 128, () => 0.5)).not.toThrow();
+    expect(() => paintPaving(ctx(), 64, 64)).not.toThrow();
     expect(() => paintNeon(ctx(), 512, 210)).not.toThrow();
     expect(() => paintRoad(ctx(), 4096, 512, () => 0.5)).not.toThrow();
     let qrArgs = null;

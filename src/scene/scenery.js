@@ -22,15 +22,11 @@ const glowDisc = (g, x, y, rx, ry, rgb, a) => {                  // elipse com g
   g.fillStyle = r; g.beginPath(); g.arc(0, 0, rx, 0, Math.PI * 2); g.fill(); g.restore();
 };
 
-// Calçada de lajes (1 tile = 2 m x 2 m = 2x2 lajes), repetida pelo chão.
-export function paintPaving(ctx, w, h, rand = Math.random) {
-  const n = 2, sw = w / n, sh = h / n;
-  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
-    const v = 52 + rand() * 18;
-    ctx.fillStyle = `rgb(${v},${v + 4},${v + 14})`; ctx.fillRect(i * sw, j * sh, sw, sh);
-  }
-  ctx.strokeStyle = '#0a0d16'; ctx.lineWidth = 3;
-  for (let i = 0; i <= n; i++) { ctx.beginPath(); ctx.moveTo(i * sw, 0); ctx.lineTo(i * sw, h); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, i * sh); ctx.lineTo(w, i * sh); ctx.stroke(); }
+// Calçada: uma única laje (concreto liso com junta fina e um brilho leve na quina), repetida. Textura mínima: 64x64, sem aleatoriedade.
+export function paintPaving(ctx, w, h) {
+  ctx.fillStyle = '#3b404d'; ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = 'rgba(255,255,255,0.045)'; ctx.fillRect(0, 0, w, 2); ctx.fillRect(0, 0, 2, h);          // quina iluminada
+  ctx.fillStyle = '#12151f'; ctx.fillRect(w - 2, 0, 2, h); ctx.fillRect(0, h - 2, w, 2);                   // junta
 }
 
 export const ROAD = { z0: 4.2, z1: 14.6, w: 60 };           // 10,4 m: duas faixas
@@ -213,13 +209,16 @@ export function buildScenery({ aniso = 4, roadPx = 4096 } = {}) {
   ANISO = aniso;
   const g = new THREE.Group();
   // calçada junto ao muro, meio-fio, rua de asfalto 15 cm abaixo e calçada do outro lado
-  const pave = canvasTex(128, 128, (c, w, h) => paintPaving(c, w, h), { repeat: [30, 12] });
-  const flat = (w, d, x, z, y, map, color = 0xffffff) => {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshBasicMaterial({ map, color }));
+  const SLAB = 1.5;                                                              // 1 laje = 1,5 m; uma textura só serve às duas calçadas
+  const pave = canvasTex(64, 64, (c, w, h) => paintPaving(c, w, h), { repeat: [1, 1] }); pave.anisotropy = Math.min(ANISO, 4);
+  const flat = (w, d, x, z, y, map, color = 0xffffff, tile = 0) => {
+    const geo = new THREE.PlaneGeometry(w, d);
+    if (tile) { const uv = geo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * (w / tile), uv.getY(i) * (d / tile)); }   // UV em metros: lajes do mesmo tamanho em qualquer plano
+    const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map, color }));
     m.rotation.x = -Math.PI / 2; m.position.set(x, y, z); g.add(m); return m;
   };
-  const near = flat(60, 4.5, 0, 1.75, 0, pave, 0xa0a8c4);                       // calçada z -0.5..4.0
-  const farWalk = flat(60, 16, 0, ROAD.z1 + 0.2 + 8, 0, pave.clone(), 0x8890ac); farWalk.material.map.repeat.set(30, 8); farWalk.material.map.needsUpdate = true;
+  flat(60, 4.5, 0, 1.75, 0, pave, 0xa0a8c4, SLAB);                                 // calçada z -0.5..4.0
+  flat(60, 16, 0, ROAD.z1 + 0.2 + 8, 0, pave, 0x8890ac, SLAB);                     // calçada do outro lado
   const roadTex = canvasTex(roadPx, roadPx / 8, (c, w, h) => paintRoad(c, w, h));
   roadTex.anisotropy = Math.max(1, aniso * 2);
   flat(ROAD.w, ROAD.z1 - ROAD.z0, 0, (ROAD.z0 + ROAD.z1) / 2, -0.15, roadTex, 0xd2d6ec);
