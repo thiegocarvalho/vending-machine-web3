@@ -11,7 +11,15 @@
     "generate:metadata": "node scripts/generate_metadata.js",
     "serve": "npx serve .",
     "upload:pinata": "node scripts/pinata_upload.js",
-    "test:contract": "hardhat test"
+    "test:contract": "hardhat test",
+    "test:all": "npm test && hardhat test",
+    "wallet:new": "node scripts/wallet.js new",
+    "wallet:import": "node scripts/wallet.js import",
+    "wallet:address": "node scripts/wallet.js address",
+    "wallet:balance": "node scripts/wallet.js balance",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "deploy:dry": "DEPLOY_DRY=1 hardhat run scripts/deploy.js --network sepolia",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia"
   },
   "keywords": [
     "defi",
