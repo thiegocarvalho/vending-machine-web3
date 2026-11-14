@@ -278,7 +278,10 @@ async function doSend({ to, amount }, say) {
 }
 async function connectWallet() {
   connecting = true; walletError = ''; await syncWallet();
-  try { inventory.setAddress(await session.connect(), 'wallet'); }
+  try {
+    inventory.setAddress(await session.connect(), 'wallet');
+    try { await session.switchNetwork(); } catch { /* recusou a troca: o botão "trocar de rede" continua disponível */ }
+  }
   catch (e) { walletError = e.code === 4001 ? 'Conexão recusada na carteira.' : 'Não foi possível conectar: ' + (e.shortMessage || e.message); }
   connecting = false; await refreshInventory();
 }

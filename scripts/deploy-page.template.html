@@ -24,7 +24,7 @@ async function refresh(){
   if(!acct){$('w').textContent='Não conectada.';$('go').disabled=true;return}
   const ch=await req('eth_chainId');
   if(ch!==SEPOLIA){$('w').innerHTML=`${esc(acct)}<br><span class="warn">Rede errada (${parseInt(ch,16)}). Trocando para a Sepolia…</span>`;
-    try{await req('wallet_switchEthereumChain',[{chainId:SEPOLIA}]);return refresh()}catch(e){$('w').innerHTML+='<br><span class="bad">Troque para a Sepolia na carteira.</span>';$('go').disabled=true;return}}
+    try{try{await req('wallet_switchEthereumChain',[{chainId:SEPOLIA}])}catch(e){if(e.code!==4902)throw e;await req('wallet_addEthereumChain',[{chainId:SEPOLIA,chainName:'Sepolia',nativeCurrency:{name:'Sepolia ETH',symbol:'ETH',decimals:18},rpcUrls:['https://ethereum-sepolia-rpc.publicnode.com'],blockExplorerUrls:['https://sepolia.etherscan.io']}])}return refresh()}catch(e){$('w').innerHTML+='<br><span class="bad">Troque para a Sepolia na carteira.</span>';$('go').disabled=true;return}}
   const bal=await req('eth_getBalance',[acct,'latest']);
   $('w').innerHTML=`<span class="ok">Conectada:</span> <code>${esc(acct)}</code><br>Saldo: <b>${wei2eth(bal)} ETH</b> (Sepolia)`;
   try{const gas=BigInt(await req('eth_estimateGas',[{from:acct,data:C.data}]));const gp=BigInt(await req('eth_gasPrice'));const cost=gas*gp;
