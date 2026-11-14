@@ -27,6 +27,19 @@ function glowTexture() {
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 
+// Reflexo diagonal do vidro: duas faixas suaves numa textura minúscula (aditiva, custa quase nada).
+function streakTexture() {
+  const c = document.createElement('canvas'); c.width = 64; c.height = 128;
+  const g = c.getContext('2d');
+  const band = (x0, w, a) => {
+    const l = g.createLinearGradient(x0, 0, x0 + w, 0);
+    l.addColorStop(0, 'rgba(255,255,255,0)'); l.addColorStop(0.5, `rgba(255,255,255,${a})`); l.addColorStop(1, 'rgba(255,255,255,0)');
+    g.save(); g.transform(1, 0, -0.55, 1, 0, 0); g.fillStyle = l; g.fillRect(x0, 0, w, 128); g.restore();
+  };
+  band(40, 18, 0.16); band(70, 6, 0.1);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+
 export function buildMachine() {
   const group = new THREE.Group();
   const front = D / 2;
@@ -41,10 +54,22 @@ export function buildMachine() {
   box(0.06, H - 0.2, 0.02, BLUE_DARK, -W / 2 + 0.03, H / 2 + 0.05, front + 0.003);        // frisos laterais
   box(0.06, H - 0.2, 0.02, BLUE_DARK, W / 2 - 0.03, H / 2 + 0.05, front + 0.003);
 
+  // acabamento do corpo: quinas com brilho (falso chanfro), calota no topo e pés de apoio
+  const EDGE = 0x6fb8ff;
+  box(0.014, H - 0.14, 0.012, EDGE, -W / 2 + 0.007, H / 2 + 0.07, front + 0.004);
+  box(0.014, H - 0.14, 0.012, EDGE, W / 2 - 0.007, H / 2 + 0.07, front + 0.004);
+  box(W - 0.03, 0.014, 0.012, 0x9ad0ff, 0, H - 0.007, front + 0.004);                     // quina de cima, a mais clara
+  box(W + 0.05, 0.05, D + 0.05, NAVY, 0, H + 0.025, 0);                                   // calota
+  box(W + 0.05, 0.012, 0.012, EDGE, 0, H + 0.052, front + 0.025);
+  for (const sx of [-1, 1]) box(0.1, 0.04, 0.1, 0x05070d, sx * (W / 2 - 0.12), 0.02, front - 0.12);   // pés (aparecem na sombra)
+
   // janela: fundo claro (caixa de luz) + moldura neon que sobressai como gabinete raso
   const wx = (WIN.x0 + WIN.x1) / 2, ww = WIN.x1 - WIN.x0, wy = (WIN.y0 + WIN.y1) / 2, wh = WIN.y1 - WIN.y0;
   const DEPTH = 0.2, fz = front + DEPTH / 2;
   glow(ww, wh, 0.01, 0xcfdcf0, wx, wy, front + 0.006);
+  glow(ww, 0.09, 0.012, 0xa3b8d8, wx, WIN.y1 - 0.045, front + 0.008);                    // sombra suave do teto da janela
+  glow(0.05, wh, 0.012, 0xb6c8e2, WIN.x0 + 0.025, wy, front + 0.008);                     // e das laterais
+  glow(0.05, wh, 0.012, 0xb6c8e2, WIN.x1 - 0.025, wy, front + 0.008);
   const bar = 0.05;
   glow(ww + 2 * bar, bar, DEPTH, NEON, wx, WIN.y1 + bar / 2, fz);
   glow(ww + 2 * bar, bar, DEPTH, NEON, wx, WIN.y0 - bar / 2, fz);
@@ -71,6 +96,9 @@ export function buildMachine() {
   const glass = new THREE.Mesh(new THREE.PlaneGeometry(ww, wh),
     new THREE.MeshBasicMaterial({ color: 0x9fd0ff, transparent: true, opacity: 0.1, depthWrite: false }));
   glass.position.set(wx, wy, front + DEPTH - 0.01); glass.renderOrder = 5; group.add(glass);
+  const streak = new THREE.Mesh(new THREE.PlaneGeometry(ww, wh),
+    new THREE.MeshBasicMaterial({ map: streakTexture(), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+  streak.position.set(wx, wy, front + DEPTH - 0.008); streak.renderOrder = 6; group.add(streak);
   // halo neon sobre a lataria ao redor da janela
   const halo = new THREE.Mesh(new THREE.PlaneGeometry(ww + 0.7, wh + 0.7),
     new THREE.MeshBasicMaterial({ map: glowTexture(), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
@@ -86,6 +114,11 @@ export function buildMachine() {
   box(0.06, 0.06, 0.02, 0x020306, COL.cx - 0.1, 0.82, front + 0.03);
   box(0.08, 0.08, 0.025, 0xaebcd2, COL.cx + 0.1, 0.82, front + 0.016);            // botão de devolução
 
+  glow(PANEL.screen.w + 0.07, 0.008, 0.012, NEON, PANEL.screen.x, PANEL.screen.y + PANEL.screen.h / 2 + 0.03, front + 0.018);   // filete de luz da tela
+  glow(PANEL.screen.w + 0.07, 0.008, 0.012, NEON, PANEL.screen.x, PANEL.screen.y - PANEL.screen.h / 2 - 0.03, front + 0.018);
+  for (let i = 0; i < 6; i++) box(0.34, 0.014, 0.02, 0x07163a, COL.cx, 0.58 - i * 0.045, front + 0.016);               // grade de ventilação
+  box(0.38, 0.015, 0.02, 0x8fa3c4, COL.cx, 0.66, front + 0.016);
+
   const ledCanvas = document.createElement('canvas'); ledCanvas.width = 480; ledCanvas.height = 102;
   const ledTex = new THREE.CanvasTexture(ledCanvas); ledTex.colorSpace = THREE.SRGBColorSpace;
   drawLed(ledCanvas.getContext('2d'), 'DISPONIVEL', 480, 102);
@@ -100,6 +133,7 @@ export function buildMachine() {
   box(ww - 0.1, 0.2, 0.025, 0x0a1a3d, wx, 0.3, front + 0.014);
   box(ww - 0.16, 0.16, 0.03, 0x020203, wx, 0.3, front + 0.02);
   glow(ww - 0.1, 0.012, 0.02, NEON, wx, 0.43, front + 0.03);
+  box(0.34, 0.03, 0.04, 0xaebcd2, wx, 0.43, front + 0.04);                                  // puxador da aba
   const trayAnchor = new THREE.Object3D();
   trayAnchor.position.set(wx, 0.3, front + 0.05);
   group.add(trayAnchor);

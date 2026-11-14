@@ -3,7 +3,7 @@ const { ethers } = require('hardhat');
 
 const PRICE = 100000000000000n;            // 0.0001 ETH
 const buy1 = (vm, who, id, value = PRICE) => vm.connect(who)['buyCard(uint256)'](id, { value });
-const buyN = (vm, who, id, n, value) => vm.connect(who)['buyCard(uint256,uint256)'](id, n, { value: value ?? PRICE * BigInt(n) });
+const buyN = async (vm, who, id, n) => { for (let i = 0; i < n; i++) await buy1(vm, who, id); };   // n compras de 1 unidade (não existe compra em quantidade)
 
 async function deploy() {
   const [owner, alice, bob, carol] = await ethers.getSigners();
@@ -82,22 +82,18 @@ describe('compra de 1 card (o que o jogo usa)', () => {
   });
 });
 
-describe('compra em quantidade e em lote (existem no contrato, o jogo não usa)', () => {
-  it('buyCard(id, n): valor = n × preço; n=0 e acima do estoque revertem', async () => {
-    const { vm, alice } = await deploy();
-    await expect(buyN(vm, alice, 2, 3)).to.changeEtherBalance(vm, PRICE * 3n);
-    expect(await vm.balanceOf(alice.address, 2)).to.equal(3n);
-    await expect(vm.connect(alice)['buyCard(uint256,uint256)'](2, 0, { value: 0 })).to.be.revertedWithCustomError(vm, 'InvalidAmount');
-    await expect(buyN(vm, alice, 2, 98)).to.be.revertedWithCustomError(vm, 'InsufficientStock').withArgs(2, 97n, 98n);
-    await expect(buyN(vm, alice, 2, 2, PRICE)).to.be.revertedWithCustomError(vm, 'IncorrectPayment');
+describe('compra sempre de 1 em 1 (não existe quantidade nem lote)', () => {
+  it('a interface do contrato só tem buyCard(uint256)', async () => {
+    const { vm } = await deploy();
+    const nomes = vm.interface.fragments.filter((f) => f.type === 'function' && f.name.startsWith('buy')).map((f) => f.format('sighash'));
+    expect(nomes).to.deep.equal(['buyCard(uint256)']);
   });
-  it('buyCardsBatch: vários cards numa transação, custo total exato, listas iguais', async () => {
+  it('cada compra entrega exatamente 1 unidade e cobra exatamente 1 preço', async () => {
     const { vm, alice } = await deploy();
-    await expect(vm.connect(alice).buyCardsBatch([1, 2, 3], [1, 2, 3], { value: PRICE * 6n })).to.emit(vm, 'BatchCardsPurchased');
-    expect(await vm.balanceOfBatch([alice.address, alice.address, alice.address], [1, 2, 3])).to.deep.equal([1n, 2n, 3n]);
-    await expect(vm.connect(alice).buyCardsBatch([1, 2], [1], { value: PRICE })).to.be.revertedWithCustomError(vm, 'ArrayLengthMismatch');
-    await expect(vm.connect(alice).buyCardsBatch([], [], { value: 0 })).to.be.revertedWithCustomError(vm, 'ArrayLengthMismatch');
-    await expect(vm.connect(alice).buyCardsBatch([1, 2], [1, 1], { value: PRICE })).to.be.revertedWithCustomError(vm, 'IncorrectPayment');
+    await expect(buy1(vm, alice, 2)).to.emit(vm, 'CardPurchased').withArgs(alice.address, 2, 1, PRICE, 99);
+    expect(await vm.balanceOf(alice.address, 2)).to.equal(1n);
+    await expect(buy1(vm, alice, 2, PRICE * 2n)).to.be.revertedWithCustomError(vm, 'IncorrectPayment').withArgs(PRICE * 2n, PRICE);   // pagar por 2 não leva 2
+    await expect(buy1(vm, alice, 2, PRICE - 1n)).to.be.revertedWithCustomError(vm, 'IncorrectPayment');
   });
 });
 

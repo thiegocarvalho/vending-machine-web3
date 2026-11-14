@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import * as THREE from 'three';
 
 // ambiente node: canvas mínimo para as texturas desenhadas (LED)
-const noop = new Proxy({}, { get: (t, k) => (k === 'createRadialGradient' ? () => ({ addColorStop() {} }) : () => {}), set: () => true });
+const noop = new Proxy({}, { get: (t, k) => (k === 'createRadialGradient' || k === 'createLinearGradient' ? () => ({ addColorStop() {} }) : () => {}), set: () => true });
 vi.stubGlobal('document', { createElement: () => ({ width: 0, height: 0, getContext: () => noop }) });
 const { buildMachine } = await import('./machine.js');
 

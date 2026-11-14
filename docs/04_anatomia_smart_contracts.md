@@ -60,14 +60,13 @@ Quando escrevemos um contrato em Solidity e compilamos, geramos duas coisas:
 
 Quando você clica no botão "Comprar" na Vending Machine, a sua carteira monta uma transação com um campo chamado **`data`** (ou `calldata`).
 
-Exemplo: chamando `buyCard(cardId: 5, amount: 1)` com envio de `0.001 ETH`:
+Exemplo: chamando `buyCard(cardId: 5)` (sempre 1 unidade) com envio de `0.001 ETH`:
 
 1. **O Function Selector (Os primeiros 4 bytes):**  
-   A EVM pega a assinatura da função: `keccak256("buyCard(uint256,uint256)")`.  
+   A EVM pega a assinatura da função: `keccak256("buyCard(uint256)")`.  
    Os primeiros 4 bytes dessa hash (ex: `0x9a4f21d3`) são usados como um despachante de tráfego (*dispatcher*). O contrato olha esses 4 bytes e sabe exatamente para qual trecho do código deve pular.
 2. **Os Argumentos (Os bytes seguintes em blocos de 32 bytes):**  
    - Próximos 32 bytes: o número `5` (o ID do card).
-   - Próximos 32 bytes: o número `1` (a quantidade).
 3. **A Execução na EVM:**  
    O processador do nó executa as verificações programadas:
    - O valor em `msg.value` cobre o custo?

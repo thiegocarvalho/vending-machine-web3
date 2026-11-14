@@ -60,60 +60,23 @@ class DefiVendingMachineSimulator {
   }
 
   // --- Purchase Functions ---
-  buyCard(sender, cardId, valueWei, amount = 1n) {
+  buyCard(sender, cardId, valueWei) {              // sempre 1 unidade por compra
     if (this.paused) throw new Error("EnforcedPause()");
     if (cardId < 1 || cardId > this.totalCardTypes) throw new Error(`InvalidCardId(${cardId})`);
-    if (amount <= 0n) throw new Error("InvalidAmount()");
 
     const card = this.cards[cardId];
     if (!card.active) throw new Error(`CardNotActive(${cardId})`);
     if (card.stock === 0n) throw new Error(`CardIsSoldOut(${cardId})`);
-    if (card.stock < amount) throw new Error(`InsufficientStock(${cardId}, ${card.stock}, ${amount})`);
 
-    const expectedCost = card.price * amount;
-    if (valueWei !== expectedCost) throw new Error(`IncorrectPayment(${valueWei}, ${expectedCost})`);
+    if (valueWei !== card.price) throw new Error(`IncorrectPayment(${valueWei}, ${card.price})`);
 
-    // Deduct stock
-    card.stock -= amount;
-    this.balance += expectedCost;
+    card.stock -= 1n;
+    this.balance += card.price;
 
     if (!this.userBalances[sender]) this.userBalances[sender] = {};
-    this.userBalances[sender][cardId] = (this.userBalances[sender][cardId] || 0n) + amount;
+    this.userBalances[sender][cardId] = (this.userBalances[sender][cardId] || 0n) + 1n;
 
-    return { success: true, cardId, amount, totalCost: expectedCost };
-  }
-
-  buyCardsBatch(sender, cardIds, amounts, valueWei) {
-    if (this.paused) throw new Error("EnforcedPause()");
-    if (cardIds.length === 0 || cardIds.length !== amounts.length) throw new Error("ArrayLengthMismatch()");
-
-    let totalCost = 0n;
-    for (let i = 0; i < cardIds.length; i++) {
-      const cid = cardIds[i];
-      const amt = amounts[i];
-      if (cid < 1 || cid > this.totalCardTypes) throw new Error(`InvalidCardId(${cid})`);
-      if (amt <= 0n) throw new Error("InvalidAmount()");
-
-      const card = this.cards[cid];
-      if (!card.active) throw new Error(`CardNotActive(${cid})`);
-      if (card.stock === 0n) throw new Error(`CardIsSoldOut(${cid})`);
-      if (card.stock < amt) throw new Error(`InsufficientStock(${cid}, ${card.stock}, ${amt})`);
-
-      totalCost += card.price * amt;
-    }
-
-    if (valueWei !== totalCost) throw new Error(`IncorrectPayment(${valueWei}, ${totalCost})`);
-
-    for (let i = 0; i < cardIds.length; i++) {
-      const cid = cardIds[i];
-      const amt = amounts[i];
-      this.cards[cid].stock -= amt;
-      if (!this.userBalances[sender]) this.userBalances[sender] = {};
-      this.userBalances[sender][cid] = (this.userBalances[sender][cid] || 0n) + amt;
-    }
-
-    this.balance += totalCost;
-    return { success: true, cardIds, amounts, totalCost };
+    return { success: true, cardId, amount: 1n, totalCost: card.price };
   }
 
   // --- Card Creation (Owner) ---
@@ -585,27 +548,25 @@ let machine = new DefiVendingMachineSimulator();
   assert.strictEqual(machine.getStock(35), 50n);
   assert.strictEqual(machine.getStock(36), 25n);
 
-  // 3. Purchase multiple units of Card #34 (3 units at 0.0005 ETH each = 0.0015 ETH)
-  const buyMultiple = machine.buyCard(userAlice, 34, price34 * 3n, 3n);
-  assert.strictEqual(buyMultiple.amount, 3n);
+  // 3. Compra de 1 em 1: 3 compras do Card #34 (0.0005 ETH cada)
+  for (let i = 0; i < 3; i++) {
+    const r = machine.buyCard(userAlice, 34, price34);
+    assert.strictEqual(r.amount, 1n);
+  }
   assert.strictEqual(machine.getStock(34), 7n);
   assert.strictEqual(machine.balanceOf(userAlice, 34), 3n);
 
-  // 4. Batch purchase: Bob buys 2x Card #35 and 1x Card #36 in 1 transaction
-  const totalCostBatch = (pricesBatch[0] * 2n) + (pricesBatch[1] * 1n);
-  const batchBuy = machine.buyCardsBatch(userBob, [35, 36], [2n, 1n], totalCostBatch);
-  assert.strictEqual(batchBuy.totalCost, totalCostBatch);
-  assert.strictEqual(machine.getStock(35), 48n);
-  assert.strictEqual(machine.getStock(36), 24n);
-  assert.strictEqual(machine.balanceOf(userBob, 35), 2n);
-  assert.strictEqual(machine.balanceOf(userBob, 36), 1n);
+  // 4. Estoques individuais: comprar o #35 não mexe no #36
+  machine.buyCard(userBob, 35, pricesBatch[0]);
+  assert.strictEqual(machine.getStock(35), 49n);
+  assert.strictEqual(machine.getStock(36), 25n);
 
-  // 5. Attempting to buy more than remaining stock must revert
+  // 5. Pagar por mais de uma unidade não leva mais de uma: valor errado reverte
   assert.throws(() => {
-    machine.buyCard(userCarol, 34, price34 * 8n, 8n); // only 7 left
-  }, /InsufficientStock/);
+    machine.buyCard(userCarol, 34, price34 * 2n);
+  }, /IncorrectPayment/);
 
-  console.log("✓ PASSED: Per-card custom stocks and individual/batch operations functioning perfectly!");
+  console.log("✓ PASSED: Per-card custom stocks and individual stock and one-at-a-time purchases functioning perfectly!");
 }
 
 console.log("\n=======================================================");
