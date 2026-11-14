@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { SCENERY_COLLIDERS, paintBricks } from './scenery.js';
+import { SCENERY_COLLIDERS, paintBricks, paintPaving, paintNeon, paintGraffiti, paintSkyline } from './scenery.js';
 import { MACHINE_COLLIDER } from './machine.js';
 import { collideCircle } from '../player/movement.js';
 
@@ -14,9 +14,19 @@ describe('paintBricks', () => {
   });
 });
 
+describe('painted textures', () => {
+  const ctx = () => new Proxy({}, { get: (t, k) => (k === 'createLinearGradient' || k === 'createRadialGradient' ? () => ({ addColorStop() {} }) : () => {}), set: () => true });
+  it('all painters run on a canvas context without throwing', () => {
+    expect(() => paintPaving(ctx(), 128, 128, () => 0.5)).not.toThrow();
+    expect(() => paintNeon(ctx(), 512, 210)).not.toThrow();
+    expect(() => paintGraffiti(ctx(), 512, 256, () => 0.5)).not.toThrow();
+    expect(() => paintSkyline(ctx(), 1024, 256, () => 0.5)).not.toThrow();
+  });
+});
+
 describe('physical scenery', () => {
   it('has the brick wall behind the machine (to the horizon) and a solid lamp post, no side walls', () => {
-    expect(SCENERY_COLLIDERS).toHaveLength(2);
+    expect(SCENERY_COLLIDERS).toHaveLength(3);                        // muro, poste de luz e bloco da placa
     const post = SCENERY_COLLIDERS[1];
     expect(post.maxX - post.minX).toBeLessThan(0.5);
     expect(post.minX).toBeGreaterThan(MACHINE_COLLIDER.maxX);
