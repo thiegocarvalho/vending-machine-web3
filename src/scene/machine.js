@@ -11,6 +11,9 @@ const WIN = { x0: -W / 2 + 0.1, x1: 0.35, y0: 0.55, y1: H - 0.15 }; // glass win
 let batch;
 function box(w, h, d, color, x, y, z) { batch.add(w, h, d, color, MACHINE_LIGHT, x, y, z); }
 
+// Caixa de colisão em planta (x/z) da máquina, incluindo o gabinete de vidro que sobressai à frente.
+export const MACHINE_COLLIDER = { minX: -W / 2 - 0.05, maxX: W / 2 + 0.05, minZ: -D / 2, maxZ: D / 2 + 0.2 };
+
 export function buildMachine() {
   const group = new THREE.Group();
   batch = createBatch();

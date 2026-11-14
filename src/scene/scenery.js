@@ -5,40 +5,6 @@ import { PALETTE } from './palette.js';
 
 const FOG = 0x0c1424;
 
-// Céu noturno pintado: gradiente, nuvens, montanhas e linha de árvores.
-export function paintSky(ctx, w = 512, h = 128, rand = Math.random) {
-  const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, '#05080f'); g.addColorStop(0.55, '#14233d'); g.addColorStop(1, '#2a4468');
-  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-  for (let i = 0; i < 40; i++) {                         // nuvens
-    ctx.fillStyle = `rgba(${10 + rand() * 20},${18 + rand() * 24},${34 + rand() * 30},${0.35 + rand() * 0.4})`;
-    ctx.beginPath(); ctx.ellipse(rand() * w, 8 + rand() * 55, 18 + rand() * 40, 5 + rand() * 9, 0, 0, Math.PI * 2); ctx.fill();
-  }
-  ctx.fillStyle = '#e8f0ff';                              // estrelas
-  for (let i = 0; i < 30; i++) ctx.fillRect(rand() * w, rand() * 45, 1, 1);
-  ctx.fillStyle = '#0d1626';                              // montanhas
-  ctx.beginPath(); ctx.moveTo(0, h);
-  for (let x = 0; x <= w; x += 8) ctx.lineTo(x, h - 38 - 18 * Math.sin(x / 41) - 12 * Math.sin(x / 17 + 2) - rand() * 3);
-  ctx.lineTo(w, h); ctx.fill();
-  ctx.fillStyle = '#05080e';                              // árvores
-  ctx.beginPath(); ctx.moveTo(0, h);
-  for (let x = 0; x <= w; x += 3) ctx.lineTo(x, h - 16 - rand() * 9);
-  ctx.lineTo(w, h); ctx.fill();
-}
-
-function skyDome() {
-  const c = document.createElement('canvas'); c.width = 1024; c.height = 256;
-  const g = c.getContext('2d'); g.scale(2, 2);
-  paintSky(g);
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace; tex.wrapS = THREE.RepeatWrapping;
-  const m = new THREE.Mesh(
-    new THREE.CylinderGeometry(45, 45, 40, 32, 1, true),
-    new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide, fog: false })
-  );
-  m.position.y = 14; return m;
-}
-
 // Chão com a poça de luz assada (gradiente radial), 
 function groundTexture() {
   const c = document.createElement('canvas'); c.width = c.height = 128;
@@ -51,6 +17,16 @@ function groundTexture() {
   return t;
 }
 
+// Paredes: a fonte única de verdade para a geometria E para a colisão (jogador não atravessa).
+const WALL_H = 4.5;
+const WALLS = [
+  { x: 0,    z: -0.8, w: 18,  d: 0.6, label: 'back' },    // atrás da máquina
+  { x: -5.5, z: 2.0,  w: 0.4, d: 5,   label: 'left' },    // retornos laterais formam um nicho
+  { x: 5.5,  z: 2.0,  w: 0.4, d: 5,   label: 'right' }
+];
+const toBox = (o) => ({ minX: o.x - o.w / 2, maxX: o.x + o.w / 2, minZ: o.z - o.d / 2, maxZ: o.z + o.d / 2 });
+export const SCENERY_COLLIDERS = WALLS.map(toBox);
+
 export function buildScenery() {
   const g = new THREE.Group();
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.MeshBasicMaterial({ map: groundTexture() }));
@@ -58,19 +34,18 @@ export function buildScenery() {
   const mark = new THREE.Mesh(new THREE.RingGeometry(1.4, 1.5, 24), new THREE.MeshBasicMaterial({ color: PALETTE.red }));
   mark.rotation.x = -Math.PI / 2; mark.position.set(0, 0.03, 2.4); g.add(mark);
 
-  // tudo que é estático vai para UM objeto (1 draw call): calçada, cerca de arame e postes de energia
+  // tudo que é estático vai para UM objeto (1 draw call)
   const b = createBatch();
-  b.add(30, 0.04, 2.4, 0x3a4560, 0.9, 0, 0.02, 0.4);
-  b.add(30, 0.05, 0.05, 0x4a5878, 0.7, 0, 1.2, -2.6);
-  b.add(30, 0.05, 0.05, 0x4a5878, 0.7, 0, 0.15, -2.6);
-  for (let x = -14; x <= 14; x += 1.5) b.add(0.06, 1.25, 0.06, 0x4a5878, 0.7, x, 0.62, -2.6);
-  for (let x = -14; x <= 14; x += 0.5) b.add(0.015, 1.05, 0.015, 0x4a5878, 0.7, x, 0.65, -2.6);
-  for (const x of [-12, 10]) {
-    b.add(0.2, 7, 0.2, 0x1a2030, 0.4, x, 3.5, -8);
-    b.add(2.2, 0.1, 0.1, 0x1a2030, 0.4, x, 6.6, -8);
-  }
+  for (const o of WALLS) b.add(o.w, WALL_H, o.d, o.label === 'back' ? 0x44506c : 0x39445c, o.label === 'back' ? 0.6 : 0.45, o.x, WALL_H / 2, o.z);
+  b.add(18, 0.28, 0.05, 0x222a3a, 0.7, 0, 0.14, -0.49);                       // rodapé
+  for (const y of [1.1, 2.0, 2.9, 3.8]) b.add(18, 0.05, 0.03, 0x2c364c, 0.6, 0, y, -0.495);   // fiadas
+  b.add(0.14, WALL_H, 0.14, 0x1a2030, 0.5, 2.7, WALL_H / 2, -0.44);           // cano
+  b.add(0.5, 0.7, 0.16, 0x2a3348, 0.7, -3.0, 1.8, -0.42);                     // caixa elétrica
+  b.add(5.0, 0.12, 2.2, 0x1a2030, 0.6, 0, 3.5, 0.6);                          // toldo sobre a máquina
+  b.add(0.1, 0.8, 0.1, 0x1a2030, 0.6, -2.4, 3.9, -0.4);
   g.add(b.build());
-  g.add(skyDome());
+  const lamp = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.05, 0.5), new THREE.MeshBasicMaterial({ color: 0xdff0ff }));
+  lamp.position.set(0, 3.43, 0.9); g.add(lamp);                              // luminária sob o toldo
   return g;
 }
 

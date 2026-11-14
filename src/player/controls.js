@@ -1,9 +1,9 @@
-import { clampToWall } from './movement.js';
+import { clampToWall, collideCircle } from './movement.js';
 import { config } from '../config.js';
 
-const EYE = 1.6, SPEED = 2.4;
+const EYE = 1.6, SPEED = 2.4, BODY_RADIUS = 0.3;
 
-export function createControls(camera, dom) {
+export function createControls(camera, dom, { colliders = [] } = {}) {
   const keys = new Set();
   let yaw = 0, pitch = 0;
   const joy = { x: 0, y: 0 };
@@ -30,7 +30,7 @@ export function createControls(camera, dom) {
     const sin = Math.sin(yaw), cos = Math.cos(yaw);
     const nx = camera.position.x + (-sin * f + cos * s) * SPEED * dt;
     const nz = camera.position.z + (-cos * f - sin * s) * SPEED * dt;
-    const p = clampToWall(nx, nz, config.wallRadius);
+    const p = collideCircle(...Object.values(clampToWall(nx, nz, config.wallRadius)), BODY_RADIUS, colliders);
     camera.position.set(p.x, EYE, p.z);
     camera.rotation.set(pitch, yaw, 0);
   }

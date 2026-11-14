@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { createRenderer } from './render/renderer.js';
-import { buildMachine } from './scene/machine.js';
-import { buildScenery, addLighting } from './scene/scenery.js';
+import { buildMachine, MACHINE_COLLIDER } from './scene/machine.js';
+import { buildScenery, addLighting, SCENERY_COLLIDERS } from './scene/scenery.js';
 import { createControls } from './player/controls.js';
 import { populateCards } from './scene/cards.js';
 import { loadCardsInfo } from './data/chain.js';
@@ -31,7 +31,7 @@ addLighting(scene);
 scene.add(buildScenery());
 const machine = buildMachine();
 scene.add(machine.group);
-const controls = createControls(camera, canvas);
+const controls = createControls(camera, canvas, { colliders: [...SCENERY_COLLIDERS, MACHINE_COLLIDER] });
 const selection = createSelection(1);
 const highlight = createHighlight(scene);
 const screen = createMachineScreen(machine.screenMesh);
