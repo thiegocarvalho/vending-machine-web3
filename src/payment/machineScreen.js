@@ -13,6 +13,7 @@ export function drawQr(ctx, text, x, y, size) {
   ctx.fillStyle = '#fff'; ctx.fillRect(x, y, total, total);
   ctx.fillStyle = '#000';
   for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.modules.get(c, r)) ctx.fillRect(x + (c + 1) * cell, y + (r + 1) * cell, cell, cell);
+  return total;                                    // lado real desenhado (múltiplo da célula)
 }
 
 // uv da telinha (origem embaixo-esquerda) -> está sobre o botão?

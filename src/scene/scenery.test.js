@@ -21,9 +21,21 @@ describe('painted textures', () => {
     expect(() => paintNeon(ctx(), 512, 210)).not.toThrow();
     expect(() => paintUfoSign(ctx(), 256, 230)).not.toThrow();
     let qrArgs = null;
-    expect(() => paintPoster(ctx(), 512, 683, (...a) => { qrArgs = a; }, () => 0.5)).not.toThrow();
+    expect(() => paintPoster(ctx(), 512, 760, (...a) => { qrArgs = a; }, () => 0.5)).not.toThrow();
     expect(qrArgs[1]).toMatch(/^https:\/\/.*faucet.*sepolia/);       // o QR aponta para o faucet da Sepolia
     expect(() => paintSkyline(ctx(), 1024, 256, () => 0.5)).not.toThrow();
+  });
+});
+
+describe('poster layout', () => {
+  // grava as chamadas de desenho e confere que o QR cabe entre a régua e a faixa inferior (nada cortado)
+  it('places the QR box fully above the footer band and inside the sheet', () => {
+    const calls = []; let qrBox = null;
+    const g = new Proxy({}, { get: (t, k) => (k === 'createLinearGradient' ? () => ({ addColorStop() {} }) : k === 'measureText' ? (txt) => ({ width: txt.length * 40 }) : (...a) => { calls.push([k, ...a]); }), set: () => true });
+    paintPoster(g, 512, 760, (ctx, url, x, y, size) => { qrBox = { x, y, size }; return size - 6; }, () => 0.5);
+    expect(qrBox.x).toBeGreaterThanOrEqual(0);
+    expect(qrBox.x + qrBox.size + 12 + 12).toBeLessThanOrEqual(512);          // incluindo sombra dura
+    expect(qrBox.y + qrBox.size + 12 + 12).toBeLessThanOrEqual(760 - 92);     // acima da faixa inferior (92 px)
   });
 });
 

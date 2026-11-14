@@ -17,6 +17,12 @@ import { createModes, pickInteractable } from './interaction.js';
 import { formatEther } from 'viem';
 import { TIERS, RESOLUTION_LEVELS, detectTier, createAdaptiveScale } from './render/quality.js';
 
+// As fontes do cartaz/telinha precisam estar prontas antes de pintar as texturas (com tempo-limite para ficar offline).
+await Promise.race([
+  Promise.all(['900 150px "Bebas Neue"', 'bold 20px "Fira Code"', 'bold 20px "Space Grotesk"'].map((f) => document.fonts.load(f))),
+  new Promise((r) => setTimeout(r, 1500))
+]).catch(() => {});
+
 const canvas = document.getElementById('game');
 const tier = TIERS[detectTier()];
 const { renderer, resize, render, setResolutionFactor } = createRenderer(canvas, tier);
