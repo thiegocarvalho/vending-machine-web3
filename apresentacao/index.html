@@ -581,7 +581,7 @@
       </span>
       <div class="flex items-center font-mono text-[11px]">
         <span class="text-noir-muted mr-1.5">FRAME</span>
-        <span class="text-noir-red font-bold"><span id="currentSlideNum">1</span> / <span id="totalSlidesNum">19</span></span>
+        <span class="text-noir-red font-bold"><span id="currentSlideNum">1</span> / <span id="totalSlidesNum">18</span></span>
       </div>
     </div>
 
@@ -1903,7 +1903,7 @@
             </div>
             <div class="border-l-2 border-white pl-3 space-y-0.5">
               <strong class="text-white block font-mono text-xs sm:text-sm font-bold">nonReentrant:</strong>
-              <p class="text-gray-300 text-xs sm:text-[13px]">Impede que um contrato malicioso compre de novo no meio da própria compra. Testamos esse ataque (slide 17).</p>
+              <p class="text-gray-300 text-xs sm:text-[13px]">Impede que um contrato malicioso compre de novo no meio da própria compra. Esse ataque foi testado antes do deploy.</p>
             </div>
             <div class="border-l-2 border-noir-border pl-3 space-y-0.5">
               <strong class="text-white block font-mono text-xs sm:text-sm font-bold">revert com erro customizado:</strong>
@@ -2115,74 +2115,7 @@
       </div>
     </section>
 
-    <!-- SLIDE 17: TESTADO E ANALISADO ANTES DO DEPLOY -->
-    <section class="slide flex-col max-w-6xl w-full mx-auto space-y-3 relative" data-topic="06. CÓDIGO // TESTES & ANÁLISE DE SEGURANÇA">
-      <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 守 (Mamoru): Proteger / Defesa">守</div>
-      <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap justify-between items-end gap-2 relative z-10 w-full">
-        <div>
-          <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// ANTES DE ENVIAR UM CENTAVO</span>
-          <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">TESTADO E ANALISADO ANTES DO DEPLOY</h2>
-        </div>
-        <span class="text-xs font-mono text-noir-muted font-jp hidden sm:block jp-trans" data-jp-tooltip="安全検証 (Anzen Kenshō): Verificação de Segurança">安全検証</span>
-      </div>
-
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 relative z-10">
-        <div class="bg-noir-surface/90 border border-noir-border/80 border-t-2 border-t-noir-red p-3 text-center">
-          <div class="font-display text-5xl text-white leading-none">53</div>
-          <div class="text-noir-red font-mono text-[11px] font-bold uppercase tracking-wider mt-1">testes on-chain</div>
-          <div class="text-noir-muted font-sans text-[11px] leading-tight mt-1">compra, pausa, posse, royalties, estoque</div>
-        </div>
-        <div class="bg-noir-surface/90 border border-noir-border/80 border-t-2 border-t-white p-3 text-center">
-          <div class="font-display text-5xl text-white leading-none">102</div>
-          <div class="text-white font-mono text-[11px] font-bold uppercase tracking-wider mt-1">detectores Slither</div>
-          <div class="text-noir-muted font-sans text-[11px] leading-tight mt-1">análise estática automática</div>
-        </div>
-        <div class="bg-emerald-950/20 border border-emerald-500/40 border-t-2 border-t-emerald-400 p-3 text-center">
-          <div class="font-display text-5xl text-emerald-400 leading-none">0</div>
-          <div class="text-emerald-400 font-mono text-[11px] font-bold uppercase tracking-wider mt-1">achados graves</div>
-          <div class="text-noir-muted font-sans text-[11px] leading-tight mt-1">3 avisos informativos, todos intencionais</div>
-        </div>
-        <div class="bg-noir-surface/90 border border-noir-border/80 border-t-2 border-t-noir-red p-3 text-center">
-          <div class="font-display text-5xl text-white leading-none">15 KB</div>
-          <div class="text-noir-red font-mono text-[11px] font-bold uppercase tracking-wider mt-1">tamanho do contrato</div>
-          <div class="text-noir-muted font-sans text-[11px] leading-tight mt-1">limite da EVM: 24 KB</div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-1 relative z-10">
-        <div class="space-y-2">
-          <div class="flex items-center gap-2 border-b border-noir-border/60 pb-1.5">
-            <span class="text-noir-red font-mono text-xs font-bold">[ATAQUES SIMULADOS]</span>
-            <h4 class="font-display text-2xl text-white tracking-wide">O QUE TENTAMOS QUEBRAR</h4>
-          </div>
-          <ul class="space-y-2 text-xs sm:text-[13px] font-sans text-gray-200">
-            <li class="border-l-2 border-noir-red pl-3"><strong class="text-white font-mono">Reentrada:</strong> um contrato malicioso tenta comprar de novo no meio da compra. Bloqueado, e a compra original conclui.</li>
-            <li class="border-l-2 border-white pl-3"><strong class="text-white font-mono">Lote com card repetido:</strong> o estoque desconta a cada item e um lote que falha não deixa estoque pela metade.</li>
-            <li class="border-l-2 border-noir-border pl-3"><strong class="text-white font-mono">Pausa:</strong> pausado, nem compra nem transferência passam.</li>
-            <li class="border-l-2 border-noir-red pl-3"><strong class="text-white font-mono">Contas:</strong> o ETH no contrato é sempre igual ao preço × cards vendidos.</li>
-          </ul>
-        </div>
-
-        <div class="space-y-2 md:border-l md:border-noir-border/80 md:pl-5">
-          <div class="flex items-center gap-2 border-b border-noir-border/60 pb-1.5">
-            <span class="text-white font-mono text-xs font-bold">[ACHADO → CORREÇÃO]</span>
-            <h4 class="font-display text-2xl text-white tracking-wide">A REVISÃO ENCONTROU UM RISCO</h4>
-          </div>
-          <div class="bg-noir-surface/90 border border-noir-border/80 p-3 space-y-2 font-mono text-xs sm:text-[13px]">
-            <div class="text-noir-red"><span class="font-bold">ANTES:</span> <span class="text-gray-200 font-sans">o dono podia chamar <code class="text-white font-mono">renounceOwnership()</code> sem querer e perder para sempre o saque, a pausa e a gestão.</span></div>
-            <div class="text-emerald-400"><span class="font-bold">DEPOIS:</span> <span class="text-gray-200 font-sans">a função agora reverte (<code class="text-white font-mono">RenounceDisabled</code>). A posse só muda pelo caminho seguro de 2 etapas.</span></div>
-          </div>
-          <p class="text-noir-muted font-sans text-[11px] sm:text-xs leading-snug">Limite honesto: testes e análise automática não substituem uma auditoria humana independente. Para uma rede com dinheiro de verdade, ela seria o próximo passo.</p>
-        </div>
-      </div>
-
-      <div class="pt-1.5 flex items-center justify-between text-xs sm:text-[13px] font-mono text-noir-muted border-t border-noir-border/60">
-        <span>💡 <em>Segurança não é um selo: é o hábito de tentar quebrar o próprio código antes de publicar.</em></span>
-        <span class="text-noir-red font-bold hidden sm:inline">[VERIFICAÇÃO]</span>
-      </div>
-    </section>
-
-    <!-- SLIDE 18: DEPLOY NA SEPOLIA E FAUCETS DESCOMPLICADOS -->
+    <!-- SLIDE 17: DEPLOY NA SEPOLIA E FAUCETS DESCOMPLICADOS -->
     <section class="slide flex-col max-w-6xl w-full mx-auto space-y-3 relative" data-topic="07. DEPLOY & TESTNET">
       <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 配 (Hai): Distribuição / Deploy em Rede de Testes">配</div>
       <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap justify-between items-end gap-2 relative z-10 w-full">
@@ -2244,7 +2177,7 @@
       </div>
     </section>
 
-    <!-- SLIDE 19: SIMULADOR INTERATIVO DA VENDING MACHINE RETRO TOTALMENTE ABERTO -->
+    <!-- SLIDE 18: SIMULADOR INTERATIVO DA VENDING MACHINE RETRO TOTALMENTE ABERTO -->
     <section class="slide flex-col max-w-6xl w-full mx-auto space-y-3 relative" data-topic="08. LIVE DEMO // VENDING MACHINE">
       
       <!-- Watermark Kanji -->
