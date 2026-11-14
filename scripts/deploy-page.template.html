@@ -1,0 +1,62 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Deploy · Sepolia</title>
+<style>
+:root{color-scheme:dark}body{margin:0;background:#0b0b10;color:#eee;font:15px/1.5 system-ui,sans-serif}main{max-width:720px;margin:0 auto;padding:24px 16px 80px}
+h1{font-size:22px;margin:0 0 4px}small,.mut{color:#9a9aa6}.card{background:#15151d;border:1px solid #2a2a36;border-radius:10px;padding:14px 16px;margin:14px 0}
+dl{display:grid;grid-template-columns:150px 1fr;gap:6px 12px;margin:0}dt{color:#9a9aa6}dd{margin:0;word-break:break-all;font-family:ui-monospace,monospace;font-size:13px}
+button{background:#6d4cff;color:#fff;border:0;border-radius:8px;padding:11px 18px;font-size:15px;cursor:pointer}button:disabled{opacity:.4;cursor:not-allowed}button.sec{background:#2a2a36}
+.ok{color:#5fd98a}.bad{color:#ff6b6b}.warn{color:#ffc266}pre{background:#0f0f15;border:1px solid #2a2a36;border-radius:8px;padding:10px;overflow:auto;font-size:12.5px;white-space:pre-wrap;word-break:break-all}a{color:#9db4ff}
+</style></head><body><main>
+<h1>Deploy do contrato · Sepolia</h1><small>Página temporária. A chave privada fica na sua carteira; nada é enviado a servidores.</small>
+<div class="card"><b>O que será implantado</b><dl id="args"></dl></div>
+<div class="card"><b>1. Carteira</b><p id="w" class="mut">Não conectada.</p><button id="conn">Conectar carteira</button></div>
+<div class="card"><b>2. Deploy</b><p class="mut">O dono (owner) será a carteira conectada. A carteira vai pedir a confirmação da transação.</p><p id="est" class="mut"></p><button id="go" disabled>Fazer deploy</button><p id="st"></p></div>
+<div class="card" id="res" hidden><b>3. Resultado</b><div id="resbody"></div></div>
+</main><script>
+const C=/*__CONFIG__*/null, SEPOLIA='0xaa36a7', $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+$('args').innerHTML=[['Rede','Sepolia (11155111)'],['URI dos cards',C.args.baseURI],['contractURI',C.args.contractURI],['Preço por card',C.args.priceEth+' ETH'],['Royalty',(C.args.bps/100)+'% para '+C.args.receiver],['Tamanho do código',(C.data.length-2)/2+' bytes']].map(([a,b])=>`<dt>${a}</dt><dd>${esc(b)}</dd>`).join('');
+let acct=null;const eth=()=>window.ethereum;
+const req=(m,p=[])=>eth().request({method:m,params:p});
+const wei2eth=h=>(Number(BigInt(h))/1e18).toFixed(5);
+async function refresh(){
+  if(!eth()){$('w').innerHTML='<span class="bad">Nenhuma carteira encontrada (instale MetaMask ou similar).</span>';return}
+  const accs=await req('eth_accounts');acct=accs[0]||null;
+  if(!acct){$('w').textContent='Não conectada.';$('go').disabled=true;return}
+  const ch=await req('eth_chainId');
+  if(ch!==SEPOLIA){$('w').innerHTML=`${esc(acct)}<br><span class="warn">Rede errada (${parseInt(ch,16)}). Trocando para a Sepolia…</span>`;
+    try{await req('wallet_switchEthereumChain',[{chainId:SEPOLIA}]);return refresh()}catch(e){$('w').innerHTML+='<br><span class="bad">Troque para a Sepolia na carteira.</span>';$('go').disabled=true;return}}
+  const bal=await req('eth_getBalance',[acct,'latest']);
+  $('w').innerHTML=`<span class="ok">Conectada:</span> <code>${esc(acct)}</code><br>Saldo: <b>${wei2eth(bal)} ETH</b> (Sepolia)`;
+  try{const gas=BigInt(await req('eth_estimateGas',[{from:acct,data:C.data}]));const gp=BigInt(await req('eth_gasPrice'));const cost=gas*gp;
+    $('est').innerHTML=`Gás estimado: ${gas} · custo ≈ ${(Number(cost)/1e18).toFixed(5)} ETH`+(BigInt(bal)<cost*13n/10n?' <span class="bad">— saldo baixo, pegue ETH no faucet</span>':' <span class="ok">— saldo suficiente</span>');
+    $('go').disabled=BigInt(bal)<cost;}catch(e){$('est').innerHTML='<span class="bad">Falha ao estimar o gás: '+esc(e.message||e)+'</span>';$('go').disabled=true}
+}
+$('conn').onclick=async()=>{try{if(!eth())return refresh();await req('eth_requestAccounts');await refresh()}catch(e){$('w').innerHTML='<span class="bad">'+esc(e.message||e)+'</span>'}};
+if(eth()){eth().on?.('accountsChanged',refresh);eth().on?.('chainChanged',refresh);refresh()}else refresh();
+const call=async(to,data)=>req('eth_call',[{to,data},'latest']);
+const dstr=h=>{const b=h.slice(2),off=parseInt(b.slice(0,64),16)*2,len=parseInt(b.slice(off,off+64),16)*2;const hex=b.slice(off+64,off+64+len);return decodeURIComponent(hex.replace(/../g,'%$&'))};
+const pad=n=>BigInt(n).toString(16).padStart(64,'0');
+async function waitReceipt(h){for(;;){const r=await req('eth_getTransactionReceipt',[h]);if(r)return r;await new Promise(r=>setTimeout(r,3000))}}
+$('go').onclick=async()=>{
+  $('go').disabled=true;$('st').innerHTML='Confirme na carteira…';
+  try{
+    const tx=await req('eth_sendTransaction',[{from:acct,data:C.data}]);
+    $('st').innerHTML=`Enviada: <a target="_blank" href="https://sepolia.etherscan.io/tx/${tx}">${tx}</a><br>Aguardando confirmação…`;
+    const r=await waitReceipt(tx);
+    if(r.status!=='0x1'){$('st').innerHTML+='<br><span class="bad">A transação falhou (revertida).</span>';return}
+    const addr=r.contractAddress;$('st').innerHTML+='<br><span class="ok">Confirmada!</span>';
+    const checks=[];const ok=(n,v)=>checks.push(`<li class="${v?'ok':'bad'}">${v?'✓':'✗'} ${n}</li>`);
+    try{ok('owner = sua carteira',('0x'+(await call(addr,C.sel.owner)).slice(26)).toLowerCase()===acct.toLowerCase());
+      ok('não está pausado',BigInt(await call(addr,C.sel.paused))===0n);
+      ok('30 tipos de card',BigInt(await call(addr,C.sel.total))===30n);
+      ok('uri(1) correto',dstr(await call(addr,C.sel.uri+pad(1))).replace('{id}','')===(C.args.baseURI.replace('{id}','')) || dstr(await call(addr,C.sel.uri+pad(1))).startsWith('ipfs://'+C.args.metadataCid));
+      ok('contractURI correto',dstr(await call(addr,C.sel.contractURI))===C.args.contractURI);
+      const ri=await call(addr,C.sel.royalty+pad(1)+pad(10000));ok('royalty '+(C.args.bps/100)+'% para o recebedor',('0x'+ri.slice(26,66)).toLowerCase()===C.args.receiver.toLowerCase()&&BigInt('0x'+ri.slice(66))===BigInt(C.args.bps));
+    }catch(e){checks.push('<li class="bad">Falha nas leituras: '+esc(e.message||e)+'</li>')}
+    $('res').hidden=false;
+    $('resbody').innerHTML=`<p>Contrato: <b><code>${addr}</code></b> · <a target="_blank" href="https://sepolia.etherscan.io/address/${addr}">ver no Etherscan</a></p><ul>${checks.join('')}</ul>
+    <p><b>Envie este endereço no chat</b> (ele é público) que eu atualizo o jogo e verifico o contrato.</p>
+    <p class="mut">Para verificar no Etherscan (terminal, em Contratos): <code>VERIFY=${addr}</code> — eu cuido disso.</p>`;
+  }catch(e){$('st').innerHTML='<span class="bad">'+esc(e.code===4001?'Você recusou na carteira.':(e.message||e))+'</span>';$('go').disabled=false}
+};
+</script></body></html>

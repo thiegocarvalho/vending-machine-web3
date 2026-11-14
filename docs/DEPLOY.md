@@ -21,3 +21,6 @@ Veja o README de `game/` ("Publicar").
 
 ## Testes
 `npm test` (todos) · `npx hardhat test` (on-chain + ferramentas de deploy).
+
+## Alternativa: deploy pela carteira do navegador
+`node scripts/make-deploy-page.js` gera `deploy-web/` (ignorado pelo git); sirva com `cd deploy-web && python3 -m http.server 8080 --bind 127.0.0.1` e abra `http://127.0.0.1:8080/`. A página conecta a carteira, troca para a Sepolia, estima o custo, faz o deploy e confere 6 valores do contrato. Depois envie o endereço para atualizar `game/.env.production` e verificar no Etherscan.

@@ -7,3 +7,4 @@ artifacts/
 cache/
 keystore/
 scripts/verify-args.js
+deploy-web/
