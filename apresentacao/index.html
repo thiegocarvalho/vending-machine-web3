@@ -2190,7 +2190,7 @@
     </section>
 
     <!-- SLIDE 21: O JOGO 3D (PRINT + QR CODE + BOTÃO) -->
-    <section class="slide flex-col max-w-6xl w-full mx-auto space-y-4 relative" data-topic="08. O JOGO 3D // JOGUE AGORA" data-game-url="https://thiegocarvalho.github.io/vending-machine-web3/">
+    <section class="slide flex-col max-w-6xl w-full mx-auto space-y-4 relative" data-topic="08. O JOGO 3D // JOGUE AGORA" data-game-url="https://thiegocarvalho.github.io/vending-machine-web3/" data-contract="0x80F3Ace1F4e3eA3Ae4E42F893c885CD927c0634d" data-explorer="https://sepolia.etherscan.io/address/0x80F3Ace1F4e3eA3Ae4E42F893c885CD927c0634d#code">
       <div class="watermark-kanji jp-kanji-trans right-4 top-1/4 text-[300px]" data-jp-tooltip="Kanji 遊 (Asobu): Jogar / Brincar">遊</div>
 
       <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap items-end justify-between gap-2 relative z-10 w-full">
@@ -2211,6 +2211,21 @@
             <span class="absolute -bottom-px -right-px w-5 h-5 border-b-2 border-r-2 border-noir-red"></span>
             <img src="jogo-3d.jpg" alt="Captura do jogo 3D: uma vending machine azul numa rua à noite, com 30 cards nas prateleiras, neon roxo e um cartaz de faucet" class="w-full h-auto block">
             <div class="absolute left-3 bottom-3 px-2 py-0.5 bg-noir-pitch/85 border border-noir-border/80 font-mono text-[10px] tracking-wider text-gray-200">JOGO 3D // 30 CARDS // SEPOLIA</div>
+          </div>
+
+          <div class="mt-3 border border-noir-border/80 bg-noir-surface/80 border-l-4 border-l-noir-red p-3 flex flex-col gap-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="font-mono text-[11px] font-bold tracking-widest text-noir-red">// CONTRATO NA SEPOLIA</span>
+              <span class="font-mono text-[10px] font-bold tracking-wider text-emerald-400 border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5">✓ CÓDIGO VERIFICADO</span>
+            </div>
+            <code id="contractAddr" class="font-mono text-xs sm:text-sm text-white break-all select-all"></code>
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[11px] text-noir-muted">
+              <span>30 CARDS · 100 UNIDADES CADA</span><span>0,0046 ETH POR CARD</span><span>ROYALTY 5%</span>
+            </div>
+            <div class="flex flex-wrap gap-2 pt-1">
+              <button id="contractOpenBtn" type="button" class="px-3 py-1.5 border border-noir-red text-noir-red hover:bg-noir-red hover:text-white transition font-mono text-xs font-bold tracking-wider">VER NO ETHERSCAN</button>
+              <button id="contractCopyBtn" type="button" class="px-3 py-1.5 border border-noir-border/80 text-gray-200 hover:border-white hover:text-white transition font-mono text-xs font-bold tracking-wider">COPIAR ENDEREÇO</button>
+            </div>
           </div>
         </div>
 
@@ -6389,6 +6404,15 @@
       const url = sec.getAttribute('data-game-url');
       document.getElementById('gameUrlText').textContent = url.replace(/^https?:\/\//, '');
       document.getElementById('gameOpenBtn').addEventListener('click', () => window.open(url, '_blank', 'noopener'));
+      const addr = sec.getAttribute('data-contract'), explorer = sec.getAttribute('data-explorer');
+      document.getElementById('contractAddr').textContent = addr;
+      document.getElementById('contractOpenBtn').addEventListener('click', () => window.open(explorer, '_blank', 'noopener'));
+      const copyBtn = document.getElementById('contractCopyBtn');
+      copyBtn.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(addr); copyBtn.textContent = 'COPIADO ✓'; }
+        catch (e) { const r = document.createRange(); r.selectNodeContents(document.getElementById('contractAddr')); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); copyBtn.textContent = 'SELECIONADO: CTRL+C'; }
+        setTimeout(() => { copyBtn.textContent = 'COPIAR ENDEREÇO'; }, 2000);
+      });
       try {
         new QRCode(box, { text: url, width: 190, height: 190, colorDark: '#040204', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
       } catch (e) { box.textContent = 'QR indisponível'; }
