@@ -1899,7 +1899,7 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-12 gap-5 pt-1 relative z-10">
-        <div class="md:col-span-8 font-mono text-xs sm:text-[13px] leading-relaxed text-gray-100 space-y-0.5 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-noir-red shadow-xl overflow-x-auto">
+        <div class="md:col-span-8 font-mono text-sm sm:text-lg leading-relaxed text-gray-100 space-y-3 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-noir-red shadow-xl overflow-x-auto">
           <div class="flex flex-wrap items-center justify-between gap-2 pb-1">
             <div class="text-noir-red font-bold text-xs uppercase tracking-wider">// as últimas linhas da compra</div>
           </div>
@@ -1909,15 +1909,9 @@
           <div class="cl text-white font-bold" data-x="d-4"><span class="text-amber-300">④</span> emit CardPurchased(msg.sender, cardId, 1, cost, remaining);</div>
           <div class="cl text-white font-bold" data-x="d-5"><span class="text-amber-300">⑤</span> if (remaining == 0) emit CardSoldOut(cardId);</div>
 
-          <div class="pt-3 text-noir-red font-bold text-xs uppercase tracking-wider">// quanto custa em gás (taxa da rede), medido nos testes</div>
-          <div class="grid grid-cols-3 gap-2 text-center">
-            <div class="border border-noir-border/70 bg-noir-pitch/60 p-2"><div class="text-white font-display text-2xl leading-none">105 mil</div><div class="text-noir-muted text-[10px] mt-0.5">1ª compra do card</div></div>
-            <div class="border border-noir-border/70 bg-noir-pitch/60 p-2"><div class="text-white font-display text-2xl leading-none">71 mil</div><div class="text-noir-muted text-[10px] mt-0.5">compras seguintes</div></div>
-            <div class="border border-noir-border/70 bg-noir-pitch/60 p-2"><div class="text-white font-display text-2xl leading-none">54 mil</div><div class="text-noir-muted text-[10px] mt-0.5">mesmo comprador</div></div>
-          </div>
         </div>
 
-        <div class="md:col-span-4 space-y-3 text-sm font-sans text-gray-200">
+        <div class="md:col-span-4 space-y-4 text-base font-sans text-gray-200">
           <div class="border-l-2 border-noir-red pl-3">
             <strong class="text-white block font-display text-xl tracking-wide">ANOTA, DEPOIS ENTREGA</strong>
             <p class="text-gray-300 leading-snug">Primeiro baixa o estoque; só então entrega. É a ordem mais segura.</p>
@@ -1925,10 +1919,6 @@
           <div class="border-l-2 border-white pl-3">
             <strong class="text-white block font-display text-xl tracking-wide">TUDO OU NADA</strong>
             <p class="text-gray-300 leading-snug">Ou o pagamento <strong class="text-white">e</strong> o card acontecem juntos, ou nada acontece.</p>
-          </div>
-          <div class="border-l-2 border-emerald-500/80 pl-3 bg-emerald-950/20 p-2">
-            <strong class="text-emerald-400 block font-display text-xl tracking-wide">SEM TROCO</strong>
-            <p class="text-gray-300 leading-snug">A carteira envia o valor exato, então a máquina nunca devolve dinheiro. Menos passos, menos risco.</p>
           </div>
         </div>
       </div>
@@ -6601,7 +6591,7 @@
       const sentValue = parseFloat(document.getElementById('inputSentValue').value) || 0;
 
       if (Math.abs(sentValue - totalCost) > 0.00001) {
-        log.innerHTML += `<br><span class="text-noir-red font-bold">> [REVERT: IncorrectPayment] enviado: ${sentValue.toFixed(4)} ETH | exigido EXATAMENTE: ${totalCost.toFixed(4)} ETH (Zero troco / Gas Saver)</span>`;
+        log.innerHTML += `<br><span class="text-noir-red font-bold">> [REVERT: IncorrectPayment] enviado: ${sentValue.toFixed(4)} ETH | exigido EXATAMENTE: ${totalCost.toFixed(4)} ETH</span>`;
         log.scrollTop = log.scrollHeight;
         return;
       }
@@ -6615,7 +6605,7 @@
       log.innerHTML += `
         <br><span class="text-white font-bold">> [TX_SUCCESS] Block #21450892</span>
         <br><span class="text-noir-red font-bold">> Emit CardPurchased(buyer: 0xUser..., cardId: ${cardId}, amount: ${currentBuyAmount}, cost: ${totalCost.toFixed(4)} ETH)</span>
-        <br><span class="text-emerald-400 font-bold">> [ATOMIC_MINT] Tokens cunhados diretamente na carteira! (Zero troco: ~10.000 gás economizados)</span>
+        <br><span class="text-emerald-400 font-bold">> [ATOMIC_MINT] Tokens cunhados diretamente na carteira!</span>
       `;
       log.scrollTop = log.scrollHeight;
     }
@@ -6829,7 +6819,7 @@
         'b-t3': ['Conferência 2: está à venda?', 'O dono pode desligar a venda de um card. Se estiver desligado, a máquina recusa.', 'Slot com a luz apagada.'],
         'b-t4a': ['Conferência 3: tem estoque?', 'Se o estoque do card chegou a zero, a máquina avisa “esgotado” e cancela.', 'O visor mostrando “esgotado”.'],
         'b-cost': ['Pega o preço do card', 'O valor que a máquina espera receber é o preço da ficha deste card (como sempre é 1 unidade, não há conta a fazer).', 'O visor mostrando o preço.'],
-        'b-t5': ['Conferência 4: o valor é exato?', '“msg.value” é o dinheiro que veio junto com o seu pedido. Precisa ser exatamente o preço: nem mais, nem menos. Por isso a máquina nunca precisa dar troco, e pagar por duas unidades não leva duas.', 'Uma máquina que só aceita o valor certo.'],
+        'b-t5': ['Conferência 4: o valor é exato?', '“msg.value” é o dinheiro que veio junto com o seu pedido. Precisa ser exatamente o preço: nem mais, nem menos. Pagar a mais ou a menos não adianta: a compra é recusada.', 'Uma máquina que só aceita o valor certo.'],
         // ---- slide 14: entrega ----
         'd-1': ['Primeiro, anota o novo estoque', 'A máquina calcula quanto vai sobrar: o que tinha menos 1. Ela faz essa conta antes de entregar, por segurança.', 'Descontar o item do estoque antes de abrir a portinhola.'],
         'd-2': ['Grava o novo estoque', 'Escreve o número atualizado na ficha do card. A partir daqui, qualquer pessoa que olhar já vê a quantidade nova.', 'O visor passando de 100 para 99.'],
