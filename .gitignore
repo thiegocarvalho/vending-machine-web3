@@ -7,3 +7,6 @@ artifacts/
 cache/
 keystore/
 scripts/verify-args.js
+
+# A apresentação vive em outro repositório
+apresentacao/
