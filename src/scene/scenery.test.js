@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { SCENERY_COLLIDERS, paintBricks, paintPaving, paintNeon, paintGraffiti, paintSkyline } from './scenery.js';
+import { SCENERY_COLLIDERS, paintBricks, paintPaving, paintNeon, paintUfoSign, paintSkyline } from './scenery.js';
 import { MACHINE_COLLIDER } from './machine.js';
 import { collideCircle } from '../player/movement.js';
 
@@ -19,7 +19,7 @@ describe('painted textures', () => {
   it('all painters run on a canvas context without throwing', () => {
     expect(() => paintPaving(ctx(), 128, 128, () => 0.5)).not.toThrow();
     expect(() => paintNeon(ctx(), 512, 210)).not.toThrow();
-    expect(() => paintGraffiti(ctx(), 512, 256, () => 0.5)).not.toThrow();
+    expect(() => paintUfoSign(ctx(), 256, 230)).not.toThrow();
     expect(() => paintSkyline(ctx(), 1024, 256, () => 0.5)).not.toThrow();
   });
 });

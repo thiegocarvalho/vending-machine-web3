@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { createBatch } from './baked.js';
 
 const POST = { x: 3.2, z: 1.2, h: 4.2 };                              // poste de luz ao lado da máquina
@@ -32,46 +31,55 @@ export function paintPaving(ctx, w, h, rand = Math.random) {
   for (let i = 0; i <= n; i++) { ctx.beginPath(); ctx.moveTo(i * sw, 0); ctx.lineTo(i * sw, h); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, i * sh); ctx.lineTo(w, i * sh); ctx.stroke(); }
 }
 
-// Luz sobre o chão molhado: brilho frio da máquina, reflexo vermelho do neon e poça quente do poste (aditiva).
+// Luz sobre o chão molhado: brilho frio da máquina, reflexo violeta do neon e poça quente do poste (aditiva).
 const LIGHT = { size: 26, px: 256 };
 function groundLightTexture() {
   return canvasTex(LIGHT.px, LIGHT.px, (g) => {
     const m = LIGHT.px / LIGHT.size, X = (x) => LIGHT.px / 2 + x * m, Z = (z) => LIGHT.px / 2 + z * m;
     glowDisc(g, X(0), Z(1.6), 5.5 * m, 4.2 * m, '120,160,255', 0.22);           // máquina
-    glowDisc(g, X(0.1), Z(2.3), 1.3 * m, 3.6 * m, '255,40,60', 0.38);            // reflexo do neon (alongado para a câmera)
-    glowDisc(g, X(0), Z(0.5), 4.5 * m, 2.2 * m, '255,50,70', 0.2);               // luz vermelha na calçada
+    glowDisc(g, X(0.1), Z(2.3), 1.3 * m, 3.6 * m, '130,90,255', 0.4);            // reflexo do neon (alongado para a câmera)
+    glowDisc(g, X(0), Z(0.5), 4.5 * m, 2.2 * m, '120,90,255', 0.22);               // luz vermelha na calçada
     glowDisc(g, X(POST.x - 0.95), Z(POST.z), 3.2 * m, 3.2 * m, '255,205,140', 0.5);   // poste
   });
 }
 
-// Letreiro de neon vermelho (tubos com brilho + núcleo claro).
+// Letreiro de neon violeta-azulado (tubos com brilho + núcleo claro).
 export function paintNeon(g, w, h) {
   g.clearRect(0, 0, w, h);
   g.lineCap = g.lineJoin = 'round';
   const text = 'Cards';
   g.font = 'italic 700 150px "Brush Script MT","Segoe Script","Snell Roundhand",cursive';
   g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.shadowColor = '#ff1830'; g.shadowBlur = 38; g.lineWidth = 16; g.strokeStyle = '#ff2a3c';   // brilho
+  g.shadowColor = '#5a3cff'; g.shadowBlur = 38; g.lineWidth = 16; g.strokeStyle = '#6a4cff';   // brilho
   g.strokeText(text, w / 2, h / 2 + 8); g.strokeText(text, w / 2, h / 2 + 8);
-  g.shadowBlur = 10; g.lineWidth = 8; g.strokeStyle = '#ff5a68'; g.strokeText(text, w / 2, h / 2 + 8);
-  g.shadowBlur = 0; g.lineWidth = 3; g.strokeStyle = '#ffe3dc'; g.strokeText(text, w / 2, h / 2 + 8);  // núcleo
-  g.shadowColor = '#ff1830'; g.shadowBlur = 20; g.lineWidth = 5; g.strokeStyle = '#ff3a4c';          // moldura do letreiro
+  g.shadowBlur = 10; g.lineWidth = 8; g.strokeStyle = '#9b86ff'; g.strokeText(text, w / 2, h / 2 + 8);
+  g.shadowBlur = 0; g.lineWidth = 3; g.strokeStyle = '#f0eaff'; g.strokeText(text, w / 2, h / 2 + 8);  // núcleo
+  g.shadowColor = '#5a3cff'; g.shadowBlur = 20; g.lineWidth = 5; g.strokeStyle = '#7a5cff';          // moldura do letreiro
   g.strokeRect(w * 0.08, h * 0.08, w * 0.84, h * 0.84);
 }
 
-// Grafite: caveira ciano e letras magenta, em spray sobre os tijolos (transparente).
-export function paintGraffiti(g, w, h, rand = Math.random) {
+// Placa de alerta amarela com OVNI raptando uma pessoa.
+export function paintUfoSign(g, w, h) {
   g.clearRect(0, 0, w, h);
-  g.shadowColor = '#19e0d0'; g.shadowBlur = 14; g.fillStyle = '#17b8b0';
-  g.beginPath(); g.ellipse(w * 0.3, h * 0.45, w * 0.17, h * 0.36, 0, 0, Math.PI * 2); g.fill();         // caveira
-  g.fillStyle = '#0b1020'; g.shadowBlur = 0;
-  g.beginPath(); g.ellipse(w * 0.24, h * 0.4, 20, 28, 0, 0, Math.PI * 2); g.ellipse(w * 0.36, h * 0.4, 20, 28, 0, 0, Math.PI * 2); g.fill();
-  g.fillRect(w * 0.255, h * 0.68, 66, 22);
-  g.font = 'bold 92px "Impact","Arial Black",sans-serif'; g.textAlign = 'left'; g.lineWidth = 10; g.lineJoin = 'round';
-  g.strokeStyle = '#1a0a2e'; g.strokeText('ZERU', w * 0.5, h * 0.72);
-  g.shadowColor = '#ff2bd6'; g.shadowBlur = 18; g.fillStyle = '#e02ec0'; g.fillText('ZERU', w * 0.5, h * 0.72);
-  g.shadowBlur = 0;
-  for (let i = 0; i < 40; i++) { g.fillStyle = `rgba(${rand() < 0.5 ? '224,46,192' : '23,184,176'},${0.3 + rand() * 0.4})`; g.beginPath(); g.arc(rand() * w, rand() * h, 1 + rand() * 3, 0, Math.PI * 2); g.fill(); }
+  const tri = (inset, color) => {
+    g.fillStyle = color; g.strokeStyle = color; g.lineJoin = 'round'; g.lineWidth = 26 - inset * 0.6;
+    g.beginPath(); g.moveTo(w / 2, 20 + inset); g.lineTo(w - 22 - inset, h - 22 - inset * 0.6); g.lineTo(22 + inset, h - 22 - inset * 0.6); g.closePath(); g.fill(); g.stroke();
+  };
+  tri(0, '#e9cc2f');                                              // amarelo
+  g.strokeStyle = '#0b0b0b'; g.lineWidth = 9; g.lineJoin = 'round';  // moldura preta
+  g.beginPath(); g.moveTo(w / 2, 36); g.lineTo(w - 36, h - 34); g.lineTo(36, h - 34); g.closePath(); g.stroke();
+  g.fillStyle = '#0b0b0b';
+  g.beginPath(); g.ellipse(w / 2, 108, 62, 12, 0, 0, Math.PI * 2); g.fill();          // disco
+  g.beginPath(); g.ellipse(w / 2, 100, 28, 13, 0, Math.PI, 0); g.fill();               // cúpula
+  g.fillRect(w / 2 - 14, 116, 28, 5);
+  g.strokeStyle = '#0b0b0b'; g.lineWidth = 2.5;                                          // feixe
+  g.beginPath(); g.moveTo(w / 2 - 12, 122); g.lineTo(w / 2 - 36, h - 44); g.moveTo(w / 2 + 12, 122); g.lineTo(w / 2 + 16, h - 44); g.stroke();
+  g.beginPath(); g.arc(w / 2 - 12, 150, 7, 0, Math.PI * 2); g.fill();                  // pessoa flutuando
+  g.lineWidth = 7; g.lineCap = 'round';
+  g.beginPath(); g.moveTo(w / 2 - 8, 160); g.lineTo(w / 2 + 2, 180); g.stroke();       // tronco
+  g.lineWidth = 5;
+  g.beginPath(); g.moveTo(w / 2 - 6, 164); g.lineTo(w / 2 - 20, 150); g.moveTo(w / 2 - 4, 168); g.lineTo(w / 2 + 12, 164);
+  g.moveTo(w / 2 + 2, 180); g.lineTo(w / 2 + 14, 194); g.moveTo(w / 2 + 2, 180); g.lineTo(w / 2 - 10, 194); g.stroke();
 }
 
 // Horizonte urbano ao fundo (visto por cima do muro): prédios com janelas acesas na neblina.
@@ -152,28 +160,17 @@ export function buildScenery() {
     new THREE.MeshBasicMaterial({ map: canvasTex(256, 128, (c, w, h) => paintBricks(c, w, h), { repeat: [WALL_W / 2.0, WALL_H / 0.8] }), color: 0x9a96b0 }));
   wall.position.set(0, WALL_H / 2, WALL_Z + WALL_D / 2 + 0.001); g.add(wall);
 
-  // grafite (2 painéis num só objeto)
-  const gt = canvasTex(512, 256, (c, w, h) => paintGraffiti(c, w, h));
-  const tag = (x, y, w, h) => new THREE.PlaneGeometry(w, h).translate(x, y, 0);
-  const graffiti = new THREE.Mesh(mergeGeometries([tag(4.6, 1.7, 3.6, 1.8), tag(-5.2, 1.4, 2.6, 1.3)]),
-    new THREE.MeshBasicMaterial({ map: gt, transparent: true, depthWrite: false, color: 0xb8bcd4 }));
-  graffiti.position.z = WALL_Z + WALL_D / 2 + 0.003; graffiti.renderOrder = 2; g.add(graffiti);
-
-  // letreiro de neon vermelho sobre a máquina, com halo vermelho na parede
+  // letreiro de neon violeta sobre a máquina, com halo violeta na parede
   const halo = new THREE.Mesh(new THREE.PlaneGeometry(7, 4.2),
-    new THREE.MeshBasicMaterial({ map: canvasTex(128, 128, (c) => glowDisc(c, 64, 64, 64, 64, '255,35,55', 0.55)), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+    new THREE.MeshBasicMaterial({ map: canvasTex(128, 128, (c) => glowDisc(c, 64, 64, 64, 64, '110,75,255', 0.55)), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
   halo.position.set(0, 3.4, WALL_Z + WALL_D / 2 + 0.005); halo.renderOrder = 3; g.add(halo);
   const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.9),
     new THREE.MeshBasicMaterial({ map: canvasTex(512, 210, (c, w, h) => paintNeon(c, w, h)), transparent: true, depthWrite: false }));
   sign.position.set(-0.1, 3.35, WALL_Z + WALL_D / 2 + 0.01); sign.renderOrder = 4; g.add(sign);
 
-  // placa redonda de rua (azul com seta)
-  const disc = new THREE.Mesh(new THREE.CircleGeometry(0.34, 20),
-    new THREE.MeshBasicMaterial({ map: canvasTex(128, 128, (c, w, h) => {
-      c.fillStyle = '#1d4fa8'; c.beginPath(); c.arc(64, 64, 62, 0, Math.PI * 2); c.fill();
-      c.strokeStyle = '#fff'; c.lineWidth = 6; c.beginPath(); c.arc(64, 64, 54, 0, Math.PI * 2); c.stroke();
-      c.fillStyle = '#fff'; c.beginPath(); c.moveTo(64, 26); c.lineTo(92, 62); c.lineTo(72, 62); c.lineTo(72, 102); c.lineTo(56, 102); c.lineTo(56, 62); c.lineTo(36, 62); c.fill();
-    }), color: 0xb0b8d0 }));
+  // placa de alerta triangular: abdução por OVNI (alpha recortado, sem ordenação)
+  const disc = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 0.9),
+    new THREE.MeshBasicMaterial({ map: canvasTex(256, 230, (c, w, h) => paintUfoSign(c, w, h)), transparent: true, alphaTest: 0.5, color: 0xc8c0d8, side: THREE.DoubleSide }));
   disc.position.set(SIGN.x, 2.75, SIGN.z + 0.05); g.add(disc);
 
   const bulb = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.03, 0.2), new THREE.MeshBasicMaterial({ color: 0xfff1d0 }));
