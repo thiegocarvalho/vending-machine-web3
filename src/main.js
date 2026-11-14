@@ -3,6 +3,8 @@ import { createPs1Renderer } from './render/ps1Renderer.js';
 import { buildMachine } from './scene/machine.js';
 import { buildParkingLot, addLighting } from './scene/parkingLot.js';
 import { createControls } from './player/controls.js';
+import { populateCards } from './scene/cards.js';
+import { loadCardsInfo } from './data/chain.js';
 
 const canvas = document.getElementById('game');
 const { resize, render } = createPs1Renderer(canvas);
@@ -13,7 +15,9 @@ scene.add(buildParkingLot());
 const machine = buildMachine();
 scene.add(machine.group);
 const controls = createControls(camera, canvas);
-window.__game = { scene, camera, machine, controls };
+const infos = await loadCardsInfo();
+const cardsApi = populateCards(machine.slotAnchors, infos);
+window.__game = { scene, camera, machine, controls, cardsApi };
 
 function onResize() {
   const w = window.innerWidth, h = window.innerHeight;

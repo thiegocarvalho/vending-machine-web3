@@ -25,8 +25,17 @@ export async function tokenMetadataUri(id) {
   return uri.replace('{id}', idToHex(id));
 }
 
+const LOCAL_DEV = () => config.demoMode && !config.metadataCid;   // dev only: no CID uploaded yet
+
+export function imageUrlFor(meta) {
+  if (LOCAL_DEV()) return `/dev-images/${meta.image.split('/').pop()}`;
+  return meta.image;
+}
+
 export async function loadMetadata(id) {
-  const meta = await fetchIpfs(await tokenMetadataUri(id), config.gateways);
+  const meta = LOCAL_DEV()
+    ? await (await fetch(`/dev-metadata/${idToHex(id)}.json`)).json()
+    : await fetchIpfs(await tokenMetadataUri(id), config.gateways);
   if (!meta || typeof meta.name !== 'string' || typeof meta.image !== 'string') throw new Error(`Incomplete metadata for card ${id}`);
   return meta;
 }
