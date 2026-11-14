@@ -20,7 +20,8 @@
       "block": 12135409,
       "deployer": "0xa78276259faC49aF008Be85D855e0Cb0F1aD9433",
       "note": "deploy oficial (pela página de deploy com a carteira do navegador)",
-      "verificado": "https://sepolia.etherscan.io/address/0x80F3Ace1F4e3eA3Ae4E42F893c885CD927c0634d#code"
+      "verificado": "https://sepolia.etherscan.io/address/0x80F3Ace1F4e3eA3Ae4E42F893c885CD927c0634d#code",
+      "jogo": "https://thiegocarvalho.github.io/vending-machine-web3/"
     }
   ]
 }
