@@ -28,10 +28,20 @@ export async function loadPaused() {
   return decodeBool(await ethCall(config.contractAddress, SELECTORS.paused));
 }
 
+// O contrato devolve o mesmo modelo ("ipfs://CID/{id}.json") para qualquer card: pergunta uma vez só e troca o {id} aqui.
+// Se a pergunta falhar, o próximo pedido tenta de novo.
+export function createUriResolver(fetchTemplate) {
+  let pending = null;
+  return async (id) => {
+    pending ??= fetchTemplate().catch((e) => { pending = null; throw e; });
+    return (await pending).replace('{id}', idToHex(id));
+  };
+}
+const resolveUri = createUriResolver(async () => decodeString(await ethCall(config.contractAddress, encodeUri(1))));
+
 export async function tokenMetadataUri(id) {
   if (config.demoMode) return `ipfs://${config.metadataCid}/${idToHex(id)}.json`;
-  const uri = decodeString(await ethCall(config.contractAddress, encodeUri(id)));
-  return uri.replace('{id}', idToHex(id));
+  return resolveUri(id);
 }
 
 const LOCAL_DEV = () => config.demoMode && !config.metadataCid;   // dev only: no CID uploaded yet
