@@ -107,6 +107,8 @@ export function createCardViewer() {
       canvas.removeEventListener('pointerdown', down); window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
       canvas.removeEventListener('wheel', wheel); canvas.removeEventListener('dblclick', reset); pts.clear(); canvas = null;
     },
+    // verso oficial (card_back.png do IPFS); enquanto não chega, fica o verso desenhado
+    setBack(tex) { if (tex) { back.map = tex; back.needsUpdate = true; } },
     setFront(tex) { front.map = tex || null; front.color.set(tex ? 0xffffff : 0x20243a); front.needsUpdate = true; },
     setLayout(a, l) { aspect = a; layout = l; fit = fitDistance(a) * (l.sy ? 1.6 : 1);   // com o painel ocupando metade da tela (celular), o card cabe só na parte de cima
       dist = clamp(dist, zoomRange(fit).min, zoomRange(fit).max); placeCamera(); },

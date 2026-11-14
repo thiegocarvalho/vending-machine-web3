@@ -5,7 +5,7 @@ import { buildScenery, addLighting, SCENERY_COLLIDERS, POSTER } from './scene/sc
 import { createControls } from './player/controls.js';
 import { createRig } from './player/rig.js';
 import { createSpotlight, approach as approachNum } from './scene/spotlight.js';
-import { populateCards, loadFullTexture } from './scene/cards.js';
+import { populateCards, loadFullTexture, loadBackTexture } from './scene/cards.js';
 import { createCardViewer } from './scene/cardViewer.js';
 import { createInventory } from './data/inventory.js';
 import { createInventoryPanel } from './hud/inventory.js';
@@ -218,11 +218,19 @@ async function selectInv(id) {
   if (invSel === id) invPanel.setLoading(false);
   wake();
 }
+let backTex = null, backLoading = false;
+async function ensureBack() {                                                    // verso oficial: baixado uma vez, na primeira abertura
+  if (backTex || backLoading) return;
+  const meta = cardsApi.metas.find(Boolean); if (!meta) return;
+  backLoading = true;
+  try { backTex = await loadBackTexture(meta, { aniso: tier.aniso }); viewer.setBack(backTex); wake(); } catch { /* fica o verso desenhado */ }
+  backLoading = false;
+}
 async function openInventory() {
   if (invOpen || rig.active || modes.mode === 'pay') return;
   invOpen = true; invPrevEnabled = controls.enabled; controls.setEnabled(false);
   hud.el.style.display = 'none'; canvas.style.cursor = 'default';
-  layoutViewer(); viewer.attach(canvas, () => wake(400)); invPanel.open(); paintInventory(); wake(600);
+  layoutViewer(); viewer.attach(canvas, () => wake(400)); invPanel.open(); paintInventory(); wake(600); ensureBack();
   if (!inventory.address && hasWallet(window) && !config.demoMode) {           // carteira já conectada ao site? lê sem pedir nada
     try { const [a] = await window.ethereum.request({ method: 'eth_accounts' }); if (a) inventory.setAddress(a); } catch { /* sem carteira */ }
   }

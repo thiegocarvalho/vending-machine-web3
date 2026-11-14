@@ -30,6 +30,15 @@ async function loadTexture(meta, { texW, texH, mip = true, aniso = 4 }) {
   return t;
 }
 
+// Verso oficial do card: `collection.png`, na mesma pasta do IPFS das artes (o campo `image` de qualquer card aponta para essa pasta).
+export const backUrlFor = (meta) => meta.image.replace(/[^/]+$/, 'collection.png');
+export async function loadBackTexture(meta, { texW = 600, texH = 800, aniso = 4 } = {}) {
+  const url = backUrlFor(meta);
+  const blob = url.startsWith('ipfs://') ? await fetchIpfs(url, config.gateways, { as: 'blob', timeoutMs: 25000 }) : await (await fetch(url)).blob();
+  const t = new THREE.CanvasTexture(await decodeCardImage(blob, { texW, texH })); t.flipY = false;
+  t.anisotropy = aniso; t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+
 // Arte completa (campo padrão `image` do NFT) para o visualizador do inventário: baixada só sob demanda, decodificada em 600x800.
 export async function loadFullTexture(meta, { texW = 600, texH = 800, aniso = 4 } = {}) {
   const url = meta.image;
