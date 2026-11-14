@@ -7,8 +7,8 @@ export const config = {
   rpcUrl: env.VITE_SEPOLIA_RPC_URL || 'https://ethereum-sepolia-rpc.publicnode.com',
   gateways: [
     ...(env.VITE_PINATA_GATEWAY ? [`https://${env.VITE_PINATA_GATEWAY}/ipfs/`] : []),
-    'https://ipfs.io/ipfs/',
-    'https://dweb.link/ipfs/'
+    'https://gateway.pinata.cloud/ipfs/',
+    'https://ipfs.filebase.io/ipfs/'
   ],
   get demoMode() { return !this.contractAddress; },
   wallRadius: 7,

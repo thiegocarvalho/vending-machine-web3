@@ -20,7 +20,7 @@ npm run build
 
 Sem `VITE_METADATA_CID` o jogo lê metadados e imagens de `public/dev-metadata` e `public/dev-images` (links simbólicos para `../Contratos`, só para desenvolvimento).
 
-Com o contrato configurado, tudo vem do contrato (`uri`, `getAllCardsInfo`) e dos gateways IPFS (Pinata → ipfs.io → dweb.link).
+Com o contrato configurado, tudo vem do contrato (`uri`, `getAllCardsInfo`) e dos gateways IPFS (Pinata dedicado → gateway.pinata.cloud → ipfs.filebase.io; ipfs.io e dweb.link não servem mais por fetch).
 
 ## Controles
 Desktop: WASD andar · arrastar olhar · setas escolher card · Enter pagar · clique num card. Mobile: joystick, D-pad, toque no card, arrastar para olhar.
