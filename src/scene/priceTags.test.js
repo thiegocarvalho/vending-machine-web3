@@ -32,8 +32,8 @@ describe('etiquetas de preço', () => {
     expect(mesh.geometry.attributes.position.count).toBe(120); expect(mesh.geometry.index.count).toBe(180);
     const uv = mesh.geometry.attributes.uv, firsts = new Set(); for (let i = 0; i < 30; i++) firsts.add(`${uv.getX(i * 4).toFixed(4)},${uv.getY(i * 4).toFixed(4)}`);
     expect(firsts.size).toBe(30);
-    const p = mesh.geometry.attributes.position;                     // etiqueta 0 fica abaixo do centro do slot 0 e à frente dele
-    const cy = (p.getY(0) + p.getY(2)) / 2; expect(cy).toBeLessThan(anchors[0].position.y); expect(p.getZ(0)).toBeGreaterThan(anchors[0].position.z);
+    const p = mesh.geometry.attributes.position;                     // etiqueta 0 fica na borda da prateleira: abaixo do card (fora dele) e à frente
+    const cy = (p.getY(0) + p.getY(2)) / 2; expect(anchors[0].position.y - cy).toBeGreaterThan(0.133); expect(p.getZ(0)).toBeGreaterThan(anchors[0].position.z + 0.1);
     expect(() => update(infos.map((x, i) => (i === 3 ? { ...x, stock: 0 } : x)))).not.toThrow();
   });
 });

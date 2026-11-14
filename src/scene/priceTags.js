@@ -4,7 +4,8 @@ import { drawLcdText, textWidth, LCD } from '../payment/lcd.js';
 
 // Etiquetas de preço (ETH) à frente de cada card, como as etiquetas de prateleira de uma máquina de verdade.
 // Todas as 30 num só objeto (1 draw call): uma malha de 30 quadrados com UV num atlas de 6x5 etiquetas.
-export const TAG = { cols: 6, rows: 5, cw: 128, ch: 32, w: 0.15, h: 0.034 };
+// dy/dz: posição da etiqueta em relação ao centro do card — na borda da prateleira (abaixo e à frente), longe do card.
+export const TAG = { cols: 6, rows: 5, cw: 128, ch: 32, w: 0.15, h: 0.03, dy: -0.1475, dz: 0.111 };
 
 export function formatPrice(wei) {
   const s = formatEther(wei);
@@ -38,14 +39,12 @@ export function createPriceTags(anchors, infos) {
   const ctx = canvas.getContext('2d');
   const tex = new THREE.CanvasTexture(canvas); tex.colorSpace = THREE.SRGBColorSpace; tex.magFilter = THREE.NearestFilter; tex.anisotropy = 4;
   const n = anchors.length, pos = new Float32Array(n * 12), uv = new Float32Array(n * 8), idx = [];
-  const corner = new THREE.Vector3();
+  const wp = new THREE.Vector3();
   anchors.forEach((a, i) => {
-    a.updateWorldMatrix(true, false);
-    // quatro cantos no espaço do card (um pouco abaixo do centro e à frente), levados ao mundo com a inclinação do slot
-    const hw = TAG.w / 2, hh = TAG.h / 2, cy = -0.1, cz = 0.022;
-    [[-hw, cy - hh], [hw, cy - hh], [hw, cy + hh], [-hw, cy + hh]].forEach(([x, y], k) => {
-      corner.set(x, y, cz).applyMatrix4(a.matrixWorld); pos.set([corner.x, corner.y, corner.z], i * 12 + k * 3);
-    });
+    a.updateWorldMatrix(true, false); a.getWorldPosition(wp);
+    // etiqueta reta (sem a inclinação do card) na frente da prateleira: centro do card + (0, dy, dz), plano vertical
+    const hw = TAG.w / 2, hh = TAG.h / 2, cx = wp.x, cy = wp.y + TAG.dy, cz = wp.z + TAG.dz;
+    [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]].forEach(([x, y], k) => pos.set([cx + x, cy + y, cz], i * 12 + k * 3));
     const col = i % TAG.cols, row = Math.floor(i / TAG.cols), u0 = col / TAG.cols, u1 = (col + 1) / TAG.cols, v1 = 1 - row / TAG.rows, v0 = 1 - (row + 1) / TAG.rows;
     uv.set([u0, v0, u1, v0, u1, v1, u0, v1], i * 8);
     idx.push(i * 4, i * 4 + 1, i * 4 + 2, i * 4, i * 4 + 2, i * 4 + 3);

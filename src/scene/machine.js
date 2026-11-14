@@ -56,7 +56,7 @@ export function buildMachine() {
   const rowPitch = wh / ROWS, colPitch = ww / COLS;
   for (let r = 0; r < ROWS; r++) {
     const shelfY = WIN.y1 - (r + 1) * rowPitch + 0.02;
-    box(ww, 0.025, DEPTH - 0.03, WHITE, wx, shelfY, front + (DEPTH - 0.03) / 2 + 0.01);
+    box(ww, 0.04, DEPTH - 0.03, WHITE, wx, shelfY - 0.0075, front + (DEPTH - 0.03) / 2 + 0.01);   // prateleira mais grossa: a frente dela recebe a etiqueta de preço
     for (let c = 0; c < COLS; c++) {
       const id = r * COLS + c + 1;
       const a = new THREE.Object3D();
