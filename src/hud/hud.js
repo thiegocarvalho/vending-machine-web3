@@ -1,44 +1,39 @@
 import './hud.css';
-import { renderMinimap } from './minimap.js';
 import { cardIdToSlot } from '../grid.js';
-import { drawQr } from '../payment/machineScreen.js';
 import { formatEther } from 'viem';
 import { config } from '../config.js';
 
 const el = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstChild; };
+const key = (k) => `<span class="key">${k}</span>`;
 
+// HUD enxuto, no estilo de jogos de survival-horror: mira, prompt de interação, e pouca informação por modo.
 export function createHud(root) {
   root.innerHTML = '';
-  const hud = el(`<div id="hud">
-    <div class="top"><div class="title">DEFI VENDING MACHINE<small>${config.chainName.toUpperCase()} TESTNET</small></div><button class="wallet">Carteira</button></div>
-    <div class="minimap"></div>
-    <div class="hint">WASD andar · arrastar olhar · ←↑↓→ escolher card · Enter pagar</div>
-    <aside class="panel"><button class="close" aria-label="Fechar">✕</button>
-      <div class="slot"></div><h2>Selecione um card</h2><p class="desc">Clique/toque num card da máquina.</p>
-      <dl></dl>
-      <div class="actions"><button class="qr-btn" disabled>QR Code</button><button class="pay-btn" disabled>Pagar com carteira</button></div>
-      <canvas class="qr" width="260" height="260"></canvas>
-      <div class="status"></div></aside>
+  const hud = el(`<div id="hud" class="mode-walk">
+    <div class="cross"></div>
+    <div class="prompt"><span class="key">E</span><span class="label"><small>DEFI VENDING MACHINE</small>Usar a máquina</span></div>
+    <div class="info">
+      <div class="slot"></div>
+      <div class="detail"><div class="name"></div><div class="meta"><span class="price"></span><span class="stock"></span></div></div>
+    </div>
+    <div class="status"></div>
+    <div class="keys keys-walk">${key('W')}${key('A')}${key('S')}${key('D')} Mover <i></i> Mouse Olhar</div>
+    <div class="keys keys-select">${key('←')}${key('↑')}${key('↓')}${key('→')} Escolher <i></i> ${key('ENTER')} Confirmar <i></i> ${key('ESC')} Sair</div>
+    <div class="keys keys-pay">${key('ESC')} Voltar <i></i> Clique em PAGAR na tela da máquina</div>
+    <div class="net">${config.chainName.toUpperCase()}</div>
     <div class="joy"><i></i></div>
     <div class="dpad"><button class="u">▲</button><button class="l">◀</button><button class="r">▶</button><button class="d">▼</button></div>
+    <button class="m-use">USAR</button><button class="m-ok">CONFIRMAR</button><button class="m-back">VOLTAR</button>
   </div>`);
   root.appendChild(hud);
   const q = (s) => hud.querySelector(s);
-  const cbs = { pay: () => {}, qr: () => {}, dpad: () => {}, joy: () => {}, wallet: () => {}, close: () => {} };
+  const cbs = { use: () => {}, ok: () => {}, back: () => {}, dpad: () => {}, joy: () => {} };
 
-  function setMinimap(id) {
-    const m = q('.minimap'); m.innerHTML = `<b>${cardIdToSlot(id).label}</b>`;
-    renderMinimap(id).flat().forEach(on => m.appendChild(el(`<i class="${on ? 'on' : ''}"></i>`)));
-  }
-  setMinimap(1);
-
-  q('.pay-btn').onclick = () => cbs.pay();
-  q('.qr-btn').onclick = () => cbs.qr();
-  q('.wallet').onclick = () => cbs.wallet();
-  q('.close').onclick = () => { hud.classList.remove('sheet'); cbs.close(); };
+  q('.m-use').onclick = () => cbs.use(); q('.m-ok').onclick = () => cbs.ok(); q('.m-back').onclick = () => cbs.back();
+  q('.prompt').onclick = () => cbs.use();
   [['u', 'up'], ['d', 'down'], ['l', 'left'], ['r', 'right']].forEach(([c, d]) => q('.dpad .' + c).onclick = () => cbs.dpad(d));
 
-  // virtual joystick
+  // joystick virtual (toque)
   const joy = q('.joy'), knob = joy.firstElementChild;
   let pid = null;
   const setJoy = (e) => {
@@ -54,32 +49,20 @@ export function createHud(root) {
 
   return {
     el: hud,
-    onPay: f => cbs.pay = f, onShowQr: f => cbs.qr = f, onDpad: f => cbs.dpad = f, onJoystick: f => cbs.joy = f, onWallet: f => cbs.wallet = f,
+    onUse: f => cbs.use = f, onConfirm: f => cbs.ok = f, onBack: f => cbs.back = f, onDpad: f => cbs.dpad = f, onJoystick: f => cbs.joy = f,
+    setMode(mode) { hud.className = `mode-${mode}`; if (mode !== 'walk') hud.classList.remove('can-use'); },
+    showPrompt(on) { hud.classList.toggle('can-use', !!on && hud.classList.contains('mode-walk')); },
     showCard(id, meta, info) {
-      setMinimap(id);
-      q('.slot').textContent = `SLOT ${cardIdToSlot(id).label} · CARD #${String(id).padStart(2, '0')}`;
-      q('h2').textContent = meta ? meta.name.replace(/^Card #\d+:\s*/, '') : `Card #${id}`;
-      q('.desc').textContent = meta ? meta.description : 'Carregando metadados…';
+      q('.slot').textContent = cardIdToSlot(id).label;
+      q('.name').textContent = meta ? meta.name.replace(/^Card #\d+:\s*/, '') : `Card #${String(id).padStart(2, '0')}`;
       const sold = info && (info.stock <= 0 || !info.active);
-      q('dl').innerHTML = info ? `<dt>Preço</dt><dd>${formatEther(info.price)} ETH</dd><dt>Estoque</dt><dd>${sold ? 'SOLD OUT' : info.stock + ' / 100'}</dd><dt>Edição</dt><dd>001</dd>` : '';
-      q('.pay-btn').disabled = !info || sold; q('.qr-btn').disabled = !info || sold;
-      q('.panel').classList.remove('qr-on'); q('.status').textContent = ''; q('.status').className = 'status';
-      hud.classList.add('sheet');
-    },
-    setWallet(state, addr) {
-      const b = q('.wallet');
-      b.textContent = { none: 'Sem carteira', disconnected: 'Conectar', connected: addr ? addr.slice(0, 6) + '…' + addr.slice(-4) : 'Conectada', wrongNetwork: 'Rede errada' }[state];
-      q('.pay-btn').title = state === 'none' ? 'Instale uma carteira (ex.: MetaMask) ou use o QR Code' : '';
-      if (state === 'none') q('.pay-btn').dataset.nowallet = '1'; else delete q('.pay-btn').dataset.nowallet;
-    },
-    disablePay(v) { q('.pay-btn').disabled = v; },
-    showQr(text) {
-      const c = q('canvas.qr'); const g = c.getContext('2d'); g.clearRect(0, 0, 260, 260);
-      if (text) { drawQr(g, text, 0, 0, 260); q('.panel').classList.add('qr-on'); } else q('.panel').classList.remove('qr-on');
+      q('.price').textContent = info ? `${formatEther(info.price)} ETH` : '';
+      q('.stock').textContent = info ? (sold ? 'ESGOTADO' : `${info.stock}/100`) : '';
+      q('.stock').classList.toggle('sold', !!sold);
     },
     setStatus(text, { error = false, hash } = {}) {
-      const s = q('.status'); s.className = 'status' + (error ? ' err' : ''); s.textContent = text;
-      if (hash && config.explorer) { const a = document.createElement('a'); a.href = `${config.explorer}/tx/${hash}`; a.target = '_blank'; a.rel = 'noopener'; a.textContent = ' ver no explorer'; s.appendChild(a); }
+      const s = q('.status'); s.className = 'status' + (error ? ' err' : '') + (text ? ' on' : ''); s.textContent = text;
+      if (hash && config.explorer) { const a = document.createElement('a'); a.href = `${config.explorer}/tx/${hash}`; a.target = '_blank'; a.rel = 'noopener'; a.textContent = ' · ver no explorer'; s.appendChild(a); }
     }
   };
 }

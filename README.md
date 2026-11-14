@@ -22,5 +22,8 @@ Sem `VITE_METADATA_CID` o jogo lê metadados e imagens de `public/dev-metadata` 
 
 Com o contrato configurado, tudo vem do contrato (`uri`, `getAllCardsInfo`) e dos gateways IPFS (Pinata dedicado → gateway.pinata.cloud → ipfs.filebase.io; ipfs.io e dweb.link não servem mais por fetch).
 
-## Controles
-Desktop: WASD andar · arrastar olhar · setas escolher card · Enter pagar · clique num card. Mobile: joystick, D-pad, toque no card, arrastar para olhar.
+## Controles e modos
+- **Andar:** mouse olha sem precisar clicar (o primeiro clique ou tecla captura o cursor), WASD move, mira no centro. Perto da máquina e olhando para ela aparece o prompt **[E] Usar a máquina**.
+- **Selecionar:** a câmera segue o card; setas/WASD ou o mouse escolhem, o painel LED vermelho mostra o slot (ex.: `B3 #09`), Enter/clique confirma, Esc sai.
+- **Pagar:** a câmera vai para a telinha da máquina com o QR Code e o botão **PAGAR COM CARTEIRA** (clique no 3D). Esc volta.
+- **Mobile:** joystick + botão USAR; na seleção, D-pad + CONFIRMAR + VOLTAR; toque num card seleciona e toca de novo confirma.

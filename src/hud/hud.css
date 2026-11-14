@@ -1,51 +1,59 @@
-:root{--red:#ff0033;--black:#08080a;--white:#fff;--dim:#8a8a94;--safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px)}
-#hud{position:fixed;inset:0;pointer-events:none;font-family:'Space Grotesk',system-ui,sans-serif;color:var(--white);user-select:none;-webkit-user-select:none}
+:root{--white:#f2f5fa;--dim:rgba(242,245,250,.62);--red:#ff2a44;--safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px)}
+#hud{position:fixed;inset:0;pointer-events:none;font-family:'Space Grotesk',system-ui,sans-serif;color:var(--white);user-select:none;-webkit-user-select:none;text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 12px rgba(0,0,0,.6)}
 #hud *{box-sizing:border-box}
-#hud button{pointer-events:auto;font:inherit;color:var(--white);background:rgba(8,8,10,.85);border:2px solid var(--red);min-height:44px;min-width:44px;padding:0 14px;cursor:pointer;letter-spacing:.06em;text-transform:uppercase}
-#hud button:hover:not(:disabled){background:var(--red)}
-#hud button:disabled{opacity:.4;cursor:not-allowed}
-.top{position:absolute;left:16px;right:16px;top:calc(12px + var(--safe-t));display:flex;justify-content:space-between;align-items:center;gap:8px}
-.title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.08em;line-height:1;background:rgba(8,8,10,.7);padding:6px 10px;border-left:4px solid var(--red)}
-.title small{display:block;font-family:'Fira Code',monospace;font-size:10px;color:var(--dim);letter-spacing:.1em}
-.wallet{font-family:'Fira Code',monospace;font-size:12px;white-space:nowrap}
-.minimap{position:absolute;left:16px;bottom:calc(16px + var(--safe-b));display:grid;grid-template-columns:repeat(6,14px);gap:3px;background:rgba(8,8,10,.7);padding:8px;border:1px solid #333}
-.minimap i{width:14px;height:18px;background:#2a2a31}
-.minimap i.on{background:var(--red)}
-.minimap b{grid-column:1/-1;font:600 11px 'Fira Code',monospace;color:var(--dim);text-align:center;padding-bottom:2px}
-.hint{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(14px + var(--safe-b));font:12px 'Fira Code',monospace;color:var(--dim);background:rgba(8,8,10,.7);padding:6px 10px;white-space:nowrap}
-.panel{position:absolute;right:16px;top:calc(76px + var(--safe-t));width:340px;max-height:calc(100% - 100px);overflow:auto;pointer-events:auto;background:rgba(8,8,10,.92);border:2px solid var(--red);padding:16px}
-.panel h2{margin:0;font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.05em;font-weight:400}
-.panel .slot{font:600 12px 'Fira Code',monospace;color:var(--red)}
-.panel p{margin:8px 0;font-size:14px;line-height:1.4;color:#ddd}
-.panel dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:10px 0;font:13px 'Fira Code',monospace}
-.panel dt{color:var(--dim)}
-.panel .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.panel .actions button{flex:1}
-.panel .status{margin-top:10px;font:12px 'Fira Code',monospace;min-height:16px;word-break:break-word}
-.panel .status.err{color:var(--red)}
-.panel .status a{color:var(--white)}
-.panel canvas.qr{display:none;width:100%;max-width:220px;margin:12px auto 0;image-rendering:pixelated;background:#fff}
-.panel.qr-on canvas.qr{display:block}
-.panel .close{display:none;position:absolute;right:8px;top:8px;min-width:44px;padding:0}
-.dpad{display:none;position:absolute;right:16px;bottom:calc(16px + var(--safe-b));grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,48px);gap:4px}
-.dpad button{padding:0;font-size:18px;background:rgba(8,8,10,.55)}
-.dpad .u{grid-column:2}.dpad .l{grid-column:1;grid-row:2}.dpad .r{grid-column:3;grid-row:2}.dpad .d{grid-column:2;grid-row:3}
-.joy{display:none;position:absolute;left:16px;bottom:calc(16px + var(--safe-b));width:110px;height:110px;border-radius:50%;border:2px solid var(--red);background:rgba(8,8,10,.5);pointer-events:auto;touch-action:none}
-.joy i{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px;border-radius:50%;background:var(--red);opacity:.8}
-@media (max-width:899px){
-  .hint{display:none}
-  .title{font-size:20px}
-  .wallet{font-size:11px;padding:0 10px}
-  .minimap{left:auto;right:12px;top:calc(72px + var(--safe-t));bottom:auto;grid-template-columns:repeat(6,9px);gap:2px;padding:5px}
-  .minimap i{width:9px;height:12px}
-  .minimap b{font-size:9px}
-  .panel{right:0;left:0;top:auto;bottom:0;width:100%;max-height:44vh;border-width:2px 0 0;padding:14px 14px calc(14px + var(--safe-b));transform:translateY(105%);transition:transform .2s}
-  #hud.sheet .panel{transform:none}
-  .panel{display:flex;flex-direction:column}
-  .panel .slot{order:0}.panel h2{order:1;padding-right:52px}.panel .actions{order:2;margin:8px 0}.panel .desc{order:3}.panel dl{order:4}.panel canvas.qr{order:5}.panel .status{order:6}
-  .panel .close{display:block}
-  .dpad,.joy{display:grid}
-  .joy{display:block}
-  #hud.sheet .dpad,#hud.sheet .joy{bottom:calc(44vh + 12px)}
-  #hud.sheet .dpad{bottom:calc(44vh + 12px)}
+#hud button{pointer-events:auto;font:inherit;color:var(--white);background:rgba(6,10,20,.55);border:1px solid rgba(255,255,255,.7);min-height:44px;min-width:44px;padding:0 16px;cursor:pointer;letter-spacing:.14em;text-transform:uppercase;font-size:12px}
+#hud button:hover{background:rgba(255,255,255,.18)}
+
+/* vinheta inferior discreta, como nos jogos de survival-horror */
+#hud::after{content:'';position:absolute;inset:auto 0 0 0;height:32%;background:linear-gradient(to top,rgba(0,0,0,.55),transparent);z-index:-1}
+
+/* mira central: ponto + anel fino, só andando */
+.cross{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 0 0 5px rgba(255,255,255,.0),0 0 4px rgba(0,0,0,.8);display:none;transition:all .15s}
+.mode-walk .cross{display:block}
+.can-use .cross{width:8px;height:8px;margin:-4px 0 0 -4px;background:transparent;border:1.5px solid #fff;box-shadow:0 0 6px rgba(255,255,255,.7)}
+
+/* prompt de interação: tecla em caixa + rótulo */
+.prompt{position:absolute;left:50%;top:60%;transform:translateX(-50%);display:none;align-items:center;gap:14px;pointer-events:auto;cursor:pointer}
+.prompt{background:linear-gradient(90deg,rgba(0,0,0,.6),rgba(0,0,0,.35));padding:10px 22px 10px 12px;border-left:2px solid #fff}
+.can-use .prompt{display:flex;animation:pulse 1.8s ease-in-out infinite}
+.key{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;padding:0 8px;border:1.5px solid #fff;border-radius:4px;font:600 14px 'Fira Code',monospace;background:rgba(0,0,0,.35);margin:0 3px}
+.prompt .key{min-width:38px;height:38px;font-size:18px}
+.prompt .label{display:flex;flex-direction:column;font-size:18px;letter-spacing:.14em;text-transform:uppercase;line-height:1.15}
+.prompt small{font:400 10px 'Fira Code',monospace;letter-spacing:.2em;color:var(--dim)}
+@keyframes pulse{50%{opacity:.7}}
+
+/* selecionando: slot + nome + preço, canto inferior esquerdo */
+.info{position:absolute;left:clamp(16px,4vw,56px);bottom:calc(64px + var(--safe-b));display:none;align-items:flex-end;gap:16px}
+.mode-select .info,.mode-pay .info{display:flex}
+.slot{font:400 64px/0.85 'Bebas Neue',sans-serif;letter-spacing:.04em;color:var(--red)}
+.detail{border-left:1px solid rgba(255,255,255,.6);padding-left:14px}
+.name{font:400 26px 'Bebas Neue',sans-serif;letter-spacing:.08em}
+.meta{display:flex;gap:16px;font:13px 'Fira Code',monospace;color:var(--dim)}
+.stock.sold{color:var(--red)}
+
+/* mensagens de estado */
+.status{position:absolute;left:clamp(16px,4vw,56px);bottom:calc(150px + var(--safe-b));max-width:min(46vw,420px);text-align:left;font-size:15px;letter-spacing:.06em;opacity:0;transition:opacity .2s;pointer-events:auto}
+.status.on{opacity:1}.status.err{color:#ff6b7d}.status a{color:#fff;text-decoration:underline}
+
+/* dicas de teclas */
+.keys{position:absolute;right:clamp(16px,4vw,56px);bottom:calc(20px + var(--safe-b));display:none;align-items:center;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.keys i{width:1px;height:14px;background:rgba(255,255,255,.35);margin:0 14px}
+.mode-walk .keys-walk,.mode-select .keys-select,.mode-pay .keys-pay{display:flex}
+.net{position:absolute;right:clamp(16px,4vw,56px);top:calc(14px + var(--safe-t));font:11px 'Fira Code',monospace;letter-spacing:.2em;color:var(--dim)}
+
+/* toque: joystick, D-pad e botões (escondidos no desktop) */
+.joy,.dpad,.m-use,.m-ok,.m-back{display:none}
+@media (pointer:coarse),(max-width:900px){
+  .keys{display:none!important}
+  .info{bottom:calc(150px + var(--safe-b))}.slot{font-size:48px}.name{font-size:20px}
+  .status{bottom:calc(230px + var(--safe-b));max-width:80vw}
+  .mode-walk .joy{display:block;position:absolute;left:24px;bottom:calc(28px + var(--safe-b));width:128px;height:128px;border:1px solid rgba(255,255,255,.5);border-radius:50%;pointer-events:auto;touch-action:none;background:rgba(0,0,0,.2)}
+  .joy i{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px;border-radius:50%;background:rgba(255,255,255,.35);border:1px solid #fff}
+  .mode-select .dpad{display:grid;position:absolute;right:20px;bottom:calc(24px + var(--safe-b));grid-template:repeat(3,52px)/repeat(3,52px);gap:4px}
+  .dpad .u{grid-area:1/2}.dpad .l{grid-area:2/1}.dpad .r{grid-area:2/3}.dpad .d{grid-area:3/2}
+  .dpad button{padding:0;font-size:16px}
+  .mode-select .m-ok{display:block;position:absolute;left:20px;bottom:calc(28px + var(--safe-b))}
+  .mode-select .m-back,.mode-pay .m-back{display:block;position:absolute;left:20px;top:calc(14px + var(--safe-t))}
+  .can-use .prompt{display:none}
+  .can-use .m-use{display:block;position:absolute;right:24px;bottom:calc(64px + var(--safe-b));min-width:96px;min-height:56px;font-size:15px;border-width:2px}
 }

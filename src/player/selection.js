@@ -22,24 +22,10 @@ export function pickCard(raycaster, cardMeshes) {
 export function createHighlight(scene) {
   const frame = new THREE.LineSegments(
     new THREE.EdgesGeometry(new THREE.PlaneGeometry(0.19, 0.19 * 4 / 3)),
-    new THREE.LineBasicMaterial({ color: 0xff0033 }));
+    new THREE.LineBasicMaterial({ color: 0xffffff }));
   frame.visible = false; scene.add(frame);
-  return { moveTo(anchor) { anchor.getWorldPosition(frame.position); frame.position.z += 0.012; frame.rotation.x = anchor.rotation.x; frame.visible = true; } };
-}
-
-// Smoothly walks the camera to a point in front of the anchor (clamped by the caller's wall).
-export function focusOn(camera, controls, anchor, distance = 1.6) {
-  const target = anchor.getWorldPosition(new THREE.Vector3());
-  const from = camera.position.clone();
-  const to = new THREE.Vector3(target.x, 1.6, target.z + distance + 0.07);
-  const t0 = performance.now();
-  return new Promise(res => {
-    (function step(now) {
-      const k = Math.min(1, (now - t0) / 450), e = k * k * (3 - 2 * k);
-      camera.position.lerpVectors(from, to, e);
-      const pitch = Math.atan2(target.y - 1.6, distance);
-      controls.setLook(0, pitch * e);
-      k < 1 ? requestAnimationFrame(step) : res();
-    })(t0);
-  });
+  return {
+    moveTo(anchor) { anchor.getWorldPosition(frame.position); frame.position.z += 0.012; frame.rotation.x = anchor.rotation.x; frame.visible = true; },
+    setVisible(v) { frame.visible = v; }
+  };
 }
