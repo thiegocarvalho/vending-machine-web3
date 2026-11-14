@@ -34,7 +34,7 @@ describe('revisão: pontos de atenção', () => {
   });
   it('ERC1155Supply: totalSupply acompanha as compras e confere com o emitido', async () => {
     await vm.connect(alice)['buyCard(uint256)'](4, { value: PRICE }); await vm.connect(alice).buyCardsBatch([4, 5], [2, 1], { value: PRICE * 3n });
-    expect(await vm.totalSupply(4)).to.equal(3n); expect(await vm.getMintedCount(4)).to.equal(3n); expect(await vm.totalSupply(5)).to.equal(1n);
+    expect(await vm['totalSupply(uint256)'](4)).to.equal(3n); expect(await vm.getMintedCount(4)).to.equal(3n); expect(await vm['totalSupply(uint256)'](5)).to.equal(1n);
   });
   it('pausa bloqueia compra e transferência; despausar libera', async () => {
     await vm.connect(alice)['buyCard(uint256)'](6, { value: PRICE });
