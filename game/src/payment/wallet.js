@@ -21,7 +21,7 @@ export async function ensureChain(eth, cfg) {
   try {
     await eth.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hex(cfg.chainId) }] });
   } catch (e) {
-    if (e.code !== 4902) throw e;
+    if (e.code === 4001) throw e;      // recusou; qualquer outro erro (4902 ou -32603 "rede desconhecida", conforme a carteira) tenta adicionar
     await eth.request({ method: 'wallet_addEthereumChain', params: [chainParams(cfg)] });
   }
 }
