@@ -30,6 +30,14 @@ async function loadTexture(meta, { texW, texH, mip = true, aniso = 4 }) {
   return t;
 }
 
+// Arte completa (campo padrão `image` do NFT) para o visualizador do inventário: baixada só sob demanda, decodificada em 600x800.
+export async function loadFullTexture(meta, { texW = 600, texH = 800, aniso = 4 } = {}) {
+  const url = meta.image;
+  const blob = url.startsWith('ipfs://') ? await fetchIpfs(url, config.gateways, { as: 'blob', timeoutMs: 25000 }) : await (await fetch(url)).blob();
+  const t = new THREE.CanvasTexture(await decodeCardImage(blob, { texW, texH })); t.flipY = false;
+  t.anisotropy = aniso; t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+
 export function populateCards(anchors, infos, { texW = 300, texH = 400, mip = true, aniso = 4 } = {}) {
   const cards = [], metas = new Array(anchors.length).fill(null), listeners = [];
   anchors.forEach((anchor, i) => {

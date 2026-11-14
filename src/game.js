@@ -5,7 +5,10 @@ import { buildScenery, addLighting, SCENERY_COLLIDERS, POSTER } from './scene/sc
 import { createControls } from './player/controls.js';
 import { createRig } from './player/rig.js';
 import { createSpotlight, approach as approachNum } from './scene/spotlight.js';
-import { populateCards } from './scene/cards.js';
+import { populateCards, loadFullTexture } from './scene/cards.js';
+import { createCardViewer } from './scene/cardViewer.js';
+import { createInventory } from './data/inventory.js';
+import { createInventoryPanel } from './hud/inventory.js';
 import { loadCardsInfo } from './data/chain.js';
 import { createSelection, createHighlight, pickCard } from './player/selection.js';
 import { createHud } from './hud/hud.js';
@@ -64,6 +67,8 @@ highlight.setVisible(false);
 const screen = createMachineScreen(machine.screenMesh);
 const hudRoot = document.createElement('div'); document.body.appendChild(hudRoot);
 const hud = createHud(hudRoot);
+const inventory = createInventory();
+const viewer = createCardViewer();
 
 let infos = await loadCardsInfo();
 const cardsApi = populateCards(machine.slotAnchors, infos, tier);
@@ -121,7 +126,7 @@ cardsApi.onLoaded((id) => { wake(); if (id === selection.id) refresh(); });
 function setState(state, { message = '', hash } = {}) {
   const qrText = state === 'awaiting' ? buildEip681(contractForQr, config.chainId, selection.id, infos[selection.id - 1].price) : '';
   drawScreen({ state, message, qrText });
-  hud.setStatus({ awaiting: '', sent: 'Transação enviada, aguardando bloco…', confirmed: 'ADQUIRIDO! Retire na bandeja.', error: message, idle: '', select: '' }[state] ?? '',
+  hud.setStatus({ awaiting: '', sent: 'Transação enviada, aguardando bloco…', confirmed: 'ADQUIRIDO! Aperte I para ver no inventário.', error: message, idle: '', select: '' }[state] ?? '',
     { error: state === 'error', hash });
 }
 
@@ -144,6 +149,7 @@ function onConfirmed(id, hash) {
   infos[id - 1] = { ...infos[id - 1], stock: infos[id - 1].stock - 1 };
   if (infos[id - 1].stock <= 0) cardsApi.setSoldOut(id, true);
   setState('confirmed', { hash }); machine.led.setText('OK'); dropCard(id); busy = false;
+  inventory.add(id); if (!config.demoMode) inventory.refresh().catch(() => {});                 // saldo novo no inventário (I)
   setTimeout(() => { if (modes.mode === 'pay') modes.back(); }, 2200);
 }
 
@@ -165,13 +171,68 @@ async function payNow() {
       await new Promise(r => setTimeout(r, 1200)); setState('sent');
       await new Promise(r => setTimeout(r, 1800)); onConfirmed(id); return;
     }
-    const { hash } = await payWithWallet(window, config, id, info.price, info.stock);
+    const { hash, from } = await payWithWallet(window, config, id, info.price, info.stock);
+    if (from) inventory.setAddress(from);
     setState('sent', { hash });
     await waitForReceipt(hash);
     onConfirmed(id, hash);
   } catch (e) {
     busy = false; setState('error', { message: e.message });
   }
+}
+
+// ---------- inventário (tecla I) ----------
+let invOpen = false, invSel = 0, invPrevEnabled = true;
+const fullCache = new Map();                                                    // id -> textura em alta (LRU de 3)
+const invPanel = createInventoryPanel(document.body, {
+  onClose: () => closeInventory(), onSelect: (id) => selectInv(id),
+  onConnect: async () => { try { const [a] = await window.ethereum.request({ method: 'eth_requestAccounts' }); inventory.setAddress(a); await refreshInventory(); } catch { hud.setStatus('Conexão recusada.', { error: true }); } },
+  onAddress: async (a) => { inventory.setAddress(a); await refreshInventory(); }
+});
+const invLayout = () => { const w = innerWidth, h = innerHeight; return w / h < 0.8 || w <= 900 ? { sx: 0, sy: 0.4 } : { sx: Math.min(0.5, 400 / w), sy: 0 }; };
+function layoutViewer() { viewer.setLayout(innerWidth / innerHeight, invLayout()); }
+function paintInventory() {
+  invPanel.setData({ balances: inventory.balances, address: inventory.address, hasWallet: hasWallet(window), demo: config.demoMode });
+  cardsApi.cards.forEach((m, i) => { const img = m.material.map?.image; if (img) invPanel.setThumb(i + 1, img); });
+  wake();
+}
+async function refreshInventory() {
+  try { await inventory.refresh(); } catch (e) { hud.setStatus('Não foi possível ler os saldos: ' + e.message, { error: true }); }
+  paintInventory();
+  if (!invSel || inventory.balances[invSel - 1] <= 0) selectInv(inventory.balances.findIndex((n) => n > 0) + 1 || 0);
+}
+async function selectInv(id) {
+  invSel = id; invPanel.setSelected(id, id ? cardsApi.metas[id - 1] : null, id ? inventory.balances[id - 1] : 0);
+  if (!id) { viewer.setFront(null); viewer.showBack(); wake(); return; }
+  viewer.reset();                                                              // cada card começa de frente
+  viewer.setFront(fullCache.get(id) ?? cardsApi.cards[id - 1].material.map);     // mostra já a miniatura e troca pela arte completa quando chegar
+  wake();
+  if (fullCache.has(id) || !cardsApi.metas[id - 1]) return;
+  invPanel.setLoading(true);
+  try {
+    const tex = await loadFullTexture(cardsApi.metas[id - 1], { aniso: tier.aniso });
+    fullCache.set(id, tex);
+    if (fullCache.size > 3) { const [oldId, old] = fullCache.entries().next().value; if (oldId !== invSel) { old.dispose(); fullCache.delete(oldId); } }
+    if (invSel === id) viewer.setFront(tex);
+  } catch { /* fica a miniatura */ }
+  if (invSel === id) invPanel.setLoading(false);
+  wake();
+}
+async function openInventory() {
+  if (invOpen || rig.active || modes.mode === 'pay') return;
+  invOpen = true; invPrevEnabled = controls.enabled; controls.setEnabled(false);
+  hud.el.style.display = 'none'; canvas.style.cursor = 'default';
+  layoutViewer(); viewer.attach(canvas, () => wake(400)); invPanel.open(); paintInventory(); wake(600);
+  if (!inventory.address && hasWallet(window) && !config.demoMode) {           // carteira já conectada ao site? lê sem pedir nada
+    try { const [a] = await window.ethereum.request({ method: 'eth_accounts' }); if (a) inventory.setAddress(a); } catch { /* sem carteira */ }
+  }
+  await refreshInventory();
+}
+function closeInventory() {
+  if (!invOpen) return;
+  invOpen = false; viewer.detach(); invPanel.close(); hud.el.style.display = '';
+  if (modes.mode === 'walk' && invPrevEnabled) controls.setEnabled(true);
+  wake(800);
 }
 
 // ---------- modos ----------
@@ -202,11 +263,22 @@ const tryUse = () => {
   if (aimed === 'machine') modes.interact(); else if (aimed === 'faucet') openFaucet();
 };
 
+hud.onInventory(() => (invOpen ? closeInventory() : openInventory()));
 hud.onUse(tryUse); hud.onConfirm(tryConfirm); hud.onBack(() => modes.back());
 hud.onDpad(dir => selection.move(dir));
 hud.onJoystick((x, y) => { wake(); controls.setJoystick(x, y); });
 
 window.addEventListener('keydown', (e) => {
+  if (e.target instanceof HTMLInputElement) return;                               // digitando um endereço
+  if (invOpen) {                                                                  // inventário aberto: I/Esc fecham, setas trocam de card
+    if (e.code === 'KeyI' || e.code === 'Escape' || e.code === 'Backspace') { e.preventDefault(); closeInventory(); return; }
+    const own = inventory.balances.map((n, i) => (n > 0 ? i + 1 : 0)).filter(Boolean), at = own.indexOf(invSel);
+    if (own.length && (e.code === 'ArrowRight' || e.code === 'ArrowDown')) { e.preventDefault(); selectInv(own[(at + 1) % own.length]); }
+    else if (own.length && (e.code === 'ArrowLeft' || e.code === 'ArrowUp')) { e.preventDefault(); selectInv(own[(at - 1 + own.length) % own.length]); }
+    else if (e.code === 'KeyR') viewer.reset();
+    return;
+  }
+  if (e.code === 'KeyI' && !e.repeat) { e.preventDefault(); openInventory(); return; }
   if (e.repeat && modes.mode !== 'select') return;
   const m = modes.mode;
   if (m === 'walk') { if (e.code === 'KeyE' || e.code === 'Enter') tryUse(); return; }
@@ -232,6 +304,7 @@ const screenUv = () => ray.intersectObject(machine.screenMesh, false)[0]?.uv ?? 
 
 const parallax = { x: 0, y: 0, yaw: 0, pitch: 0 };
 canvas.addEventListener('pointermove', (e) => {
+  if (invOpen) return;
   if (e.pointerType === 'mouse') { parallax.x = (e.clientX / innerWidth) * 2 - 1; parallax.y = (e.clientY / innerHeight) * 2 - 1; }
   if (e.pointerType !== 'mouse' || rig.active) return;
   if (modes.mode === 'select') {
@@ -245,6 +318,7 @@ canvas.addEventListener('pointermove', (e) => {
   }
 });
 canvas.addEventListener('pointerup', (e) => {
+  if (invOpen) return;
   if (rig.active || controls.moved > 8) return;
   if (modes.mode === 'walk') {                                   // clicar no cartaz abre o faucet (com a mira travada, vale o centro da tela)
     const locked = document.pointerLockElement === canvas;
@@ -265,7 +339,7 @@ canvas.addEventListener('pointerup', (e) => {
 
 function onResize() {
   const w = window.innerWidth, h = window.innerHeight;
-  camera.aspect = w / h; camera.fov = w / h < 0.8 ? 80 : 65; camera.updateProjectionMatrix(); resize(w, h);
+  camera.aspect = w / h; camera.fov = w / h < 0.8 ? 80 : 65; camera.updateProjectionMatrix(); resize(w, h); if (invOpen) layoutViewer();
 }
 window.addEventListener('resize', onResize); window.addEventListener('orientationchange', onResize); onResize();
 
@@ -292,6 +366,7 @@ function loop(t) {
     controls.setLook(parallax.yaw, parallax.pitch);
     if (Math.abs(parallax.yaw + parallax.x * 0.05) > 5e-4 || Math.abs(parallax.pitch + parallax.y * 0.035) > 5e-4) wake(400);
   }
+  if (invOpen && viewer.update(dt)) wake(300);
   if (spot.update(dt)) wake(400);
   controls.update(dt);
   if (modes.mode === 'walk' && controls.enabled) {                               // prompt "E" quando perto e olhando
@@ -299,7 +374,7 @@ function loop(t) {
     const now = pickInteractable(camera.position, yaw, pitch, INTERACTABLES);
     if (now !== aimed) { aimed = now; hud.showPrompt(now); }
   }
-  render(scene, camera);
+  invOpen ? render(viewer.scene, viewer.camera) : render(scene, camera);
   if (lastDraw) adaptive.sample(t - lastDraw);
   lastDraw = t;
 }

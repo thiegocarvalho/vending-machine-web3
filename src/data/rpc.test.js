@@ -1,11 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { encodeFunctionData, decodeFunctionResult, encodeFunctionResult, parseAbi, toFunctionSelector, toEventSelector, formatEther as viemFormatEther } from 'viem';
-import { SELECTORS, TOPIC_CARD_PURCHASED, encodeBuyCard, encodeUri, decodeCardsInfo, decodeString, formatEther, pad32 } from './rpc.js';
+import { SELECTORS, TOPIC_CARD_PURCHASED, encodeBuyCard, encodeUri, encodeBalanceOfBatch, decodeUintArray, decodeCardsInfo, decodeString, formatEther, pad32 } from './rpc.js';
 
 const ABI = parseAbi([
   'function uri(uint256 cardId) view returns (string)',
   'function getAllCardsInfo() view returns (uint256[] prices, uint256[] stocks, bool[] activeStatuses)',
-  'function buyCard(uint256 cardId) payable'
+  'function buyCard(uint256 cardId) payable',
+  'function balanceOfBatch(address[] accounts, uint256[] ids) view returns (uint256[])'
 ]);
 
 // O RPC enxuto substitui a biblioteca viem no navegador; estes testes provam que gera/decodifica exatamente o mesmo ABI.
@@ -21,6 +22,13 @@ describe('rpc ABI (equivalência com viem)', () => {
       expect(encodeBuyCard(id)).toBe(encodeFunctionData({ abi: ABI, functionName: 'buyCard', args: [BigInt(id)] }));
       expect(encodeUri(id)).toBe(encodeFunctionData({ abi: ABI, functionName: 'uri', args: [BigInt(id)] }));
     }
+  });
+  it('balanceOfBatch: selector, codificação e decodificação iguais ao viem', () => {
+    expect(SELECTORS.balanceOfBatch).toBe(toFunctionSelector('balanceOfBatch(address[],uint256[])'));
+    const addr = '0xa78276259faC49aF008Be85D855e0Cb0F1aD9433', ids = Array.from({ length: 30 }, (_, i) => i + 1);
+    expect(encodeBalanceOfBatch(addr, ids)).toBe(encodeFunctionData({ abi: ABI, functionName: 'balanceOfBatch', args: [ids.map(() => addr), ids.map(BigInt)] }));
+    const vals = ids.map((i) => BigInt(i % 4));
+    expect(decodeUintArray(encodeFunctionResult({ abi: ABI, functionName: 'balanceOfBatch', result: vals }))).toEqual(vals);
   });
   it('decodeCardsInfo lê o retorno de getAllCardsInfo', () => {
     const prices = Array.from({ length: 30 }, (_, i) => 100000000000000n + BigInt(i)), stocks = Array.from({ length: 30 }, (_, i) => BigInt(100 - i));

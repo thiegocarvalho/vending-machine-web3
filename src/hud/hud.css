@@ -43,7 +43,7 @@
 .net{position:absolute;right:clamp(16px,4vw,56px);top:calc(14px + var(--safe-t));font:11px 'Fira Code',monospace;letter-spacing:.2em;color:var(--dim)}
 
 /* toque: joystick, D-pad e botões (escondidos no desktop) */
-.joy,.dpad,.m-use,.m-ok,.m-back{display:none}
+.joy,.dpad,.m-use,.m-ok,.m-back,.m-inv{display:none}
 @media (pointer:coarse),(max-width:900px){
   .keys{display:none!important}
   .info{bottom:calc(150px + var(--safe-b))}.slot{font-size:48px}.name{font-size:20px}
@@ -55,6 +55,7 @@
   .dpad button{padding:0;font-size:16px}
   .mode-select .m-ok{display:block;position:absolute;left:20px;bottom:calc(28px + var(--safe-b))}
   .mode-select .m-back,.mode-pay .m-back{display:block;position:absolute;left:20px;top:calc(14px + var(--safe-t))}
+  .mode-walk .m-inv,.mode-select .m-inv{display:block;position:absolute;right:14px;top:calc(40px + var(--safe-t));min-height:40px;font-size:11px}
   .can-use .prompt{display:none}
   .can-use .m-use{display:block;position:absolute;right:24px;bottom:calc(64px + var(--safe-b));min-width:96px;min-height:56px;font-size:15px;border-width:2px}
 }
