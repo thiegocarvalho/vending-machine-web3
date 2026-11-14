@@ -43,8 +43,9 @@ let activeUntil = 0, loading = true, needsFrame = true;   // sempre ativo durant
 const wake = (ms = 1500) => { activeUntil = Math.max(activeUntil, performance.now() + ms); needsFrame = true; schedule(); };
 // Sem quadros agendados quando ocioso: zero acordadas da CPU. Um quadro pedido há mais de 300 ms sem disparar (alguns navegadores
 // móveis descartam callbacks de rAF ao ir para segundo plano) é substituído; a "ficha" invalida o antigo para não rodar duas vezes.
-let rafId = 0, rafAt = 0, rafTok = 0;
+let rafId = 0, rafAt = 0, rafTok = 0, started = false;   // started: só roda o loop depois que o módulo inteiro foi inicializado (há awaits de rede no meio; um evento antes disso chamava funções ainda não criadas)
 const schedule = () => {
+  if (!started) return;
   const now = performance.now();
   if (rafId && now - rafAt < 300) return;
   const tok = ++rafTok; rafAt = now;
@@ -518,4 +519,4 @@ function loop(t) {
   if (lastDraw) adaptive.sample(t - lastDraw);
   lastDraw = t;
 }
-schedule();
+started = true; schedule();
