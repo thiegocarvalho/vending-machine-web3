@@ -1716,7 +1716,6 @@
       <div class="pt-2 border-t border-noir-border/80 font-mono text-xs sm:text-sm leading-relaxed text-gray-200 space-y-1 relative z-10 pl-4 border-l-4 border-l-noir-red bg-noir-surface/80 p-3 shadow-xl">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div class="text-noir-red font-bold text-xs uppercase tracking-wider">// Versão simplificada do contrato real: cada card tem o seu estoque</div>
-          <div class="cl-hint">👆 CLIQUE EM UMA LINHA PARA ENTENDER</div>
         </div>
         <div class="cl" data-x="ex-contract"><span class="text-noir-red font-bold">contract</span> <span class="text-white font-bold">VendingMachine</span> {</div>
         <div class="pl-6 text-noir-muted text-xs">// 1. VARIÁVEIS: uma ficha para cada card</div>
@@ -1751,7 +1750,6 @@
         <div class="md:col-span-7 font-mono text-xs sm:text-sm leading-relaxed text-gray-100 space-y-1 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-noir-red shadow-xl overflow-x-auto">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="text-noir-red font-bold text-xs uppercase tracking-wider">// o contrato real</div>
-            <div class="cl-hint">👆 CLIQUE EM UMA LINHA PARA ENTENDER</div>
           </div>
           <div class="cl" data-x="oz-pragma"><span class="text-noir-red font-bold">pragma solidity</span> <span class="text-amber-300">0.8.24</span>;</div>
           <div class="cl pt-1" data-x="oz-contract"><span class="text-noir-red font-bold">contract</span> <span class="text-white font-bold">DefiVendingMachine1155</span> <span class="text-noir-red font-bold">is</span></div>
@@ -1773,7 +1771,7 @@
             <strong class="text-white block font-display text-xl tracking-wide">POR QUE ISSO IMPORTA</strong>
             <p class="text-gray-300 leading-snug">Quanto menos código novo, menos chance de erro. Só a <strong class="text-white">regra da máquina</strong> é nossa.</p>
           </div>
-          <div class="border border-noir-border/70 bg-noir-surface/70 p-2.5 text-[13px] text-gray-300">Cada peça (linha) resolve um problema. <strong class="text-white">Clique nelas</strong> para ver qual.</div>
+          <div class="border border-noir-border/70 bg-noir-surface/70 p-2.5 text-[13px] text-gray-300">Cada peça (linha) resolve um problema diferente.</div>
         </div>
       </div>
 
@@ -1798,7 +1796,6 @@
         <div class="md:col-span-8 font-mono text-xs sm:text-[13px] leading-relaxed text-gray-100 space-y-0.5 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-noir-red shadow-xl overflow-x-auto">
           <div class="flex flex-wrap items-center justify-between gap-2 pb-1">
             <div class="text-noir-red font-bold text-xs uppercase tracking-wider">// 1. a ficha · 2. a vitrine · 3. a montagem</div>
-            <div class="cl-hint">👆 CLIQUE EM UMA LINHA PARA ENTENDER</div>
           </div>
           <div class="cl" data-x="c-struct"><span class="text-noir-red font-bold">struct</span> <span class="text-white font-bold">Card</span> {</div>
           <div class="cl pl-6" data-x="c-price"><span class="text-noir-red font-bold">uint128</span> <span class="text-white">price</span>;</div>
@@ -1857,7 +1854,6 @@
         <div class="md:col-span-8 font-mono text-xs sm:text-[13px] leading-relaxed text-gray-100 space-y-0.5 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-noir-red shadow-xl overflow-x-auto">
           <div class="flex flex-wrap items-center justify-between gap-2 pb-1">
             <div class="text-noir-red font-bold text-xs uppercase tracking-wider">// a função de compra</div>
-            <div class="cl-hint">👆 CLIQUE EM UMA LINHA PARA ENTENDER</div>
           </div>
           <div class="cl" data-x="b-sig"><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">buyCard</span>(uint256 <span class="text-rose-300 font-bold">cardId</span>)</div>
           <div class="cl pl-6" data-x="b-mods"><span class="text-noir-red font-bold">external payable whenNotPaused nonReentrant</span> {</div>
@@ -1906,7 +1902,6 @@
         <div class="md:col-span-8 font-mono text-xs sm:text-[13px] leading-relaxed text-gray-100 space-y-0.5 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-noir-red shadow-xl overflow-x-auto">
           <div class="flex flex-wrap items-center justify-between gap-2 pb-1">
             <div class="text-noir-red font-bold text-xs uppercase tracking-wider">// as últimas linhas da compra</div>
-            <div class="cl-hint">👆 CLIQUE EM UMA LINHA PARA ENTENDER</div>
           </div>
           <div class="cl text-white font-bold" data-x="d-1"><span class="text-amber-300">①</span> uint48 remaining = currentStock - 1;</div>
           <div class="cl text-white font-bold" data-x="d-2"><span class="text-amber-300">②</span> card.stock = remaining;</div>
@@ -1952,7 +1947,6 @@
           <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// O FLUXO COMPLETO // 1 DE 3</span>
           <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">COMPRAR UM CARD, PASSO A PASSO</h2>
         </div>
-        <div class="cl-hint">👆 CLIQUE EM UM PASSO PARA ENTENDER</div>
       </div>
 
       <div class="flow grid grid-cols-1 md:grid-cols-6 gap-5 md:gap-6 pt-2 relative z-10">
@@ -1985,7 +1979,6 @@
           <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// O FLUXO COMPLETO // 2 DE 3</span>
           <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">ENVIAR UM CARD PARA OUTRA PESSOA</h2>
         </div>
-        <div class="cl-hint">👆 CLIQUE EM UM PASSO PARA ENTENDER</div>
       </div>
 
       <div class="flow grid grid-cols-1 md:grid-cols-5 gap-5 md:gap-6 pt-2 relative z-10">
@@ -2024,7 +2017,6 @@
         <div class="md:col-span-7 font-mono text-xs sm:text-[13px] leading-relaxed text-gray-100 space-y-0.5 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-noir-red shadow-xl overflow-x-auto">
           <div class="flex flex-wrap items-center justify-between gap-2 pb-1">
             <div class="text-noir-red font-bold text-xs uppercase tracking-wider">// os botões só do dono</div>
-            <div class="cl-hint">👆 CLIQUE EM UMA LINHA PARA ENTENDER</div>
           </div>
           <div class="text-noir-muted text-xs">// abrir um slot novo</div>
           <div class="cl" data-x="o-add"><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">addCard</span>(uint128 price, uint48 initialStock) <span class="text-noir-red font-bold">public onlyOwner</span> { … }</div>
@@ -2078,7 +2070,6 @@
           <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// O FLUXO COMPLETO // 3 DE 3</span>
           <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">CRIAR UM NOVO CARD (SÓ O DONO)</h2>
         </div>
-        <div class="cl-hint">👆 CLIQUE EM UM PASSO PARA ENTENDER</div>
       </div>
 
       <div class="flow grid grid-cols-1 md:grid-cols-6 gap-5 md:gap-6 pt-2 relative z-10">
@@ -2131,7 +2122,6 @@
         <div class="md:col-span-8 font-mono text-xs sm:text-[13px] leading-relaxed text-gray-100 space-y-0.5 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-white shadow-xl overflow-x-auto">
           <div class="flex flex-wrap items-center justify-between gap-2 pb-1">
             <div class="text-noir-muted font-bold text-xs uppercase tracking-wider">// 1. uma pergunta · 2. a vitrine inteira</div>
-            <div class="cl-hint">👆 CLIQUE EM UMA LINHA PARA ENTENDER</div>
           </div>
           <div class="cl" data-x="g-gs"><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">getStock</span>(uint256 cardId) <span class="text-noir-red font-bold">external view returns</span> (uint256) {</div>
           <div class="cl pl-6" data-x="g-gs1">if (cardId &lt; 1 || cardId &gt; totalCardTypes) <span class="text-noir-red font-bold">revert</span> InvalidCardId(cardId);</div>
@@ -2171,7 +2161,6 @@
           <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// RESUMO DO CONTRATO</span>
           <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">O MAPA DE TODAS AS FUNÇÕES</h2>
         </div>
-        <div class="cl-hint">👆 CLIQUE EM UMA FUNÇÃO PARA ENTENDER</div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-4 gap-3 relative z-10">
@@ -2254,7 +2243,7 @@
             <li><strong class="text-white">Confira:</strong> o contrato fica público no Etherscan, para qualquer um ler.</li>
           </ol>
           <div class="font-mono text-[11px] sm:text-xs bg-noir-surface/70 p-2 border-l-2 border-noir-red space-y-0.5">
-            <div class="flex flex-wrap items-center justify-between gap-2 pb-1"><span class="text-noir-red font-bold uppercase tracking-wider">// as 5 informações</span><span class="cl-hint">👆 CLIQUE PARA ENTENDER</span></div>
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-1"><span class="text-noir-red font-bold uppercase tracking-wider">// as 5 informações</span></div>
             <div class="cl" data-x="p-1">> baseMetadataURI: <span class="text-white font-bold">"ipfs://CID/{id}.json"</span></div>
             <div class="cl" data-x="p-2">> initialContractURI: <span class="text-white font-bold">"ipfs://CID/contractURI.json"</span></div>
             <div class="cl" data-x="p-3">> defaultPrice: <span class="text-amber-300 font-bold">4600000000000000</span> (0,0046 ETH)</div>
@@ -6756,7 +6745,6 @@
     .cl:hover { background: rgba(255,0,51,.10); border-left-color: #FF0033; }
     .cl:focus-visible { outline: 1px solid #FF0033; outline-offset: 1px; }
     .cl.cl-on { background: rgba(255,0,51,.18); border-left-color: #FF0033; }
-    .cl-hint { font-size: 10px; letter-spacing: .06em; color: #FBBF24; border: 1px solid rgba(251,191,36,.45); background: rgba(251,191,36,.08); padding: 1px 7px; font-family: 'Fira Code', monospace; white-space: nowrap; }
     #explainOverlay { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 16px; background: rgba(4,2,4,.72); backdrop-filter: blur(3px); }
     #explainOverlay.open { display: flex; animation: exFade .15s ease-out; }
     @keyframes exFade { from { opacity: 0 } to { opacity: 1 } }
