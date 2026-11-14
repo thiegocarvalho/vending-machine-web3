@@ -1,4 +1,4 @@
-import { ethCall, decodeCardsInfo, decodeString, encodeUri, SELECTORS } from './rpc.js';
+import { ethCall, decodeCardsInfo, decodeString, decodeBool, encodeUri, SELECTORS } from './rpc.js';
 import { config } from '../config.js';
 import { demoCardsInfo } from './demo.js';
 import { fetchIpfs, idToHex } from './ipfs.js';
@@ -7,6 +7,12 @@ export async function loadCardsInfo() {
   if (config.demoMode) return demoCardsInfo();
   const { prices, stocks, active } = decodeCardsInfo(await ethCall(config.contractAddress, SELECTORS.getAllCardsInfo));
   return prices.map((p, i) => ({ price: p, stock: Number(stocks[i]), active: active[i] }));
+}
+
+// A máquina está pausada (Pausable do contrato)? No modo demo nunca.
+export async function loadPaused() {
+  if (config.demoMode) return false;
+  return decodeBool(await ethCall(config.contractAddress, SELECTORS.paused));
 }
 
 export async function tokenMetadataUri(id) {

@@ -1,7 +1,7 @@
 // Cliente enxuto de JSON-RPC (sem viem): só o que o jogo usa. Os testes provam equivalência com o ABI do viem.
 import { config } from '../config.js';
 
-export const SELECTORS = { getAllCardsInfo: '0x53059aa9', uri: '0x0e89341c', buyCard: '0xc70f5eaa', balanceOfBatch: '0x4e1273f4' };
+export const SELECTORS = { getAllCardsInfo: '0x53059aa9', uri: '0x0e89341c', buyCard: '0xc70f5eaa', balanceOfBatch: '0x4e1273f4', paused: '0x5c975abb' };
 export const TOPIC_CARD_PURCHASED = '0xe71c9095b9c0032cc99c9d7741a64561130963cc2bca12e41528b48f5cb3a19d';
 
 const strip = (h) => (h.startsWith('0x') ? h.slice(2) : h);
@@ -17,6 +17,7 @@ export function encodeBalanceOfBatch(address, ids) {
   const n = ids.length, w = (v) => strip(pad32(v));
   return SELECTORS.balanceOfBatch + w(0x40) + w(0x40 + 32 + 32 * n) + w(n) + ids.map(() => w(address)).join('') + w(n) + ids.map((id) => w(BigInt(id))).join('');
 }
+export const decodeBool = (result) => word(strip(result), 0) !== 0n;     // retorno bool (ex.: paused())
 // retorno uint256[] (ex.: balanceOfBatch)
 export function decodeUintArray(result) {
   const h = strip(result), start = Number(word(h, 0)) / 32, n = Number(word(h, start));

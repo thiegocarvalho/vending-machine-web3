@@ -14,7 +14,7 @@ export const MACHINE_COLLIDER = { minX: -W / 2 - 0.05, maxX: W / 2 + 0.05, minZ:
 
 // Geometria da coluna de controle (usada também pela câmera para enquadrar a telinha).
 export const PANEL = {
-  led:    { x: COL.cx, y: H - 0.42, w: 0.4, h: 0.13 },
+  led:    { x: COL.cx, y: H - 0.42, w: 0.4, h: 0.085 },   // só mostra DISPONIVEL / INDISPONIVEL
   screen: { x: COL.cx, y: 1.42, w: 0.4, h: 0.6 },
   z: D / 2 + 0.03
 };
@@ -86,14 +86,14 @@ export function buildMachine() {
   box(0.06, 0.06, 0.02, 0x020306, COL.cx - 0.1, 0.82, front + 0.03);
   box(0.08, 0.08, 0.025, 0xaebcd2, COL.cx + 0.1, 0.82, front + 0.016);            // botão de devolução
 
-  const ledCanvas = document.createElement('canvas'); ledCanvas.width = 304; ledCanvas.height = 72;
+  const ledCanvas = document.createElement('canvas'); ledCanvas.width = 480; ledCanvas.height = 102;
   const ledTex = new THREE.CanvasTexture(ledCanvas); ledTex.colorSpace = THREE.SRGBColorSpace;
-  drawLed(ledCanvas.getContext('2d'), '-- --', 304, 72);
+  drawLed(ledCanvas.getContext('2d'), 'DISPONIVEL', 480, 102);
   const ledMesh = new THREE.Mesh(new THREE.PlaneGeometry(PANEL.led.w, PANEL.led.h), new THREE.MeshBasicMaterial({ map: ledTex }));
   ledMesh.position.set(PANEL.led.x, PANEL.led.y, PANEL.z); group.add(ledMesh);
   const screenMesh = new THREE.Mesh(new THREE.PlaneGeometry(PANEL.screen.w, PANEL.screen.h), new THREE.MeshBasicMaterial({ color: 0x050507 }));
   screenMesh.position.set(PANEL.screen.x, PANEL.screen.y, PANEL.z); group.add(screenMesh);
-  const led = { setText(text) { drawLed(ledCanvas.getContext('2d'), text, 304, 72); ledTex.needsUpdate = true; } };
+  const led = { setText(text) { drawLed(ledCanvas.getContext('2d'), text, 480, 102); ledTex.needsUpdate = true; } };
 
   // bandeja de retirada
   box(ww, 0.3, 0.02, NAVY, wx, 0.3, front + 0.01);

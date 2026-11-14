@@ -1,5 +1,5 @@
 // Painel de caracteres em LED vermelho (matriz de pontos 5x7).
-export const LED_CELLS = 6;
+export const LED_CELLS = 12;       // cabe "INDISPONIVEL"
 import { FONT } from './dotfont.js';
 export const GLYPHS = FONT;
 

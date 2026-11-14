@@ -8,10 +8,13 @@ describe('LED dot-matrix', () => {
       g.forEach((row) => expect(row, ch).toHaveLength(5));
     }
   });
+  it('cabe o status da máquina: DISPONIVEL e INDISPONIVEL', () => {
+    for (const w of ['DISPONIVEL', 'INDISPONIVEL']) { expect(w.length).toBeLessThanOrEqual(LED_CELLS); for (const ch of w) expect(GLYPHS[ch], ch).toBeTruthy(); }
+  });
   it('supports slots (A-E, 1-6), card numbers, SOLD, OK and ERR', () => {
     for (const ch of 'ABCDE0123456789#- SOLKR') expect(GLYPHS[ch], ch).toBeTruthy();
   });
-  it('lays text into a 6-cell, 36x7 dot grid, centered and padded', () => {
+  it('lays text into a 12-cell, 72x7 dot grid, centered and padded', () => {
     const dots = textToDots('A1');
     expect(dots).toHaveLength(7);
     dots.forEach((r) => expect(r).toHaveLength(LED_CELLS * 6));
@@ -25,7 +28,7 @@ describe('LED dot-matrix', () => {
   });
   it('draws one dim dot per grid cell plus lit ones', () => {
     let arcs = 0; const ctx = new Proxy({}, { get: (t, k) => (k === 'arc' ? () => { arcs++; } : () => {}), set: () => true });
-    drawLed(ctx, 'A1', 304, 72);
-    expect(arcs).toBe(36 * 7 + textToDots('A1').flat().filter(Boolean).length);
+    drawLed(ctx, 'A1', 480, 102);
+    expect(arcs).toBe(LED_CELLS * 6 * 7 + textToDots('A1').flat().filter(Boolean).length);
   });
 });

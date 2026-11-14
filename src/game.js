@@ -9,7 +9,7 @@ import { populateCards, loadFullTexture, loadBackTexture } from './scene/cards.j
 import { createCardViewer } from './scene/cardViewer.js';
 import { createInventory, isAddress } from './data/inventory.js';
 import { createInventoryPanel } from './hud/inventory.js';
-import { loadCardsInfo } from './data/chain.js';
+import { loadCardsInfo, loadPaused } from './data/chain.js';
 import { createSelection, createHighlight, pickCard } from './player/selection.js';
 import { createHud } from './hud/hud.js';
 import { createMachineScreen, buttonHit } from './payment/machineScreen.js';
@@ -98,11 +98,11 @@ function selectPose(id) {
 const payPose = () => ({ x: PANEL.screen.x, y: (PANEL.led.y + PANEL.screen.y) / 2 - 0.05, z: front + 0.03 + 1.05, yaw: 0, pitch: 0 });
 
 // ---------- painel LED e telinha ----------
-function ledText() {
-  const id = selection.id, info = infos[id - 1];
-  if (modes.mode === 'walk') return '-- --';
-  if (info.stock <= 0 || !info.active) return 'SOLD';
-  return `${cardIdToSlot(id).label} #${String(id).padStart(2, '0')}`;
+// Painel LED vermelho: só o estado do contrato (DISPONIVEL / INDISPONIVEL quando pausado). Relido ao entrar na máquina e ao voltar para a aba.
+let paused = false;
+async function refreshAvailability() {
+  try { paused = await loadPaused(); } catch { /* mantém o último estado conhecido */ }
+  machine.led.setText(paused ? 'INDISPONIVEL' : 'DISPONIVEL'); wake();
 }
 function drawScreen(args = screenArgs) {
   screenArgs = args;
@@ -115,7 +115,6 @@ function refresh() {
   const id = selection.id;
   hud.showCard(id, cardsApi.metas[id - 1], infos[id - 1]);
   highlight.moveTo(machine.slotAnchors[id - 1]); spot.moveTo(machine.slotAnchors[id - 1]);
-  machine.led.setText(ledText());
   if (modes.mode !== 'pay') drawScreen({ state: modes.mode === 'walk' ? 'idle' : 'select' });
   wake();
 }
@@ -136,7 +135,7 @@ function onConfirmed(id, hash, buyer) {
   stopWatcher();
   infos[id - 1] = { ...infos[id - 1], stock: infos[id - 1].stock - 1 };
   if (infos[id - 1].stock <= 0) cardsApi.setSoldOut(id, true);
-  setState('confirmed', { hash }); machine.led.setText('OK'); busy = false;
+  setState('confirmed', { hash }); busy = false;
   if (buyer && !inventory.address) inventory.setAddress(buyer, 'manual');        // pagou por QR (sem extensão): o comprador do evento vira o endereço consultado
   inventory.add(id);
   // Depois do "PAGO!" na telinha, abre o inventário já no card recém-adquirido (em vez de animação de queda na bandeja).
@@ -153,7 +152,9 @@ function startPayment() {
 }
 
 async function payNow() {
-  if (busy) return; busy = true;
+  if (busy) return;
+  if (paused) return setState('error', { message: 'Máquina indisponível: contrato pausado.' });
+  busy = true;
   const id = selection.id, info = infos[id - 1];
   try {
     setState('awaiting');
@@ -280,18 +281,20 @@ modes.onChange((mode) => {
   wake(3000); aimed = null; hud.setMode(mode); hud.setStatus('');
   if (mode === 'walk') {
     stopWatcher(); highlight.setVisible(false); spot.setOn(false); controls.setEnabled(false); pendingWalk = true;
-    rig.flyTo(walkPose(), 600); machine.led.setText('-- --'); drawScreen({ state: 'idle' });
+    rig.flyTo(walkPose(), 600); drawScreen({ state: 'idle' });
   } else if (mode === 'select') {
-    stopWatcher(); busy = false; controls.setEnabled(false); highlight.setVisible(true); spot.setOn(true);
+    refreshAvailability(); stopWatcher(); busy = false; controls.setEnabled(false); highlight.setVisible(true); spot.setOn(true);
     rig.flyTo(selectPose(selection.id), 650); refresh();
   } else if (mode === 'pay') {
     spot.setOn(false); rig.flyTo(payPose(), 550); startPayment();
   }
 });
 hud.setMode('walk');
-refresh();
+refresh(); refreshAvailability();
+window.addEventListener('focus', refreshAvailability); document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshAvailability(); });
 
 function tryConfirm() {
+  if (paused) return hud.setStatus('Máquina indisponível no momento (contrato pausado).', { error: true });
   const info = infos[selection.id - 1];
   if (info.stock <= 0 || !info.active) return hud.setStatus('Card esgotado.', { error: true });
   hud.setStatus(''); modes.confirm();

@@ -1,12 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { encodeFunctionData, decodeFunctionResult, encodeFunctionResult, parseAbi, toFunctionSelector, toEventSelector, formatEther as viemFormatEther } from 'viem';
-import { SELECTORS, TOPIC_CARD_PURCHASED, encodeBuyCard, encodeUri, encodeBalanceOfBatch, decodeUintArray, decodeCardsInfo, decodeString, formatEther, pad32 } from './rpc.js';
+import { SELECTORS, TOPIC_CARD_PURCHASED, encodeBuyCard, encodeUri, encodeBalanceOfBatch, decodeUintArray, decodeBool, decodeCardsInfo, decodeString, formatEther, pad32 } from './rpc.js';
 
 const ABI = parseAbi([
   'function uri(uint256 cardId) view returns (string)',
   'function getAllCardsInfo() view returns (uint256[] prices, uint256[] stocks, bool[] activeStatuses)',
   'function buyCard(uint256 cardId) payable',
-  'function balanceOfBatch(address[] accounts, uint256[] ids) view returns (uint256[])'
+  'function balanceOfBatch(address[] accounts, uint256[] ids) view returns (uint256[])',
+  'function paused() view returns (bool)'
 ]);
 
 // O RPC enxuto substitui a biblioteca viem no navegador; estes testes provam que gera/decodifica exatamente o mesmo ABI.
@@ -29,6 +30,10 @@ describe('rpc ABI (equivalência com viem)', () => {
     expect(encodeBalanceOfBatch(addr, ids)).toBe(encodeFunctionData({ abi: ABI, functionName: 'balanceOfBatch', args: [ids.map(() => addr), ids.map(BigInt)] }));
     const vals = ids.map((i) => BigInt(i % 4));
     expect(decodeUintArray(encodeFunctionResult({ abi: ABI, functionName: 'balanceOfBatch', result: vals }))).toEqual(vals);
+  });
+  it('paused(): selector e decodificação do bool iguais ao viem', () => {
+    expect(SELECTORS.paused).toBe(toFunctionSelector('paused()'));
+    for (const v of [true, false]) expect(decodeBool(encodeFunctionResult({ abi: ABI, functionName: 'paused', result: v }))).toBe(v);
   });
   it('decodeCardsInfo lê o retorno de getAllCardsInfo', () => {
     const prices = Array.from({ length: 30 }, (_, i) => 100000000000000n + BigInt(i)), stocks = Array.from({ length: 30 }, (_, i) => BigInt(100 - i));
