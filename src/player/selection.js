@@ -28,7 +28,7 @@ export function createHighlight(scene) {
 }
 
 // Smoothly walks the camera to a point in front of the anchor (clamped by the caller's wall).
-export function focusOn(camera, controls, anchor, distance = 0.9) {
+export function focusOn(camera, controls, anchor, distance = 1.6) {
   const target = anchor.getWorldPosition(new THREE.Vector3());
   const from = camera.position.clone();
   const to = new THREE.Vector3(target.x, 1.6, target.z + distance + 0.07);

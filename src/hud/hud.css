@@ -1,0 +1,48 @@
+:root{--red:#ff0033;--black:#08080a;--white:#fff;--dim:#8a8a94;--safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px)}
+#hud{position:fixed;inset:0;pointer-events:none;font-family:'Space Grotesk',system-ui,sans-serif;color:var(--white);user-select:none;-webkit-user-select:none}
+#hud *{box-sizing:border-box}
+#hud button{pointer-events:auto;font:inherit;color:var(--white);background:rgba(8,8,10,.85);border:2px solid var(--red);min-height:44px;min-width:44px;padding:0 14px;cursor:pointer;letter-spacing:.06em;text-transform:uppercase}
+#hud button:hover:not(:disabled){background:var(--red)}
+#hud button:disabled{opacity:.4;cursor:not-allowed}
+.top{position:absolute;left:16px;right:16px;top:calc(12px + var(--safe-t));display:flex;justify-content:space-between;align-items:center;gap:8px}
+.title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.08em;line-height:1;background:rgba(8,8,10,.7);padding:6px 10px;border-left:4px solid var(--red)}
+.title small{display:block;font-family:'Fira Code',monospace;font-size:10px;color:var(--dim);letter-spacing:.1em}
+.wallet{font-family:'Fira Code',monospace;font-size:12px}
+.minimap{position:absolute;left:16px;bottom:calc(16px + var(--safe-b));display:grid;grid-template-columns:repeat(6,14px);gap:3px;background:rgba(8,8,10,.7);padding:8px;border:1px solid #333}
+.minimap i{width:14px;height:18px;background:#2a2a31}
+.minimap i.on{background:var(--red)}
+.minimap b{grid-column:1/-1;font:600 11px 'Fira Code',monospace;color:var(--dim);text-align:center;padding-bottom:2px}
+.hint{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(14px + var(--safe-b));font:12px 'Fira Code',monospace;color:var(--dim);background:rgba(8,8,10,.7);padding:6px 10px;white-space:nowrap}
+.panel{position:absolute;right:16px;top:calc(76px + var(--safe-t));width:340px;max-height:calc(100% - 100px);overflow:auto;pointer-events:auto;background:rgba(8,8,10,.92);border:2px solid var(--red);padding:16px}
+.panel h2{margin:0;font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.05em;font-weight:400}
+.panel .slot{font:600 12px 'Fira Code',monospace;color:var(--red)}
+.panel p{margin:8px 0;font-size:14px;line-height:1.4;color:#ddd}
+.panel dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:10px 0;font:13px 'Fira Code',monospace}
+.panel dt{color:var(--dim)}
+.panel .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.panel .actions button{flex:1}
+.panel .status{margin-top:10px;font:12px 'Fira Code',monospace;min-height:16px;word-break:break-word}
+.panel .status.err{color:var(--red)}
+.panel .status a{color:var(--white)}
+.panel canvas.qr{display:none;width:100%;max-width:220px;margin:12px auto 0;image-rendering:pixelated;background:#fff}
+.panel.qr-on canvas.qr{display:block}
+.panel .close{display:none;position:absolute;right:8px;top:8px;min-width:44px;padding:0}
+.dpad{display:none;position:absolute;right:16px;bottom:calc(16px + var(--safe-b));grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,48px);gap:4px}
+.dpad button{padding:0;font-size:18px}
+.dpad .u{grid-column:2}.dpad .l{grid-column:1;grid-row:2}.dpad .r{grid-column:3;grid-row:2}.dpad .d{grid-column:2;grid-row:3}
+.joy{display:none;position:absolute;left:16px;bottom:calc(16px + var(--safe-b));width:110px;height:110px;border-radius:50%;border:2px solid var(--red);background:rgba(8,8,10,.5);pointer-events:auto;touch-action:none}
+.joy i{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px;border-radius:50%;background:var(--red);opacity:.8}
+@media (max-width:899px){
+  .hint{display:none}
+  .title{font-size:20px}
+  .minimap{left:auto;right:12px;top:calc(64px + var(--safe-t));bottom:auto;grid-template-columns:repeat(6,9px);gap:2px;padding:5px}
+  .minimap i{width:9px;height:12px}
+  .minimap b{font-size:9px}
+  .panel{right:0;left:0;top:auto;bottom:0;width:100%;max-height:44vh;border-width:2px 0 0;padding:14px 14px calc(14px + var(--safe-b));transform:translateY(105%);transition:transform .2s}
+  #hud.sheet .panel{transform:none}
+  .panel .close{display:block}
+  .dpad,.joy{display:grid}
+  .joy{display:block}
+  #hud.sheet .dpad,#hud.sheet .joy{bottom:calc(44vh + 12px)}
+  #hud.sheet .dpad{bottom:calc(44vh + 12px)}
+}
