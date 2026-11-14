@@ -34,5 +34,6 @@ export function createControls(camera, dom) {
     camera.position.set(p.x, EYE, p.z);
     camera.rotation.set(pitch, yaw, 0);
   }
-  return { update, setJoystick(x, y) { joy.x = x; joy.y = y; }, setLook(y, p) { yaw = y; pitch = p; }, get moved() { return drag?.moved ?? 0; } };
+  const isActive = () => keys.size > 0 || joy.x !== 0 || joy.y !== 0 || !!drag;
+  return { update, isActive, setJoystick(x, y) { joy.x = x; joy.y = y; }, setLook(y, p) { yaw = y; pitch = p; }, get moved() { return drag?.moved ?? 0; } };
 }

@@ -13,7 +13,7 @@ export function applyPs1Snap(material, grid = 160) {
   return material;
 }
 
-export function createPs1Renderer(canvas) {
+export function createPs1Renderer(canvas, pixelScale = config.pixelScale) {
   // Alguns navegadores/GPUs (ex.: Brave em Linux) recusam powerPreference; tenta variações até uma funcionar.
   const attempts = [{ powerPreference: 'high-performance' }, {}, { powerPreference: 'low-power' }];
   let renderer, lastError;
@@ -27,8 +27,11 @@ export function createPs1Renderer(canvas) {
   canvas.style.imageRendering = 'pixelated';
   canvas.style.width = '100%';
   canvas.style.height = '100%';
-  function resize(w, h) {
-    renderer.setSize(Math.max(160, Math.floor(w / config.pixelScale)), Math.max(120, Math.floor(h / config.pixelScale)), false);
+  let scale = pixelScale, lastW = 0, lastH = 0;
+  function resize(w = lastW, h = lastH) {
+    lastW = w; lastH = h;
+    renderer.setSize(Math.max(160, Math.floor(w / scale)), Math.max(120, Math.floor(h / scale)), false);
   }
-  return { renderer, resize, render: (scene, camera) => renderer.render(scene, camera) };
+  function setPixelScale(n) { scale = n; resize(); }
+  return { renderer, resize, setPixelScale, render: (scene, camera) => renderer.render(scene, camera) };
 }

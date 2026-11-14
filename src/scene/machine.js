@@ -1,16 +1,14 @@
 import * as THREE from 'three';
 import { PALETTE } from './palette.js';
-import { applyPs1Snap } from '../render/ps1Renderer.js';
+import { bakeBox, bakedMaterial } from './baked.js';
 import { ROWS, COLS, TOTAL, cardIdToSlot } from '../grid.js';
 
+const MACHINE_LIGHT = 1.1;                        // foco de luz sobre a máquina (assado)
 const W = 1.9, H = 2.4, D = 0.95;                 // body size (m)
 const WIN = { x0: -W / 2 + 0.1, x1: 0.35, y0: 0.55, y1: H - 0.15 }; // glass window (left ~70%)
 
-function mat(color, opts = {}) {
-  return applyPs1Snap(new THREE.MeshLambertMaterial({ color, flatShading: true, ...opts }));
-}
 function box(w, h, d, color, x, y, z, parent) {
-  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(color));
+  const m = new THREE.Mesh(bakeBox(w, h, d, color, MACHINE_LIGHT), bakedMaterial());
   m.position.set(x, y, z);
   parent.add(m);
   return m;
@@ -28,8 +26,7 @@ export function buildMachine() {
   // glass window: dark back panel + red frame bars protruding as a shallow cabinet
   const wx = (WIN.x0 + WIN.x1) / 2, ww = WIN.x1 - WIN.x0, wy = (WIN.y0 + WIN.y1) / 2, wh = WIN.y1 - WIN.y0;
   const DEPTH = 0.2, fz = front + DEPTH / 2;
-  const back = box(ww, wh, 0.01, 0x050507, wx, wy, front + 0.006, group);
-  back.material.color.setHex(0x050507);
+  box(ww, wh, 0.01, 0x050507, wx, wy, front + 0.006, group);
   const bar = 0.05;
   box(ww + 2 * bar, bar, DEPTH, PALETTE.red, wx, WIN.y1 + bar / 2, fz, group);
   box(ww + 2 * bar, bar, DEPTH, PALETTE.red, wx, WIN.y0 - bar / 2, fz, group);

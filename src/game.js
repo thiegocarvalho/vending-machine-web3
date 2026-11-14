@@ -13,9 +13,18 @@ import { hasWallet, payWithWallet } from './payment/wallet.js';
 import { config } from './config.js';
 import { cardIdToSlot } from './grid.js';
 import { formatEther } from 'viem';
+import { TIERS, detectTier, createAdaptiveScale } from './render/quality.js';
 
 const canvas = document.getElementById('game');
-const { resize, render } = createPs1Renderer(canvas);
+const tier = TIERS[detectTier()];
+const { resize, render, setPixelScale } = createPs1Renderer(canvas, tier.pixelScale);
+
+// Renderização sob demanda: só desenha enquanto há atividade (entrada, animação, carregamento).
+let activeUntil = 0, loading = true;              // sempre ativo durante o carregamento inicial
+const wake = (ms = 1500) => { activeUntil = Math.max(activeUntil, performance.now() + ms); };
+['pointerdown', 'pointermove', 'pointerup', 'keydown', 'keyup', 'wheel', 'touchstart', 'touchmove', 'resize', 'orientationchange', 'visibilitychange']
+  .forEach((ev) => window.addEventListener(ev, () => wake(), { passive: true }));
+const adaptive = createAdaptiveScale({ base: tier.pixelScale, max: 8, onChange: (n) => { setPixelScale(n); wake(); } });
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(65, 1, 0.1, 60);
 addLighting(scene);
@@ -30,8 +39,9 @@ const hudRoot = document.createElement('div'); document.body.appendChild(hudRoot
 const hud = createHud(hudRoot);
 
 let infos = await loadCardsInfo();
-const cardsApi = populateCards(machine.slotAnchors, infos);
-window.__game = { scene, camera, machine, controls, cardsApi, selection };
+const cardsApi = populateCards(machine.slotAnchors, infos, tier);
+cardsApi.done.then(() => { loading = false; wake(); });
+window.__game = { scene, camera, machine, controls, cardsApi, selection, tier, adaptive, wake };
 
 const priceText = (i) => `${formatEther(infos[i - 1].price)} ETH`;
 const contractForQr = config.contractAddress || '0x0000000000000000000000000000000000000000';
@@ -44,11 +54,12 @@ function refresh(id) {
   screen.draw({ state: 'idle', slot: cardIdToSlot(id).label, price: priceText(id) });
   hud.setWallet(hasWallet(window) ? 'disconnected' : 'none');
 }
-selection.onChange((id) => { refresh(id); focusOn(camera, controls, machine.slotAnchors[id - 1]); });
-cardsApi.onLoaded((id) => { if (id === selection.id) refresh(id); });
+selection.onChange((id) => { wake(); refresh(id); focusOn(camera, controls, machine.slotAnchors[id - 1]); });
+cardsApi.onLoaded((id) => { wake(); if (id === selection.id) refresh(id); });
 refresh(1);
 
 function setState(state, { message = '', hash } = {}) {
+  wake(2500);
   const id = selection.id, meta = cardsApi.metas[id - 1];
   screen.draw({ state, slot: cardIdToSlot(id).label, name: meta?.name ?? '', price: priceText(id), message,
     qrText: state === 'awaiting' ? buildEip681(contractForQr, config.chainId, id, infos[id - 1].price) : '' });
@@ -57,6 +68,7 @@ function setState(state, { message = '', hash } = {}) {
 }
 
 function dropCard(id) {
+  wake(5000);
   const src = cardsApi.cards[id - 1];
   const copy = src.clone(); copy.material = src.material;
   scene.add(copy);
@@ -103,7 +115,7 @@ hud.onPay(async () => {
 });
 
 hud.onDpad(dir => selection.move(dir));
-hud.onJoystick((x, y) => controls.setJoystick(x, y));
+hud.onJoystick((x, y) => { wake(); controls.setJoystick(x, y); });
 hud.onWallet(async () => {
   if (!hasWallet(window)) return hud.setStatus('Nenhuma carteira detectada. Use o QR Code.', { error: true });
   try { const [a] = await window.ethereum.request({ method: 'eth_requestAccounts' }); hud.setWallet('connected', a); }
@@ -131,8 +143,14 @@ function onResize() {
   camera.aspect = w / h; camera.fov = w / h < 0.8 ? 80 : 65; camera.updateProjectionMatrix(); resize(w, h);
 }
 window.addEventListener('resize', onResize); window.addEventListener('orientationchange', onResize); onResize();
-let last = performance.now();
+let last = performance.now(), lastDraw = 0;
 (function loop(t) {
+  requestAnimationFrame(loop);
+  if (document.hidden) { lastDraw = 0; return; }
+  if (controls.isActive()) wake();
+  if (!loading && t >= activeUntil) { lastDraw = 0; return; }                  // ocioso: não gasta GPU nem bateria
   const dt = Math.min(0.05, (t - last) / 1000); last = t;
-  controls.update(dt); render(scene, camera); requestAnimationFrame(loop);
+  controls.update(dt); render(scene, camera);
+  if (lastDraw) adaptive.sample(t - lastDraw);
+  lastDraw = t;
 })(last);

@@ -4,7 +4,7 @@ import { fetchIpfs } from '../data/ipfs.js';
 import { config } from '../config.js';
 import { applyPs1Snap } from '../render/ps1Renderer.js';
 
-const CARD_W = 0.17, CARD_H = CARD_W * 4 / 3, TEX_W = 300, TEX_H = 400, CONCURRENCY = 6;
+const CARD_W = 0.17, CARD_H = CARD_W * 4 / 3, CONCURRENCY = 6;
 
 function placeholderTexture(label, failed = false) {
   const c = document.createElement('canvas'); c.width = 75; c.height = 100;
@@ -17,17 +17,17 @@ function placeholderTexture(label, failed = false) {
   t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 
-async function loadTexture(meta) {
+async function loadTexture(meta, { texW, texH }) {
   const url = imageUrlFor(meta);
   const blob = url.startsWith('ipfs://') ? await fetchIpfs(url, config.gateways, { as: 'blob', timeoutMs: 15000 })
                                          : await (await fetch(url)).blob();
-  const bmp = await createImageBitmap(blob, { resizeWidth: TEX_W, resizeHeight: TEX_H, resizeQuality: 'medium', imageOrientation: 'flipY' });
+  const bmp = await createImageBitmap(blob, { resizeWidth: texW, resizeHeight: texH, resizeQuality: 'medium', imageOrientation: 'flipY' });
   // ImageBitmap ignora flipY: a inversão vem de imageOrientation no createImageBitmap
   const t = new THREE.Texture(bmp); t.flipY = false; t.magFilter = THREE.NearestFilter; t.minFilter = THREE.LinearFilter;
   t.generateMipmaps = false; t.colorSpace = THREE.SRGBColorSpace; t.needsUpdate = true; return t;
 }
 
-export function populateCards(anchors, infos) {
+export function populateCards(anchors, infos, { texW = 300, texH = 400 } = {}) {
   const cards = [], metas = new Array(anchors.length).fill(null), listeners = [];
   anchors.forEach((anchor, i) => {
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(CARD_W, CARD_H),
@@ -41,7 +41,7 @@ export function populateCards(anchors, infos) {
     try {
       const meta = await loadMetadata(i + 1);
       metas[i] = meta;
-      mesh.material.map = await loadTexture(meta); mesh.material.needsUpdate = true;
+      mesh.material.map = await loadTexture(meta, { texW, texH }); mesh.material.needsUpdate = true;
       listeners.forEach(cb => cb(i + 1, meta));
     } catch (e) {
       console.warn(`card ${i + 1} failed`, e.message);

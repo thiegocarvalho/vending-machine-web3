@@ -1,9 +1,7 @@
 import * as THREE from 'three';
-import { applyPs1Snap } from '../render/ps1Renderer.js';
+import { createBatch } from './baked.js';
 import { PALETTE } from './palette.js';
 
-const mat = (c) => applyPs1Snap(new THREE.MeshLambertMaterial({ color: c, flatShading: true }));
-const box = (w, h, d, m, x, y, z) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.position.set(x, y, z); return o; };
 
 const FOG = 0x0c1424;
 
@@ -40,38 +38,43 @@ function skyDome() {
   m.position.y = 14; return m;
 }
 
+// Chão com a poça de luz assada (gradiente radial), em baixa resolução.
+function groundTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d');
+  const r = g.createRadialGradient(64, 64 + 6, 4, 64, 64, 40);
+  r.addColorStop(0, '#46557a'); r.addColorStop(0.45, '#26324c'); r.addColorStop(1, '#0c1424');
+  g.fillStyle = r; g.fillRect(0, 0, 128, 128);
+  const t = new THREE.CanvasTexture(c);
+  t.magFilter = t.minFilter = THREE.NearestFilter; t.colorSpace = THREE.SRGBColorSpace; t.generateMipmaps = false;
+  return t;
+}
+
 export function buildScenery() {
   const g = new THREE.Group();
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(90, 90), mat(0x151a24));
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.MeshBasicMaterial({ map: groundTexture() }));
   ground.rotation.x = -Math.PI / 2; g.add(ground);
-  g.add(box(30, 0.04, 2.4, mat(0x1f2633), 0, 0.02, 0.4));          // calçada sob as máquinas
   const mark = new THREE.Mesh(new THREE.RingGeometry(1.4, 1.5, 24), new THREE.MeshBasicMaterial({ color: PALETTE.red }));
   mark.rotation.x = -Math.PI / 2; mark.position.set(0, 0.03, 2.4); g.add(mark);
 
-  // cerca de arame atrás das máquinas
-  const fence = mat(0x2b3444);
-  g.add(box(30, 0.05, 0.05, fence, 0, 1.2, -2.6), box(30, 0.05, 0.05, fence, 0, 0.15, -2.6));
-  for (let x = -14; x <= 14; x += 1.5) g.add(box(0.06, 1.25, 0.06, fence, x, 0.62, -2.6));
-  for (let x = -14; x <= 14; x += 0.5) g.add(box(0.015, 1.05, 0.015, fence, x, 0.65, -2.6));
-
-  // luz fraca de rua (sem poste visível)
-  const lamp = new THREE.PointLight(0xcfe3ff, 0.9, 10, 2); lamp.position.set(4.6, 4.4, -1.4); g.add(lamp);
-
-  // postes de energia e fios ao fundo
+  // tudo que é estático vai para UM objeto (1 draw call): calçada, cerca de arame e postes de energia
+  const b = createBatch();
+  b.add(30, 0.04, 2.4, 0x3a4560, 0.9, 0, 0.02, 0.4);
+  b.add(30, 0.05, 0.05, 0x4a5878, 0.7, 0, 1.2, -2.6);
+  b.add(30, 0.05, 0.05, 0x4a5878, 0.7, 0, 0.15, -2.6);
+  for (let x = -14; x <= 14; x += 1.5) b.add(0.06, 1.25, 0.06, 0x4a5878, 0.7, x, 0.62, -2.6);
+  for (let x = -14; x <= 14; x += 0.5) b.add(0.015, 1.05, 0.015, 0x4a5878, 0.7, x, 0.65, -2.6);
   for (const x of [-12, 10]) {
-    g.add(box(0.2, 7, 0.2, mat(0x0c0f14), x, 3.5, -8), box(2.2, 0.1, 0.1, mat(0x0c0f14), x, 6.6, -8));
+    b.add(0.2, 7, 0.2, 0x1a2030, 0.4, x, 3.5, -8);
+    b.add(2.2, 0.1, 0.1, 0x1a2030, 0.4, x, 6.6, -8);
   }
+  g.add(b.build());
   g.add(skyDome());
   return g;
 }
 
 export function addLighting(scene) {
+  // Sem luzes dinâmicas: a iluminação está assada nas cores (baked.js) e no chão; só névoa e fundo.
   scene.fog = new THREE.Fog(FOG, 5, 13);
   scene.background = new THREE.Color(FOG);
-  scene.add(new THREE.AmbientLight(0x3a4a68, 1.1));
-  const spot = new THREE.SpotLight(0xe8f0ff, 60, 14, Math.PI / 4, 0.6, 1.5);
-  spot.position.set(0, 5, 3.5); spot.target.position.set(0, 1.2, 0);
-  scene.add(spot, spot.target);
-  const red = new THREE.PointLight(0xff0033, 1.2, 4, 2); red.position.set(0, 1.4, 1.2);
-  scene.add(red);
 }
