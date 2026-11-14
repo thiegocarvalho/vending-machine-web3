@@ -1,0 +1,24 @@
+{
+  "name": "defi-vending-machine-3d",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "vitest run",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "qrcode": "^1.5.4",
+    "three": "^0.187.0",
+    "viem": "^2.57.19"
+  },
+  "devDependencies": {
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0"
+  },
+  "type": "module"
+}
