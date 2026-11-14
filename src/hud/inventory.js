@@ -10,7 +10,7 @@ export function createInventoryPanel(root, cb) {
     <div class="inv-panel">
       <header>
         <div class="inv-title"><small>DEFI VENDING MACHINE</small><h2>INVENTÁRIO</h2></div>
-        <button class="inv-close" aria-label="Fechar"><span>ESC</span> FECHAR</button>
+        <button class="inv-close" aria-label="Fechar inventário"><span>I</span> FECHAR</button>
       </header>
       <div class="inv-stats">
         <div class="stat"><b class="s-owned">0</b><em>/30</em><small>COLETADOS</small></div>
@@ -22,22 +22,21 @@ export function createInventoryPanel(root, cb) {
         <div class="row"><input class="paste" placeholder="ou cole um endereço 0x…" spellcheck="false" autocomplete="off" /><button class="use">Ver</button></div>
       </div>
       <div class="inv-grid"></div>
-      <footer class="inv-keys"><span class="k">←</span><span class="k">→</span> navegar <i></i> <span class="k">I</span> fechar</footer>
     </div>
     <div class="inv-detail">
       <div class="owned"></div><div class="slot"></div><h3></h3><p class="bal"></p>
       <span class="loading">carregando arte completa…</span>
-      <p class="hint"><span class="k">ARRASTAR</span> girar <i></i> <span class="k">RODA</span> zoom <i></i> <span class="k">2×</span> restaurar</p>
     </div>`;
   root.appendChild(el);
   const q = (s) => el.querySelector(s);
   const grid = q('.inv-grid'), cells = [];
   for (let id = 1; id <= TOTAL; id++) {
-    const b = document.createElement('button'); b.className = 'inv-cell locked'; b.dataset.id = id; b.title = cardIdToSlot(id).label;
+    const b = document.createElement('div'); b.className = 'inv-cell locked'; b.dataset.id = id; b.title = cardIdToSlot(id).label; b.setAttribute('role', 'button'); b.tabIndex = 0;   // div (não button): a proporção 3:4 por padding só funciona fora de <button>
     const c = document.createElement('canvas'); c.width = 90; c.height = 120; b.appendChild(c);
     const lbl = document.createElement('span'); lbl.className = 'lbl'; lbl.textContent = cardIdToSlot(id).label; b.appendChild(lbl);
     const qty = document.createElement('span'); qty.className = 'qty'; qty.hidden = true; b.appendChild(qty);
     b.onclick = () => { if (!b.classList.contains('locked')) cb.onSelect(id); };
+    b.onkeydown = (e) => { if (e.key === 'Enter' && !b.classList.contains('locked')) cb.onSelect(id); };
     grid.appendChild(b); cells.push({ b, c, qty });
   }
   q('.inv-close').onclick = () => cb.onClose();

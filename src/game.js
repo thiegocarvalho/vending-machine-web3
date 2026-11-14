@@ -189,7 +189,13 @@ const invPanel = createInventoryPanel(document.body, {
   onConnect: async () => { try { const [a] = await window.ethereum.request({ method: 'eth_requestAccounts' }); inventory.setAddress(a); await refreshInventory(); } catch { hud.setStatus('Conexão recusada.', { error: true }); } },
   onAddress: async (a) => { inventory.setAddress(a); await refreshInventory(); }
 });
-const invLayout = () => { const w = innerWidth, h = innerHeight; return w / h < 0.8 || w <= 900 ? { sx: 0, sy: 0.4 } : { sx: Math.min(0.5, 400 / w), sy: 0 }; };
+// Retrato: painel embaixo (card no alto da tela). Paisagem: painel à esquerda (card no espaço livre à direita). Mede o painel real,
+// então vale para qualquer tamanho de tela (celular pequeno, tablet, desktop, deitado).
+const invLayout = () => {
+  const w = innerWidth, h = innerHeight, r = invPanel.el.querySelector('.inv-panel').getBoundingClientRect();
+  if (h > w) { const ph = Math.min(h * 0.8, r.height || h * 0.5); return { sx: w < 480 ? 0.2 : 0, sy: ph / h, availW: w < 480 ? 0.78 : 1, availH: 1 - ph / h }; }          // celular estreito: o card vai um pouco para a direita, livrando o texto à esquerda
+  const pw = Math.min(w * 0.8, r.width || Math.min(420, 0.46 * w)); return { sx: pw / w, sy: 0, availW: 1 - pw / w, availH: 1 };
+};
 function layoutViewer() { viewer.setLayout(innerWidth / innerHeight, invLayout()); }
 function paintInventory() {
   invPanel.setData({ balances: inventory.balances, address: inventory.address, hasWallet: hasWallet(window), demo: config.demoMode });
@@ -273,7 +279,6 @@ const tryUse = () => {
 
 hud.onInventory(() => (invOpen ? closeInventory() : openInventory()));
 hud.onUse(tryUse); hud.onConfirm(tryConfirm); hud.onBack(() => modes.back());
-hud.onDpad(dir => selection.move(dir));
 hud.onJoystick((x, y) => { wake(); controls.setJoystick(x, y); });
 
 window.addEventListener('keydown', (e) => {

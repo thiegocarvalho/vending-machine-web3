@@ -17,21 +17,19 @@ export function createHud(root) {
       <div class="detail"><div class="name"></div><div class="meta"><span class="price"></span><span class="stock"></span></div></div>
     </div>
     <div class="status"></div>
-    <div class="keys keys-walk">${key('W')}${key('A')}${key('S')}${key('D')} Mover <i></i> Mouse Olhar <i></i> ${key('I')} Inventário</div>
-    <div class="keys keys-select">${key('←')}${key('↑')}${key('↓')}${key('→')} Escolher <i></i> ${key('ENTER')} Confirmar <i></i> ${key('I')} Inventário <i></i> ${key('ESC')} Sair</div>
-    <div class="keys keys-pay">${key('ESC')} Voltar <i></i> Clique em PAGAR na tela da máquina</div>
+    <div class="keys keys-walk">${key('W')}${key('A')}${key('S')}${key('D')} Mover <i></i> ${key('I')} Inventário</div>
+    <div class="keys keys-select">${key('I')} Inventário <i></i> ${key('ESC')} Sair</div>
+    <div class="keys keys-pay">${key('ESC')} Voltar</div>
     <div class="net">${config.chainName.toUpperCase()}</div>
     <div class="joy"><i></i></div>
-    <div class="dpad"><button class="u">▲</button><button class="l">◀</button><button class="r">▶</button><button class="d">▼</button></div>
     <button class="m-inv">INVENTÁRIO</button><button class="m-use">USAR</button><button class="m-ok">CONFIRMAR</button><button class="m-back">VOLTAR</button>
   </div>`);
   root.appendChild(hud);
   const q = (s) => hud.querySelector(s);
-  const cbs = { inv: () => {}, use: () => {}, ok: () => {}, back: () => {}, dpad: () => {}, joy: () => {} };
+  const cbs = { inv: () => {}, use: () => {}, ok: () => {}, back: () => {}, joy: () => {} };
 
   q('.m-inv').onclick = () => cbs.inv(); q('.m-use').onclick = () => cbs.use(); q('.m-ok').onclick = () => cbs.ok(); q('.m-back').onclick = () => cbs.back();
   q('.prompt').onclick = () => cbs.use();
-  [['u', 'up'], ['d', 'down'], ['l', 'left'], ['r', 'right']].forEach(([c, d]) => q('.dpad .' + c).onclick = () => cbs.dpad(d));
 
   // joystick virtual (toque)
   const joy = q('.joy'), knob = joy.firstElementChild;
@@ -49,7 +47,7 @@ export function createHud(root) {
 
   return {
     el: hud,
-    onInventory: f => cbs.inv = f, onUse: f => cbs.use = f, onConfirm: f => cbs.ok = f, onBack: f => cbs.back = f, onDpad: f => cbs.dpad = f, onJoystick: f => cbs.joy = f,
+    onInventory: f => cbs.inv = f, onUse: f => cbs.use = f, onConfirm: f => cbs.ok = f, onBack: f => cbs.back = f, onJoystick: f => cbs.joy = f,
     setMode(mode) { hud.className = `mode-${mode}`; if (mode !== 'walk') hud.classList.remove('can-use'); },
     // kind: null | 'machine' | 'faucet'
     showPrompt(kind) {

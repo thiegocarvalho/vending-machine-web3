@@ -11,6 +11,10 @@ describe('visualizador: matemática', () => {
     }
     expect(fitDistance(0.46)).toBeGreaterThan(fitDistance(1.6));               // tela estreita: mais longe
   });
+  it('com o painel cobrindo parte da tela, o card encolhe para caber só na região livre', () => {
+    expect(fitDistance(0.46, 0.72, 1, 0.5)).toBeGreaterThan(fitDistance(0.46));           // celular em pé: metade da altura livre
+    expect(fitDistance(2.17, 0.72, 0.55, 1)).toBeGreaterThanOrEqual(fitDistance(2.17));   // celular deitado: pouca largura livre
+  });
   it('o zoom fica dentro dos limites', () => {
     const fit = fitDistance(1), r = zoomRange(fit);
     expect(zoomBy(fit, 0.0001, fit)).toBe(r.min); expect(zoomBy(fit, 1000, fit)).toBe(r.max);

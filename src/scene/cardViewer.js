@@ -6,8 +6,9 @@ const FOV = 40, TAN = Math.tan((FOV * Math.PI) / 360);
 export const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 // Distância da câmera em que o card inteiro cabe na tela (com folga), em qualquer proporção.
-export function fitDistance(aspect, fill = 0.72) {
-  const byHeight = (CARD.h / 2) / (TAN * fill), byWidth = (CARD.w / 2) / (TAN * aspect * 0.9);
+// availW/availH: fração da tela realmente livre (o resto é coberto pelo painel do inventário).
+export function fitDistance(aspect, fill = 0.72, availW = 1, availH = 1) {
+  const byHeight = (CARD.h / 2) / (TAN * fill * availH), byWidth = (CARD.w / 2) / (TAN * aspect * 0.9 * availW);
   return Math.max(byHeight, byWidth);
 }
 export const zoomRange = (fit) => ({ min: fit * 0.42, max: fit * 1.5 });
@@ -124,7 +125,7 @@ export function createCardViewer() {
     // verso oficial (card_back.png do IPFS); enquanto não chega, fica o verso desenhado
     setBack(tex) { if (tex) { back.map = tex; back.needsUpdate = true; } },
     setFront(tex) { front.map = tex || null; front.color.set(tex ? 0xffffff : 0x20243a); front.needsUpdate = true; },
-    setLayout(a, l) { aspect = a; layout = l; fit = fitDistance(a) * (l.sy ? 1.6 : 1);   // com o painel ocupando metade da tela (celular), o card cabe só na parte de cima
+    setLayout(a, l) { aspect = a; layout = l; fit = fitDistance(a, 0.72, l.availW ?? 1, l.availH ?? 1);   // o card cabe só na região livre ao lado/acima do painel
       dist = clamp(dist, zoomRange(fit).min, zoomRange(fit).max); placeCamera(); },
     reset, showBack() { Object.assign(s, { yaw: Math.PI - 0.45, pitch: -0.12, vyaw: 0, vpitch: 0 }); placeCamera(); onAnim(); },
     // chamado a cada quadro com o inventário aberto; true se ainda há movimento (inércia/arrasto)

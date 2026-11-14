@@ -43,16 +43,13 @@
 .net{position:absolute;right:clamp(16px,4vw,56px);top:calc(14px + var(--safe-t));font:11px 'Fira Code',monospace;letter-spacing:.2em;color:var(--dim)}
 
 /* toque: joystick, D-pad e botões (escondidos no desktop) */
-.joy,.dpad,.m-use,.m-ok,.m-back,.m-inv{display:none}
+.joy,.m-use,.m-ok,.m-back,.m-inv{display:none}
 @media (pointer:coarse),(max-width:900px){
   .keys{display:none!important}
   .info{bottom:calc(150px + var(--safe-b))}.slot{font-size:48px}.name{font-size:20px}
   .status{bottom:calc(230px + var(--safe-b));max-width:80vw}
   .mode-walk .joy{display:block;position:absolute;left:24px;bottom:calc(28px + var(--safe-b));width:128px;height:128px;border:1px solid rgba(255,255,255,.5);border-radius:50%;pointer-events:auto;touch-action:none;background:rgba(0,0,0,.2)}
   .joy i{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px;border-radius:50%;background:rgba(255,255,255,.35);border:1px solid #fff}
-  .mode-select .dpad{display:grid;position:absolute;right:20px;bottom:calc(24px + var(--safe-b));grid-template:repeat(3,52px)/repeat(3,52px);gap:4px}
-  .dpad .u{grid-area:1/2}.dpad .l{grid-area:2/1}.dpad .r{grid-area:2/3}.dpad .d{grid-area:3/2}
-  .dpad button{padding:0;font-size:16px}
   .mode-select .m-ok{display:block;position:absolute;left:20px;bottom:calc(28px + var(--safe-b))}
   .mode-select .m-back,.mode-pay .m-back{display:block;position:absolute;left:20px;top:calc(14px + var(--safe-t))}
   .mode-walk .m-inv,.mode-select .m-inv{display:block;position:absolute;right:14px;top:calc(40px + var(--safe-t));min-height:40px;font-size:11px}
