@@ -17,9 +17,11 @@ export function createInventoryPanel(root, cb) {
         <div class="stat"><b class="s-total">0</b><small>CARDS NO TOTAL</small></div>
         <div class="bar"><i></i></div>
       </div>
-      <div class="inv-wallet"><div class="addr"></div>
-        <div class="row"><button class="connect">Conectar carteira</button></div>
-        <div class="row"><input class="paste" placeholder="ou cole um endereço 0x…" spellcheck="false" autocomplete="off" /><button class="use">Ver</button></div>
+      <div class="inv-wallet" data-state="disconnected">
+        <div class="w-head"><span class="dot"></span><div class="w-info"><b class="w-label"></b><span class="w-addr"></span></div><button class="w-copy" title="Copiar endereço">COPIAR</button></div>
+        <p class="w-note"></p>
+        <div class="w-actions"><button class="w-primary"></button><button class="w-secondary"></button></div>
+        <div class="w-paste"><input class="paste" placeholder="ou cole um endereço 0x…" spellcheck="false" autocomplete="off" /><button class="use">Ver</button></div>
       </div>
       <div class="inv-grid"></div>
     </div>
@@ -40,8 +42,14 @@ export function createInventoryPanel(root, cb) {
     grid.appendChild(b); cells.push({ b, c, qty });
   }
   q('.inv-close').onclick = () => cb.onClose();
-  q('.connect').onclick = () => cb.onConnect();
   const use = () => cb.onAddress(q('.paste').value.trim());
+  let primary = null, secondary = null;
+  q('.w-primary').onclick = () => primary?.(); q('.w-secondary').onclick = () => secondary?.();
+  q('.w-copy').onclick = async (e) => {
+    const btn = e.currentTarget, addr = btn.dataset.addr; if (!addr) return;
+    try { await navigator.clipboard.writeText(addr); btn.textContent = 'COPIADO ✓'; } catch { btn.textContent = 'SELECIONE E COPIE'; }
+    setTimeout(() => { btn.textContent = 'COPIAR'; }, 1400);
+  };
   q('.use').onclick = use; q('.paste').addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Enter') use(); });   // não deixa o jogo capturar as teclas digitadas
 
   const short = (a) => `${a.slice(0, 6)}…${a.slice(-4)}`;
@@ -54,11 +62,37 @@ export function createInventoryPanel(root, cb) {
       cells.forEach(({ b, qty }, i) => { const n = balances[i] | 0; b.classList.toggle('locked', n <= 0); qty.hidden = n <= 0; qty.textContent = `×${n}`; });
       const owned = balances.filter((n) => n > 0).length, total = balances.reduce((a, n) => a + n, 0);
       q('.s-owned').textContent = owned; q('.s-total').textContent = total; q('.bar i').style.width = `${(owned / TOTAL) * 100}%`;
-      q('.addr').innerHTML = demo ? '<b>MODO DEMO</b> saldos guardados neste navegador' : address ? `<b>CARTEIRA</b> ${short(address)}` : 'Conecte a carteira ou cole um endereço para ver seus cards.';
-      q('.inv-wallet').querySelectorAll('.row').forEach((r) => { r.style.display = demo ? 'none' : ''; });
-      q('.connect').style.display = !demo && hasWallet ? '' : 'none';
       grid.querySelector('.inv-empty')?.remove();
       if (!owned) { const e = document.createElement('div'); e.className = 'inv-empty'; e.textContent = 'Nenhum card ainda. Compre um na máquina e ele aparece aqui.'; grid.prepend(e); }
+    },
+    // status: demo | nowallet | disconnected | connecting | connected | wrongnet | readonly (ver payment/session.js)
+    setWallet({ status, address = null, hasWallet = false, chainName = 'Sepolia', error = '' }) {
+      const W = q('.inv-wallet'); W.dataset.state = status;
+      const T = {
+        demo: ['MODO DEMO', 'Saldos guardados neste navegador.'],
+        nowallet: ['SEM CARTEIRA NO NAVEGADOR', 'Instale uma carteira (ex.: MetaMask) ou cole um endereço para só consultar.'],
+        disconnected: ['CARTEIRA DESCONECTADA', 'Conecte a carteira para ver os seus cards.'],
+        connecting: ['CONECTANDO…', 'Confirme na janela da carteira.'],
+        connected: ['CARTEIRA CONECTADA', ''],
+        wrongnet: ['REDE ERRADA', `Troque para ${chainName} para comprar e ver os saldos certos.`],
+        readonly: ['SOMENTE LEITURA', hasWallet ? 'Endereço consultado. Conecte a carteira para comprar.' : 'Endereço consultado, sem carteira conectada.']
+      }[status];
+      q('.w-label').textContent = T[0]; q('.w-addr').textContent = address ? short(address) : '';
+      const note = q('.w-note'); note.textContent = error || T[1]; note.classList.toggle('err', !!error); note.hidden = !(error || T[1]);
+      const copy = q('.w-copy'); copy.dataset.addr = address || ''; copy.hidden = !address;
+      const set = (btn, label, fn, opts = {}) => { btn.hidden = !label; btn.textContent = label || ''; btn.disabled = !!opts.disabled; btn.classList.toggle('busy', !!opts.busy); return fn; };
+      const none = () => {};
+      primary = secondary = null;
+      if (status === 'disconnected') primary = set(q('.w-primary'), 'Conectar carteira', cb.onConnect);
+      else if (status === 'connecting') set(q('.w-primary'), 'Aguardando a carteira…', none, { disabled: true, busy: true });
+      else if (status === 'wrongnet') primary = set(q('.w-primary'), `Trocar para ${chainName}`, cb.onSwitch);
+      else if (status === 'readonly' && hasWallet) primary = set(q('.w-primary'), 'Conectar carteira', cb.onConnect);
+      else set(q('.w-primary'), '', none);
+      if (status === 'connected' || status === 'wrongnet') secondary = set(q('.w-secondary'), 'Desconectar', cb.onDisconnect);
+      else if (status === 'readonly') secondary = set(q('.w-secondary'), 'Remover', cb.onDisconnect);
+      else set(q('.w-secondary'), '', none);
+      q('.w-actions').hidden = !(q('.w-primary').textContent || q('.w-secondary').textContent);
+      q('.w-paste').hidden = !['nowallet', 'disconnected', 'readonly'].includes(status);
     },
     setSelected(id, meta, balance) {
       cells.forEach(({ b }, i) => b.classList.toggle('sel', i + 1 === id));

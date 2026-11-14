@@ -1,7 +1,7 @@
 import { config } from '../config.js';
 import { ethCall, encodeBalanceOfBatch, decodeUintArray } from './rpc.js';
 
-const TOTAL = 30, KEY_ADDR = 'dvm.inventory.address', KEY_DEMO = 'dvm.inventory.demo';
+const TOTAL = 30, KEY_ADDR = 'dvm.inventory.address', KEY_SRC = 'dvm.inventory.source', KEY_DEMO = 'dvm.inventory.demo';
 const safe = (fn, fallback) => { try { return fn(); } catch { return fallback; } };
 export const isAddress = (a) => /^0x[0-9a-fA-F]{40}$/.test(a || '');
 
@@ -9,6 +9,7 @@ export const isAddress = (a) => /^0x[0-9a-fA-F]{40}$/.test(a || '');
 export function createInventory({ storage = globalThis.localStorage, call = ethCall, cfg = config } = {}) {
   let address = safe(() => storage.getItem(KEY_ADDR), null);
   if (!isAddress(address)) address = null;
+  let source = address ? safe(() => storage.getItem(KEY_SRC), null) || 'manual' : null;      // 'wallet' (conectada) | 'manual' (colada, só leitura)
   let balances = new Array(TOTAL).fill(0);
   const demo = () => (cfg.demoMode);
   if (demo()) balances = safe(() => JSON.parse(storage.getItem(KEY_DEMO)) ?? balances, balances);
@@ -17,14 +18,15 @@ export function createInventory({ storage = globalThis.localStorage, call = ethC
 
   return {
     get address() { return address; },
+    get source() { return source; },
     get balances() { return balances.slice(); },
     get needsAddress() { return !demo() && !address; },
     get ownedCount() { return balances.filter((b) => b > 0).length; },
     get total() { return balances.reduce((a, b) => a + b, 0); },
     onChange(cb) { cbs.push(cb); },
-    setAddress(a) {
-      address = isAddress(a) ? a : null;
-      safe(() => (address ? storage.setItem(KEY_ADDR, address) : storage.removeItem(KEY_ADDR)));
+    setAddress(a, src = 'manual') {
+      address = isAddress(a) ? a : null; source = address ? src : null;
+      safe(() => { if (address) { storage.setItem(KEY_ADDR, address); storage.setItem(KEY_SRC, source); } else { storage.removeItem(KEY_ADDR); storage.removeItem(KEY_SRC); } });
       if (!address) balances = new Array(TOTAL).fill(0);
       emit();
     },

@@ -14,21 +14,25 @@ const chainParams = (cfg) => ({
   ...(cfg.explorer ? { blockExplorerUrls: [cfg.explorer] } : {})
 });
 
+// Garante que a carteira esteja na rede do jogo: troca; se ela não conhece a rede, pede para adicionar.
+export async function ensureChain(eth, cfg) {
+  const chain = await eth.request({ method: 'eth_chainId' });
+  if (parseInt(chain, 16) === cfg.chainId) return;
+  try {
+    await eth.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hex(cfg.chainId) }] });
+  } catch (e) {
+    if (e.code !== 4902) throw e;
+    await eth.request({ method: 'wallet_addEthereumChain', params: [chainParams(cfg)] });
+  }
+}
+
 export async function payWithWallet(win, cfg, cardId, priceWei, stock) {
   if (!hasWallet(win)) throw new PaymentError('no_wallet', 'Nenhuma carteira encontrada no navegador');
   if (stock <= 0) throw new PaymentError('sold_out', 'Card esgotado');
   const eth = win.ethereum;
   try {
     const [from] = await eth.request({ method: 'eth_requestAccounts' });
-    const chain = await eth.request({ method: 'eth_chainId' });
-    if (parseInt(chain, 16) !== cfg.chainId) {
-      try {
-        await eth.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hex(cfg.chainId) }] });
-      } catch (e) {
-        if (e.code !== 4902) throw e;
-        await eth.request({ method: 'wallet_addEthereumChain', params: [chainParams(cfg)] });
-      }
-    }
+    await ensureChain(eth, cfg);
     const data = encodeBuyCard(cardId);
     const hash = await eth.request({
       method: 'eth_sendTransaction',

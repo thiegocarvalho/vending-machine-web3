@@ -7,7 +7,7 @@ import { createRig } from './player/rig.js';
 import { createSpotlight, approach as approachNum } from './scene/spotlight.js';
 import { populateCards, loadFullTexture, loadBackTexture } from './scene/cards.js';
 import { createCardViewer } from './scene/cardViewer.js';
-import { createInventory } from './data/inventory.js';
+import { createInventory, isAddress } from './data/inventory.js';
 import { createInventoryPanel } from './hud/inventory.js';
 import { loadCardsInfo } from './data/chain.js';
 import { createSelection, createHighlight, pickCard } from './player/selection.js';
@@ -15,6 +15,7 @@ import { createHud } from './hud/hud.js';
 import { createMachineScreen, buttonHit } from './payment/machineScreen.js';
 import { buildEip681 } from './payment/eip681.js';
 import { hasWallet, payWithWallet } from './payment/wallet.js';
+import { createWalletSession, walletStatus } from './payment/session.js';
 import { config } from './config.js';
 import { cardIdToSlot } from './grid.js';
 import { createModes, pickInteractable } from './interaction.js';
@@ -172,7 +173,7 @@ async function payNow() {
       await new Promise(r => setTimeout(r, 1800)); onConfirmed(id); return;
     }
     const { hash, from } = await payWithWallet(window, config, id, info.price, info.stock);
-    if (from) inventory.setAddress(from);
+    if (from) { session.clearDismissed(); inventory.setAddress(from, 'wallet'); }
     setState('sent', { hash });
     await waitForReceipt(hash);
     onConfirmed(id, hash);
@@ -184,10 +185,40 @@ async function payNow() {
 // ---------- inventário (tecla I) ----------
 let invOpen = false, invSel = 0, invPrevEnabled = true;
 const fullCache = new Map();                                                    // id -> textura em alta (LRU de 3)
+const session = createWalletSession({ cfg: config });
+let connecting = false, walletChain = null, walletError = '';
 const invPanel = createInventoryPanel(document.body, {
   onClose: () => closeInventory(), onSelect: (id) => selectInv(id),
-  onConnect: async () => { try { const [a] = await window.ethereum.request({ method: 'eth_requestAccounts' }); inventory.setAddress(a); await refreshInventory(); } catch { hud.setStatus('Conexão recusada.', { error: true }); } },
-  onAddress: async (a) => { inventory.setAddress(a); await refreshInventory(); }
+  onConnect: () => connectWallet(), onDisconnect: () => disconnectWallet(), onSwitch: () => switchNetwork(),
+  onAddress: async (a) => { walletError = isAddress(a) ? '' : 'Endereço inválido: use 0x seguido de 40 caracteres.'; if (!walletError) inventory.setAddress(a, 'manual'); await refreshInventory(); }
+});
+async function syncWallet() {
+  if (session.available && inventory.source === 'wallet') walletChain = await session.chainId();
+  invPanel.setWallet({
+    status: walletStatus({ demo: config.demoMode, hasWallet: session.available, address: inventory.address, source: inventory.source, chainId: walletChain, wantedChain: config.chainId, connecting }),
+    address: inventory.address, hasWallet: session.available, chainName: config.chainName, error: walletError
+  });
+}
+async function connectWallet() {
+  connecting = true; walletError = ''; await syncWallet();
+  try { inventory.setAddress(await session.connect(), 'wallet'); }
+  catch (e) { walletError = e.code === 4001 ? 'Conexão recusada na carteira.' : 'Não foi possível conectar: ' + (e.shortMessage || e.message); }
+  connecting = false; await refreshInventory();
+}
+async function disconnectWallet() { walletError = ''; await session.disconnect(); inventory.setAddress(null); walletChain = null; await refreshInventory(); }
+async function switchNetwork() {
+  walletError = '';
+  try { await session.switchNetwork(); } catch (e) { walletError = e.code === 4001 ? 'Troca de rede recusada.' : 'Não foi possível trocar de rede.'; }
+  await refreshInventory();
+}
+// a extensão mudou de conta ou de rede (ou o jogador desconectou pela própria carteira)
+session.onChange(async (ev) => {
+  if (ev.type === 'accounts') {
+    const a = ev.accounts[0];
+    if (a && (inventory.source === 'wallet' || (!inventory.address && !session.dismissed))) inventory.setAddress(a, 'wallet');
+    else if (!a && inventory.source === 'wallet') inventory.setAddress(null);
+  }
+  if (invOpen) await refreshInventory(); wake();
 });
 // Retrato: painel embaixo (card no alto da tela). Paisagem: painel à esquerda (card no espaço livre à direita). Mede o painel real,
 // então vale para qualquer tamanho de tela (celular pequeno, tablet, desktop, deitado).
@@ -204,7 +235,7 @@ function paintInventory() {
 }
 async function refreshInventory() {
   try { await inventory.refresh(); } catch (e) { hud.setStatus('Não foi possível ler os saldos: ' + e.message, { error: true }); }
-  paintInventory();
+  paintInventory(); await syncWallet();
   if (!invSel || inventory.balances[invSel - 1] <= 0) selectInv(inventory.balances.findIndex((n) => n > 0) + 1 || 0);
 }
 async function selectInv(id) {
@@ -237,8 +268,10 @@ async function openInventory() {
   invOpen = true; invPrevEnabled = controls.enabled; controls.setEnabled(false);
   hud.el.style.display = 'none'; canvas.style.cursor = 'default';
   layoutViewer(); viewer.attach(canvas, () => wake(400)); invPanel.open(); paintInventory(); wake(600); ensureBack();
-  if (!inventory.address && hasWallet(window) && !config.demoMode) {           // carteira já conectada ao site? lê sem pedir nada
-    try { const [a] = await window.ethereum.request({ method: 'eth_accounts' }); if (a) inventory.setAddress(a); } catch { /* sem carteira */ }
+  if (!config.demoMode) {                                                        // reconcilia com a carteira sem abrir pop-up
+    const a = await session.silentAccount();
+    if (a && (!inventory.address || inventory.source === 'wallet')) inventory.setAddress(a, 'wallet');
+    else if (!a && inventory.source === 'wallet') inventory.setAddress(null);   // a carteira revogou o acesso
   }
   await refreshInventory();
 }

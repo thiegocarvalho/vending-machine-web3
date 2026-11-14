@@ -29,6 +29,14 @@ describe('inventário', () => {
     const st = mem(); createInventory({ storage: st, cfg: real }).setAddress(ADDR);
     expect(createInventory({ storage: st, cfg: real }).address).toBe(ADDR);
   });
+  it('lembra de onde veio o endereço (carteira conectada x colado) e esquece ao desconectar', () => {
+    const st = mem(); const a = createInventory({ storage: st, cfg: real });
+    a.setAddress(ADDR, 'wallet'); expect(a.source).toBe('wallet');
+    expect(createInventory({ storage: st, cfg: real }).source).toBe('wallet');
+    a.setAddress(null); expect(a.address).toBeNull(); expect(a.source).toBeNull();
+    const b = createInventory({ storage: st, cfg: real }); expect(b.address).toBeNull(); expect(b.source).toBeNull();
+    b.setAddress(ADDR); expect(b.source).toBe('manual');
+  });
   it('modo demo: compra soma no inventário e persiste', () => {
     const st = mem(), cfg = { demoMode: true };
     const a = createInventory({ storage: st, cfg }); const cb = vi.fn(); a.onChange(cb);

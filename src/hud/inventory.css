@@ -24,15 +24,36 @@
 .bar{grid-column:1/-1;height:3px;background:rgba(255,255,255,.1);position:relative;overflow:hidden}
 .bar i{display:block;margin:0;width:0;height:100%;background:linear-gradient(90deg,var(--accent),#ff7a8a);transition:width .5s ease;box-shadow:0 0 10px var(--accent)}
 
-/* carteira */
-.inv-wallet{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:12px;color:var(--dim)}
-.inv-wallet .addr b{font:600 10px 'Fira Code',monospace;letter-spacing:.22em;color:var(--neon);margin-right:8px}
-.inv-wallet .addr{font-family:'Fira Code',monospace;word-break:break-all}
-.inv-wallet .row{display:flex;gap:6px}
-.inv-wallet button{min-height:34px;padding:0 12px;background:transparent;border:1px solid var(--line);cursor:pointer;letter-spacing:.14em;font-size:10.5px;text-transform:uppercase}
-.inv-wallet button:hover{border-color:#fff;background:rgba(255,255,255,.08)}
-.inv-wallet input{flex:1;min-width:0;min-height:34px;padding:0 10px;background:rgba(0,0,0,.35);border:1px solid var(--line);font:12px 'Fira Code',monospace;outline:none}
-.inv-wallet input:focus{border-color:var(--neon)}
+/* carteira: um bloco com estado (ponto colorido + rótulo), endereço, ações e campo para colar */
+.inv-wallet{display:flex;flex-direction:column;gap:8px;padding:11px 12px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:12px;color:var(--dim);--st:#7d8399}
+.inv-wallet[data-state=connected]{--st:#35d07f;border-color:rgba(53,208,127,.35)}
+.inv-wallet[data-state=connecting],.inv-wallet[data-state=wrongnet]{--st:#ffb02e;border-color:rgba(255,176,46,.4)}
+.inv-wallet[data-state=readonly]{--st:var(--neon)}
+.w-head{display:flex;align-items:center;gap:10px}
+.w-head .dot{width:9px;height:9px;border-radius:50%;background:var(--st);box-shadow:0 0 10px var(--st);flex:none}
+.inv-wallet[data-state=connecting] .dot{animation:blink 1s ease-in-out infinite}
+@keyframes blink{50%{opacity:.25}}
+.w-info{display:flex;flex-direction:column;min-width:0;flex:1}
+.w-label{font:600 10.5px 'Fira Code',monospace;letter-spacing:.2em;color:var(--ink)}
+.w-addr{font:12px 'Fira Code',monospace;color:var(--dim)}
+.w-addr:empty{display:none}
+.w-copy{min-height:26px;padding:0 9px;background:transparent;border:1px solid var(--line);cursor:pointer;font:600 9.5px 'Fira Code',monospace;letter-spacing:.14em;color:var(--dim)}
+.w-copy:hover{border-color:#fff;color:#fff}
+.w-note{margin:0;line-height:1.4}.w-note.err{color:#ff7d8d}
+.w-actions{display:flex;gap:8px;flex-wrap:wrap}
+.w-actions button{flex:1;min-height:38px;padding:0 12px;background:transparent;border:1px solid var(--line);cursor:pointer;letter-spacing:.14em;font-size:10.5px;text-transform:uppercase;transition:background .12s,border-color .12s}
+.w-actions button:hover:not(:disabled){border-color:#fff;background:rgba(255,255,255,.08)}
+.w-primary{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff;font-weight:600;text-shadow:none}
+.w-primary:hover:not(:disabled){filter:brightness(1.12)}
+.inv-wallet[data-state=wrongnet] .w-primary{background:#ffb02e!important;border-color:#ffb02e!important;color:#1a1200}
+.w-primary:disabled{background:rgba(255,255,255,.06)!important;border-color:var(--line)!important;color:var(--dim);cursor:progress}
+.w-secondary:hover{border-color:#ff7d8d!important;color:#ff9aa6}
+.w-paste{display:flex;gap:6px}
+.w-paste input{flex:1;min-width:0;min-height:34px;padding:0 10px;background:rgba(0,0,0,.35);border:1px solid var(--line);font:12px 'Fira Code',monospace;outline:none}
+.w-paste input:focus{border-color:var(--neon)}
+.w-paste button{min-height:34px;padding:0 12px;background:transparent;border:1px solid var(--line);cursor:pointer;letter-spacing:.14em;font-size:10.5px;text-transform:uppercase}
+.w-paste button:hover{border-color:#fff;background:rgba(255,255,255,.08)}
+[hidden]{display:none!important}
 
 /* grade de slots */
 .inv-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;overflow:auto;padding:4px 3px 14px;align-content:start;grid-auto-rows:min-content;min-height:0;flex:1;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.25) transparent}
@@ -63,7 +84,7 @@
   .inv-panel{top:auto;width:100%;min-width:0;height:50%;background:linear-gradient(0deg,rgba(5,8,20,.97),rgba(7,10,26,.88));padding:12px 14px calc(10px + env(safe-area-inset-bottom,0px));gap:10px;border-top:1px solid var(--line)}
   .inv-panel h2{font-size:30px}.inv-title small{font-size:9px}
   .inv-stats{grid-template-columns:auto auto 1fr;gap:2px 16px}.stat b{font-size:30px}.bar{grid-column:1/-1}
-  .inv-wallet{padding:6px 10px}.inv-wallet .row:nth-of-type(1){display:none}
+  .inv-wallet{padding:8px 10px;gap:6px}.w-note{font-size:11px}
   .inv-grid{grid-template-columns:repeat(6,1fr);gap:6px}  .inv-detail{right:auto;left:14px;top:calc(12px + env(safe-area-inset-top,0px));bottom:auto;text-align:left;align-items:flex-start;max-width:50vw}
   .inv-detail .slot{font-size:48px}.inv-detail h3{font-size:22px}}
 @media (orientation:portrait) and (max-width:360px){ .inv-grid{grid-template-columns:repeat(5,1fr)} .inv-detail .slot{font-size:40px} .inv-detail h3{font-size:18px} }
@@ -72,6 +93,6 @@
   .inv-panel{padding:calc(10px + env(safe-area-inset-top,0px)) 14px 8px;gap:8px;width:min(360px,48vw)}
   .inv-panel h2{font-size:30px}.inv-title small{font-size:8.5px}
   .inv-stats{grid-template-columns:auto auto 1fr;gap:2px 16px}.stat b{font-size:28px}.bar{grid-column:1/-1}
-  .inv-wallet{padding:5px 8px;gap:4px}.inv-wallet .row:nth-of-type(1){display:none}.inv-wallet input,.inv-wallet button{min-height:30px}
+  .inv-wallet{padding:6px 8px;gap:5px}.w-note{display:none}.w-actions button,.w-paste input,.w-paste button{min-height:30px}
   .inv-grid{grid-template-columns:repeat(5,1fr);gap:5px}  .inv-detail{bottom:calc(10px + env(safe-area-inset-bottom,0px));right:16px}
   .inv-detail .slot{font-size:48px}.inv-detail h3{font-size:22px}}
