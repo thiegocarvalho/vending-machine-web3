@@ -4,7 +4,7 @@ import { drawQr } from '../payment/machineScreen.js';
 import { config } from '../config.js';
 
 const POST = { x: 3.2, z: 3.4, h: 4.2 };                              // poste de luz ao lado da máquina
-const SIGN = { x: -6.0, z: 1.0, yaw: 0.9 };                            // placa de trânsito no fim da rua (limite da área), voltada para o centro
+const SIGN = { x: -6.0, z: 3.4, yaw: 0.9 };                            // placa de trânsito no fim da rua (limite da área), voltada para o centro
 const FOG = 0x141a2e;                           // neblina azul-arroxeada da noite
 
 const canvasTex = (w, h, draw, { repeat, srgb = true } = {}) => {
