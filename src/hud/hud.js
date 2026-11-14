@@ -20,15 +20,16 @@ export function createHud(root) {
     <div class="keys keys-walk">${key('W')}${key('A')}${key('S')}${key('D')} Mover <i></i> ${key('I')} Inventário</div>
     <div class="keys keys-select">${key('I')} Inventário <i></i> ${key('ESC')} Sair</div>
     <div class="keys keys-pay">${key('ESC')} Voltar</div>
+    <div class="net-alert" hidden><span></span><button>Tentar de novo</button></div>
     <div class="net">${config.chainName.toUpperCase()}</div>
     <div class="joy"><i></i></div>
-    <button class="m-inv">INVENTÁRIO</button><button class="m-use">USAR</button><button class="m-ok">CONFIRMAR</button><button class="m-back">VOLTAR</button>
+    <button class="m-wallet">ABRIR NA CARTEIRA</button><button class="m-inv">INVENTÁRIO</button><button class="m-use">USAR</button><button class="m-ok">CONFIRMAR</button><button class="m-back">VOLTAR</button>
   </div>`);
   root.appendChild(hud);
   const q = (s) => hud.querySelector(s);
-  const cbs = { inv: () => {}, use: () => {}, ok: () => {}, back: () => {}, joy: () => {} };
+  const cbs = { wallet: () => {}, inv: () => {}, use: () => {}, ok: () => {}, back: () => {}, joy: () => {} };
 
-  q('.m-inv').onclick = () => cbs.inv(); q('.m-use').onclick = () => cbs.use(); q('.m-ok').onclick = () => cbs.ok(); q('.m-back').onclick = () => cbs.back();
+  q('.m-inv').onclick = () => cbs.inv(); q('.m-wallet').onclick = () => cbs.wallet(); q('.m-use').onclick = () => cbs.use(); q('.m-ok').onclick = () => cbs.ok(); q('.m-back').onclick = () => cbs.back();
   q('.prompt').onclick = () => cbs.use();
 
   // joystick virtual (toque)
@@ -47,8 +48,9 @@ export function createHud(root) {
 
   return {
     el: hud,
-    onInventory: f => cbs.inv = f, onUse: f => cbs.use = f, onConfirm: f => cbs.ok = f, onBack: f => cbs.back = f, onJoystick: f => cbs.joy = f,
-    setMode(mode) { hud.className = `mode-${mode}`; if (mode !== 'walk') hud.classList.remove('can-use'); },
+    onInventory: f => cbs.inv = f, onOpenWallet: f => cbs.wallet = f, onUse: f => cbs.use = f, onConfirm: f => cbs.ok = f, onBack: f => cbs.back = f, onJoystick: f => cbs.joy = f,
+    // celular sem extensão de carteira: o QR não adianta (é o mesmo aparelho) — o botão abre o link ethereum: direto no app da carteira
+    setMode(mode) { hud.className = `mode-${mode}`; hud.classList.toggle('no-wallet', !window.ethereum?.request); if (mode !== 'walk') hud.classList.remove('can-use'); },
     // kind: null | 'machine' | 'faucet'
     showPrompt(kind) {
       const on = !!kind && hud.classList.contains('mode-walk');
@@ -58,12 +60,17 @@ export function createHud(root) {
         q('.prompt small').textContent = t[0]; q('.prompt b').textContent = t[1]; q('.m-use').textContent = kind === 'faucet' ? 'FAUCET' : 'USAR';
       }
     },
+    // aviso de rede no topo; fn = ação do botão "tentar de novo". setAlert('') esconde.
+    setAlert(text, fn) {
+      const a = q('.net-alert'); a.hidden = !text; q('.net-alert span').textContent = text || '';
+      q('.net-alert button').onclick = () => fn?.();
+    },
     showCard(id, meta, info) {
       q('.slot').textContent = cardIdToSlot(id).label;
       q('.name').textContent = meta ? meta.name.replace(/^Card #\d+:\s*/, '') : `Card #${String(id).padStart(2, '0')}`;
-      const sold = info && (info.stock <= 0 || !info.active);
-      q('.price').textContent = info ? `${formatEther(info.price)} ETH` : '';
-      q('.stock').textContent = info ? (sold ? 'ESGOTADO' : `${info.stock}/100`) : '';
+      const sold = info && (info.missing || info.stock <= 0 || !info.active);
+      q('.price').textContent = info && !info.missing ? `${formatEther(info.price)} ETH` : '';
+      q('.stock').textContent = info ? (info.offline ? 'SEM REDE' : info.missing ? 'SEM CARD' : sold ? 'ESGOTADO' : `${info.stock}/${info.max ?? 100}`) : '';
       q('.stock').classList.toggle('sold', !!sold);
     },
     setStatus(text, { error = false, hash } = {}) {

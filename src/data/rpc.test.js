@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { encodeFunctionData, decodeFunctionResult, encodeFunctionResult, parseAbi, toFunctionSelector, toEventSelector, formatEther as viemFormatEther } from 'viem';
 import { SELECTORS, TOPIC_CARD_PURCHASED, encodeBuyCard, encodeUri, encodeBalanceOfBatch, decodeUintArray, decodeBool, decodeCardsInfo, decodeString, formatEther, pad32 } from './rpc.js';
 
@@ -54,5 +54,56 @@ describe('rpc ABI (equivalência com viem)', () => {
   });
   it('pad32 completa a 32 bytes', () => {
     expect(pad32('0xAbC0000000000000000000000000000000000001')).toBe('0x000000000000000000000000abc0000000000000000000000000000000000001');
+  });
+});
+
+import { TOPICS, CONTRACT_ERRORS, explainError, encodeSafeTransferFrom, encodeGetMintedCount, rpcBatch, loadMintedCounts, watchContractEvents } from './rpc.js';
+import { toFunctionSelector as fsel, toEventSelector as esel } from 'viem';
+
+describe('rpc: transferência, eventos, lote e erros do contrato', () => {
+  it('selectors e tópicos conferem com as assinaturas do contrato', () => {
+    expect(SELECTORS.getMintedCount).toBe(fsel('getMintedCount(uint256)'));
+    expect(SELECTORS.safeTransferFrom).toBe(fsel('safeTransferFrom(address,address,uint256,uint256,bytes)'));
+    expect(TOPICS.cardSoldOut).toBe(esel('CardSoldOut(uint256)'));
+    expect(TOPICS.cardStatusUpdated).toBe(esel('CardStatusUpdated(uint256,bool)'));
+    expect(TOPICS.cardAdded).toBe(esel('CardAdded(uint256,uint256,uint256)'));
+    expect(TOPICS.paused).toBe(esel('Paused(address)')); expect(TOPICS.unpaused).toBe(esel('Unpaused(address)'));
+  });
+  it('safeTransferFrom e getMintedCount codificam iguais ao viem', () => {
+    const abi = parseAbi(['function safeTransferFrom(address from, address to, uint256 id, uint256 value, bytes data)', 'function getMintedCount(uint256 cardId) view returns (uint256)']);
+    const a = '0xa78276259faC49aF008Be85D855e0Cb0F1aD9433', b = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8';
+    expect(encodeSafeTransferFrom(a, b, 7, 3)).toBe(encodeFunctionData({ abi, functionName: 'safeTransferFrom', args: [a, b, 7n, 3n, '0x'] }));
+    expect(encodeGetMintedCount(12)).toBe(encodeFunctionData({ abi, functionName: 'getMintedCount', args: [12n] }));
+  });
+  it('todo erro do contrato tem seletor correto e mensagem em português', () => {
+    const sigs = { IncorrectPayment: 'IncorrectPayment(uint256,uint256)', CardIsSoldOut: 'CardIsSoldOut(uint256)', InsufficientStock: 'InsufficientStock(uint256,uint256,uint256)', CardNotActive: 'CardNotActive(uint256)', InvalidCardId: 'InvalidCardId(uint256)', EnforcedPause: 'EnforcedPause()', InvalidAmount: 'InvalidAmount()', ins: 'ERC1155InsufficientBalance(address,uint256,uint256,uint256)', rcv: 'ERC1155InvalidReceiver(address)', snd: 'ERC1155InvalidSender(address)', app: 'ERC1155MissingApprovalForAll(address,address)' };
+    for (const sig of Object.values(sigs)) expect(CONTRACT_ERRORS[fsel(sig)], sig).toBeTruthy();
+  });
+  it('explainError acha o seletor em qualquer formato de erro de carteira', () => {
+    const data = '0x9872da53' + '0'.repeat(63) + '5';
+    expect(explainError({ data })).toMatch(/esgotado/i);
+    expect(explainError({ data: { originalError: { data } } })).toMatch(/esgotado/i);
+    expect(explainError({ message: `execution reverted, data: "${data}"` })).toMatch(/esgotado/i);
+    expect(explainError({ data: '0xd93c0665' })).toMatch(/pausada/i);
+    expect(explainError({ message: 'user rejected' })).toBeNull();
+  });
+  it('rpcBatch: um POST, resultados alinhados, erro vira null', async () => {
+    const seen = []; const fetchImpl = async (u, o) => { seen.push(JSON.parse(o.body)); return { ok: true, json: async () => [{ id: 2, result: '0x2' }, { id: 1, result: '0x1' }, { id: 3, error: { message: 'x' } }] }; };
+    const out = await rpcBatch([{ method: 'a' }, { method: 'b' }, { method: 'c' }], { fetchImpl });
+    expect(seen).toHaveLength(1); expect(out).toEqual(['0x1', '0x2', null]);
+  });
+  it('loadMintedCounts lê o emitido de cada card em lote', async () => {
+    vi.stubGlobal('fetch', async (u, o) => ({ ok: true, json: async () => JSON.parse(o.body).map((c) => ({ id: c.id, result: '0x' + (c.id * 2).toString(16).padStart(64, '0') })) }));
+    expect(await loadMintedCounts(3, '0xAbC0000000000000000000000000000000000001')).toEqual([2, 4, 6]);
+    vi.unstubAllGlobals();
+  });
+  it('watchContractEvents: só avisa de eventos novos, depois do início', async () => {
+    const calls = []; let head = 100; const logsAt = { 103: [{ topics: [TOPICS.cardSoldOut] }] };
+    vi.stubGlobal('fetch', async (u, o) => { const b = JSON.parse(o.body); calls.push(b.method); const r = b.method === 'eth_blockNumber' ? '0x' + head.toString(16) : (logsAt[head] ?? []); return { ok: true, json: async () => ({ id: b.id, result: r }) }; });
+    vi.useFakeTimers(); const got = []; const w = watchContractEvents([TOPICS.cardSoldOut], (l) => got.push(l), { interval: 1000, address: '0xAbC0000000000000000000000000000000000001' });
+    await vi.advanceTimersByTimeAsync(10); expect(got).toHaveLength(0);                  // 1º ciclo só marca o ponto de partida
+    head = 103; await vi.advanceTimersByTimeAsync(1100); expect(got).toHaveLength(1);
+    head = 103; await vi.advanceTimersByTimeAsync(1100); expect(got).toHaveLength(1);    // sem bloco novo: nada
+    w.stop(); vi.useRealTimers(); vi.unstubAllGlobals();
   });
 });

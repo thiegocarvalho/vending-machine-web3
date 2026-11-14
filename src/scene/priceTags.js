@@ -15,6 +15,8 @@ export function formatPrice(wei) {
 // O que a etiqueta mostra: preço, ESGOTADO (sem estoque) ou INATIVO (card desativado no contrato).
 export function tagFor(info) {
   if (!info) return { kind: 'price', text: '— ETH' };
+  if (info.offline) return { kind: 'off', text: 'SEM REDE' };                       // sem conexão com o contrato
+  if (info.missing) return { kind: 'off', text: 'SEM CARD' };                    // o contrato tem menos cards que espaços na máquina
   if (!info.active && info.stock > 0) return { kind: 'off', text: 'INATIVO' };
   if (info.stock <= 0) return { kind: 'sold', text: 'ESGOTADO' };
   return { kind: 'price', text: `${formatPrice(info.price)} ETH` };

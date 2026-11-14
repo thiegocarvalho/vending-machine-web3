@@ -17,6 +17,7 @@ describe('etiquetas de preço', () => {
     expect(tagFor({ price: 1n, stock: 0, active: true })).toEqual({ kind: 'sold', text: 'ESGOTADO' });
     expect(tagFor({ price: 1n, stock: 0, active: false }).kind).toBe('sold');           // sem estoque vence "inativo"
     expect(tagFor({ price: 1n, stock: 7, active: false })).toEqual({ kind: 'off', text: 'INATIVO' });
+    expect(tagFor({ price: 0n, stock: 0, active: false, missing: true })).toEqual({ kind: 'off', text: 'SEM CARD' });
     expect(tagFor(undefined).kind).toBe('price');
   });
   it('as três etiquetas pintam sem erro e cabem na célula', () => {

@@ -10,18 +10,21 @@ import { createCardViewer } from './scene/cardViewer.js';
 import { createPriceTags } from './scene/priceTags.js';
 import { createInventory, isAddress } from './data/inventory.js';
 import { createInventoryPanel } from './hud/inventory.js';
-import { loadCardsInfo, loadPaused } from './data/chain.js';
+import { loadCardsInfo, loadPaused, SLOTS } from './data/chain.js';
+import { watchContractEvents, TOPICS, TOPIC_CARD_PURCHASED } from './data/rpc.js';
 import { createSelection, pickCard } from './player/selection.js';
 import { createHud } from './hud/hud.js';
 import { createMachineScreen, buttonHit } from './payment/machineScreen.js';
 import { buildEip681 } from './payment/eip681.js';
-import { hasWallet, payWithWallet } from './payment/wallet.js';
+import { hasWallet, payWithWallet, transferWithWallet } from './payment/wallet.js';
 import { createWalletSession, walletStatus } from './payment/session.js';
+import { validateSend } from './payment/transfer.js';
+import { openseaCardUrl, explorerAddressUrl, shortAddress } from './links.js';
 import { config } from './config.js';
 import { cardIdToSlot } from './grid.js';
 import { createModes } from './interaction.js';
 import { createAim } from './aim.js';
-import { formatEther, waitForReceipt } from './data/rpc.js';
+import { formatEther, waitForReceipt, getBalance } from './data/rpc.js';
 import { TIERS, RESOLUTION_LEVELS, detectTier, createAdaptiveScale } from './render/quality.js';
 
 // As fontes do cartaz/telinha precisam estar prontas antes de pintar as texturas (com tempo-limite para ficar offline).
@@ -71,13 +74,16 @@ const hud = createHud(hudRoot);
 const inventory = createInventory();
 const viewer = createCardViewer();
 
-let infos = await loadCardsInfo();
+// Sem conexão com o contrato (RPC fora do ar, rede errada...): o jogo abre mesmo assim, com todos os espaços "SEM REDE", e tenta de novo.
+const offlineInfos = () => Array.from({ length: SLOTS }, () => ({ price: 0n, stock: 0, active: false, missing: true, offline: true, minted: 0, max: 0 }));
+let netDown = false, infos;
+try { infos = await loadCardsInfo(); } catch { infos = offlineInfos(); netDown = true; }
 const cardsApi = populateCards(machine.slotAnchors, infos, tier);
 cardsApi.done.then(() => { loading = false; wake(); });
 machine.group.updateMatrixWorld(true);
 const tags = createPriceTags(machine.slotAnchors, infos);                       // etiquetas de preço (ETH) à frente de cada card
 scene.add(tags.mesh);
-window.__game = { aimNow() { camera.rotation.set(controls.pose().pitch, controls.pose().yaw, 0); scene.updateMatrixWorld(true); camera.updateMatrixWorld(true); return aimTarget(controls.pose().yaw, controls.pose().pitch); }, get state() { return { loopRuns, rafId, loading, activeUntil, now: performance.now(), hidden: document.hidden, mode: modes.mode }; }, renderer, scene, camera, machine, controls, cardsApi, selection, tier, adaptive, wake, modes, rig, hud };
+window.__game = { checkFunds: () => checkFunds().then(() => ({ lowFunds })), aimNow() { camera.rotation.set(controls.pose().pitch, controls.pose().yaw, 0); scene.updateMatrixWorld(true); camera.updateMatrixWorld(true); return aimTarget(controls.pose().yaw, controls.pose().pitch); }, get state() { return { loopRuns, rafId, loading, activeUntil, now: performance.now(), hidden: document.hidden, mode: modes.mode, paused, netDown, live: !!live }; }, renderer, scene, camera, machine, controls, cardsApi, selection, tier, adaptive, wake, modes, rig, hud };
 
 const priceText = (i) => `${formatEther(infos[i - 1].price)} ETH`;
 const contractForQr = config.contractAddress || '0x0000000000000000000000000000000000000000';
@@ -101,23 +107,35 @@ const payPose = () => ({ x: PANEL.screen.x, y: (PANEL.led.y + PANEL.screen.y) / 
 // ---------- painel LED e telinha ----------
 // Painel LED vermelho: só o estado do contrato (DISPONIVEL / INDISPONIVEL quando pausado). Relido ao entrar na máquina e ao voltar para a aba.
 let paused = false;
-const isSoldOut = (i) => !i || i.stock <= 0 || !i.active;
+const isSoldOut = (i) => !i || i.missing || i.stock <= 0 || !i.active;
 // Estoque/preço/ativo vêm do contrato: relidos ao entrar na máquina, ao voltar à aba e antes de pagar (outros jogadores também compram).
 async function refreshInfos() {
   if (config.demoMode) return;                                                   // demo: o estoque simulado é local
-  try { infos = await loadCardsInfo(); } catch { return; }
+  try { infos = await loadCardsInfo(); setNetDown(false); }
+  catch { setNetDown(true); return; }
   infos.forEach((inf, i) => cardsApi.setSoldOut(i + 1, isSoldOut(inf)));
   tags.update(infos); refresh(); wake();
+  if (invOpen && invSel) invPanel.setSelected(invSel, cardsApi.metas[invSel - 1], inventory.balances[invSel - 1], { info: infos[invSel - 1], openseaUrl: openseaCardUrl(config, invSel) });
+}
+let retryTimer = null;
+function setNetDown(v) {
+  if (v === netDown && (v ? retryTimer : true)) return;
+  netDown = v; clearTimeout(retryTimer); retryTimer = null;
+  if (v) {
+    hud.setAlert('Sem conexão com a rede. Tentando de novo…', () => refreshMachine());
+    machine.led.setText('SEM REDE'); wake();                                         // mantém os últimos dados lidos; no 1º carregamento todos já vêm como SEM REDE
+    retryTimer = setTimeout(() => { retryTimer = null; refreshMachine(); }, 6000);                  // só enquanto estiver sem rede
+  } else { hud.setAlert(''); refreshAvailability(); }
 }
 async function refreshAvailability() {
-  try { paused = await loadPaused(); } catch { /* mantém o último estado conhecido */ }
-  machine.led.setText(paused ? 'INDISPONIVEL' : 'DISPONIVEL'); wake();
+  try { paused = await loadPaused(); if (netDown) setNetDown(false); } catch { /* mantém o último estado conhecido */ }
+  machine.led.setText(netDown ? 'SEM REDE' : paused ? 'INDISPONIVEL' : 'DISPONIVEL'); wake();
 }
 function drawScreen(args = screenArgs) {
   screenArgs = args;
   const id = selection.id, meta = cardsApi.metas[id - 1];
-  screen.draw({ slot: cardIdToSlot(id).label, name: meta?.name?.replace(/^Card #\d+:\s*/, '') ?? '', price: priceText(id), stock: infos[id - 1].stock, soldOut: isSoldOut(infos[id - 1]),
-    hover: hoverBtn, wallet: hasWallet(window) ? 'ok' : 'none', ...args });
+  screen.draw({ slot: cardIdToSlot(id).label, name: meta?.name?.replace(/^Card #\d+:\s*/, '') ?? '', price: priceText(id), stock: infos[id - 1].stock, max: infos[id - 1].max, missing: infos[id - 1].missing, soldOut: isSoldOut(infos[id - 1]),
+    hover: hoverBtn, wallet: hasWallet(window) ? (lowFunds ? 'low' : 'ok') : 'none', ...args });
   wake();
 }
 function refresh() {
@@ -152,13 +170,45 @@ function onConfirmed(id, hash, buyer) {
   setTimeout(() => { if (modes.mode === 'pay' && !invOpen) openInventory({ fresh: id }); }, 1300);
 }
 
+// Saldo da carteira x preço: avisa ANTES de pedir a assinatura (e liga ao cartaz do faucet na Sepolia).
+let lowFunds = false;
+async function checkFunds() {
+  lowFunds = false; if (config.demoMode) return;
+  try {
+    const addr = inventory.source === 'wallet' ? inventory.address : await session.silentAccount();
+    if (!addr) return;
+    const bal = await getBalance(addr), need = infos[selection.id - 1].price;
+    lowFunds = bal < need;
+    if (lowFunds) hud.setStatus(`Saldo insuficiente: sua carteira tem ${Number(formatEther(bal)).toFixed(4)} ETH e o card custa ${formatEther(need)}.${config.chainId === 11155111 ? ' Pegue ETH de teste no cartaz FREE GAS (tecla E).' : ''}`, { error: true });
+    else if (hud.el.querySelector('.status.err')) hud.setStatus('');
+  } catch { /* sem saldo conhecido: a carteira avisa */ }
+  if (modes.mode === 'pay') drawScreen();
+}
+
 function startPayment() {
   const id = selection.id;
-  setState('awaiting');
+  setState('awaiting'); checkFunds();
   if (!config.demoMode) import('./payment/watcher.js').then(({ watchPurchase }) => {
     if (modes.mode !== 'pay' || selection.id !== id) return;
     stopWatcher(); watcher = watchPurchase(id); watcher.on(({ hash, buyer }) => onConfirmed(id, hash, buyer));
   });
+}
+
+// Compra enviada e ainda não confirmada: guarda o hash para retomar se a página for recarregada no meio.
+const PENDING = 'dvm.pending';
+const savePending = (p) => { try { localStorage.setItem(PENDING, JSON.stringify({ ...p, at: Date.now() })); } catch { /* sem armazenamento */ } };
+const clearPending = () => { try { localStorage.removeItem(PENDING); } catch { /* idem */ } };
+let pendingFresh = 0;
+async function resumePending() {
+  let p = null; try { p = JSON.parse(localStorage.getItem(PENDING)); } catch { /* ignora */ }
+  if (!p || !p.hash || Date.now() - p.at > 3600e3 || config.demoMode) { if (p) clearPending(); return; }
+  const slot = cardIdToSlot(p.id).label;
+  hud.setStatus(`Retomando a sua compra do card ${slot}…`);
+  try {
+    await waitForReceipt(p.hash); clearPending(); pendingFresh = p.id;
+    await refreshInfos(); if (inventory.address) inventory.refresh().catch(() => {});
+    hud.setStatus(`Compra do card ${slot} confirmada! Aperte I para ver no inventário.`);
+  } catch { clearPending(); hud.setStatus(`A compra do card ${slot} não foi confirmada.`, { error: true }); }
 }
 
 async function payNow() {
@@ -167,6 +217,8 @@ async function payNow() {
   busy = true;
   await refreshInfos();                                                          // estoque mais recente antes de gastar gás
   if (isSoldOut(infos[selection.id - 1])) { busy = false; return setState('error', { message: 'Card esgotado.' }); }
+  await checkFunds();
+  if (lowFunds) { busy = false; return setState('error', { message: 'Saldo insuficiente na carteira para este card.' }); }
   const id = selection.id, info = infos[id - 1];
   try {
     setState('awaiting');
@@ -176,11 +228,12 @@ async function payNow() {
     }
     const { hash, from } = await payWithWallet(window, config, id, info.price, info.stock);
     if (from) { session.clearDismissed(); inventory.setAddress(from, 'wallet'); }
+    savePending({ hash, id });
     setState('sent', { hash });
     await waitForReceipt(hash);
-    onConfirmed(id, hash);
+    clearPending(); onConfirmed(id, hash);
   } catch (e) {
-    busy = false; setState('error', { message: e.message });
+    busy = false; if (!/pendente/.test(e.message)) clearPending(); setState('error', { message: e.message });
   }
 }
 
@@ -192,14 +245,36 @@ let connecting = false, walletChain = null, walletError = '';
 const invPanel = createInventoryPanel(document.body, {
   onClose: () => closeInventory(), onSelect: (id) => selectInv(id),
   onConnect: () => connectWallet(), onDisconnect: () => disconnectWallet(), onSwitch: () => switchNetwork(),
+  onOpenSend: () => openSend(), validateSend: (v) => checkSend(v), onSend: (v, say) => doSend(v, say),
   onAddress: async (a) => { walletError = isAddress(a) ? '' : 'Endereço inválido: use 0x seguido de 40 caracteres.'; if (!walletError) inventory.setAddress(a, 'manual'); await refreshInventory(); }
 });
+let walletStatusNow = 'disconnected', walletBalance = null;
 async function syncWallet() {
   if (session.available && inventory.source === 'wallet') walletChain = await session.chainId();
+  walletStatusNow = walletStatus({ demo: config.demoMode, hasWallet: session.available, address: inventory.address, source: inventory.source, chainId: walletChain, wantedChain: config.chainId, connecting });
+  if (inventory.address && !config.demoMode) { try { walletBalance = Number(formatEther(await getBalance(inventory.address))).toLocaleString('en-US', { maximumFractionDigits: 4 }); } catch { walletBalance = null; } } else walletBalance = null;
   invPanel.setWallet({
-    status: walletStatus({ demo: config.demoMode, hasWallet: session.available, address: inventory.address, source: inventory.source, chainId: walletChain, wantedChain: config.chainId, connecting }),
-    address: inventory.address, hasWallet: session.available, chainName: config.chainName, error: walletError
+    status: walletStatusNow, address: inventory.address, hasWallet: session.available, chainName: config.chainName, error: walletError, balance: walletBalance,
+    contract: config.demoMode ? null : { short: shortAddress(config.contractAddress), url: explorerAddressUrl(config) }
   });
+  invPanel.setSendEnabled(walletStatusNow === 'connected', checkSend({ to: '0x', amount: 1, balance: 1 }).error);
+}
+
+// ---------- enviar card (ERC-1155 safeTransferFrom) ----------
+const checkSend = ({ to, amount }) => validateSend({ to, amount, balance: inventory.balances[invSel - 1] || 0, from: inventory.address, paused, status: walletStatusNow });
+function openSend() {
+  if (!invSel || inventory.balances[invSel - 1] <= 0) return;
+  invPanel.openSend({ slot: cardIdToSlot(invSel).label, name: (cardsApi.metas[invSel - 1]?.name || `Card #${invSel}`).replace(/^Card #\d+:\s*/, ''), balance: inventory.balances[invSel - 1] });
+}
+async function doSend({ to, amount }, say) {
+  const id = invSel, slot = cardIdToSlot(id).label;
+  try {
+    const { hash } = await transferWithWallet(window, config, { from: inventory.address, to, id, amount });
+    say('Transação enviada. Aguardando a confirmação…');
+    await waitForReceipt(hash);
+    await refreshInventory();
+    return { ok: true, message: `Enviado! ×${amount} de ${slot} foi para ${shortAddress(to)}.` };
+  } catch (e) { return { ok: false, error: e.message || 'Falha ao enviar.' }; }
 }
 async function connectWallet() {
   connecting = true; walletError = ''; await syncWallet();
@@ -241,7 +316,7 @@ async function refreshInventory() {
   if (!invSel || inventory.balances[invSel - 1] <= 0) selectInv(inventory.balances.findIndex((n) => n > 0) + 1 || 0);
 }
 async function selectInv(id) {
-  invSel = id; invPanel.setSelected(id, id ? cardsApi.metas[id - 1] : null, id ? inventory.balances[id - 1] : 0);
+  invSel = id; invPanel.setSelected(id, id ? cardsApi.metas[id - 1] : null, id ? inventory.balances[id - 1] : 0, { info: id ? infos[id - 1] : null, openseaUrl: id ? openseaCardUrl(config, id) : null });
   if (!id) { viewer.setFront(null); viewer.showBack(); wake(); return; }
   viewer.reset();                                                              // cada card começa de frente
   viewer.setFront(fullCache.get(id) ?? cardsApi.cards[id - 1].material.map);     // mostra já a miniatura e troca pela arte completa quando chegar
@@ -266,8 +341,9 @@ async function ensureBack() {                                                   
   backLoading = false;
 }
 async function openInventory({ fresh = 0 } = {}) {
+  if (!fresh && pendingFresh) { fresh = pendingFresh; pendingFresh = 0; }
   if (invOpen || (rig.active && !fresh) || (modes.mode === 'pay' && !fresh)) return;
-  invOpen = true; invPrevEnabled = controls.enabled; controls.setEnabled(false);
+  invOpen = true; syncLive(); invPrevEnabled = controls.enabled; controls.setEnabled(false);
   hud.el.style.display = 'none'; canvas.style.cursor = 'default';
   invFresh = fresh; invSel = fresh || invSel;                                    // compra nova: já seleciona e destaca o card adquirido
   layoutViewer(); viewer.attach(canvas, () => wake(400)); invPanel.open(); invPanel.setNew(fresh); paintInventory(); wake(600); ensureBack();
@@ -281,7 +357,7 @@ async function openInventory({ fresh = 0 } = {}) {
 }
 function closeInventory() {
   if (!invOpen) return;
-  invOpen = false; viewer.detach(); invPanel.close(); invPanel.setNew(0); invFresh = 0; hud.el.style.display = '';
+  invOpen = false; syncLive(); viewer.detach(); invPanel.close(); invPanel.setNew(0); invFresh = 0; hud.el.style.display = '';
   if (modes.mode === 'pay') modes.back();                                        // veio da compra: volta à seleção de cards
   if (modes.mode === 'walk' && invPrevEnabled) controls.setEnabled(true);
   wake(800);
@@ -290,7 +366,7 @@ function closeInventory() {
 // ---------- modos ----------
 let pendingWalk = false;
 modes.onChange((mode) => {
-  wake(3000); aimed = null; hud.setMode(mode); hud.setStatus('');
+  wake(3000); aimed = null; hud.setMode(mode); hud.setStatus(''); syncLive();
   if (mode === 'walk') {
     stopWatcher(); selector.setOn(false); controls.setEnabled(false); pendingWalk = true;
     rig.flyTo(walkPose(), 600); drawScreen({ state: 'idle' });
@@ -302,14 +378,24 @@ modes.onChange((mode) => {
   }
 });
 hud.setMode('walk');
-refresh(); refreshAvailability();
+refresh(); refreshAvailability(); resumePending();
+if (netDown) { netDown = false; setNetDown(true); }                               // abriu sem rede: mostra o aviso e agenda a nova tentativa
 const refreshMachine = () => { refreshAvailability(); refreshInfos(); };
-window.addEventListener('focus', refreshMachine); document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshMachine(); });
+// Estoque ao vivo: enquanto o jogador está na máquina (selecionando/pagando) ou no inventário, observa os eventos do contrato
+// (compra, esgotado, card ativado/desativado/novo, pausa) e relê o estado. Andando pela rua não há consulta nenhuma.
+let live = null;
+function syncLive() {
+  const want = !config.demoMode && !document.hidden && (modes.mode !== 'walk' || invOpen);
+  if (want && !live) live = watchContractEvents([TOPIC_CARD_PURCHASED, TOPICS.cardSoldOut, TOPICS.cardStatusUpdated, TOPICS.cardAdded, TOPICS.paused, TOPICS.unpaused], () => refreshMachine());
+  else if (!want && live) { live.stop(); live = null; }
+}
+window.addEventListener('focus', refreshMachine); document.addEventListener('visibilitychange', () => { syncLive(); if (!document.hidden) refreshMachine(); });
 
 function tryConfirm() {
   if (paused) return hud.setStatus('Máquina indisponível no momento (contrato pausado).', { error: true });
   const info = infos[selection.id - 1];
-  if (info.stock <= 0 || !info.active) return hud.setStatus('Card esgotado.', { error: true });
+  if (info.missing) return hud.setStatus('Este espaço da máquina está sem card.', { error: true });
+  if (info.stock <= 0 || !info.active) return hud.setStatus(info.stock <= 0 ? 'Card esgotado.' : 'Card desativado no momento.', { error: true });
   hud.setStatus(''); modes.confirm();
 }
 const aimTarget = createAim({ camera, poster, machineGroup: machine.group, targets: INTERACTABLES });
@@ -320,11 +406,13 @@ const tryUse = () => {
 };
 
 hud.onInventory(() => (invOpen ? closeInventory() : openInventory()));
+hud.onOpenWallet(() => { window.location.href = buildEip681(contractForQr, config.chainId, selection.id, infos[selection.id - 1].price); });
 hud.onUse(tryUse); hud.onConfirm(tryConfirm); hud.onBack(() => modes.back());
 hud.onJoystick((x, y) => { wake(); controls.setJoystick(x, y); });
 
 window.addEventListener('keydown', (e) => {
   if (e.target instanceof HTMLInputElement) return;                               // digitando um endereço
+  if (invOpen && invPanel.sendOpen) { if (e.code === 'Escape') { e.preventDefault(); invPanel.closeSend(); } return; }   // modal de envio aberto: só Esc
   if (invOpen) {                                                                  // inventário aberto: I/Esc fecham, setas trocam de card
     if (e.code === 'KeyI' || e.code === 'Escape' || e.code === 'Backspace') { e.preventDefault(); closeInventory(); return; }
     const own = inventory.balances.map((n, i) => (n > 0 ? i + 1 : 0)).filter(Boolean), at = own.indexOf(invSel);

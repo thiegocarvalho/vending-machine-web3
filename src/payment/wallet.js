@@ -1,4 +1,4 @@
-import { encodeBuyCard } from '../data/rpc.js';
+import { encodeBuyCard, encodeSafeTransferFrom, explainError } from '../data/rpc.js';
 
 export class PaymentError extends Error {
   constructor(code, message) { super(message || code); this.code = code; }
@@ -26,6 +26,16 @@ export async function ensureChain(eth, cfg) {
   }
 }
 
+// Erro da carteira -> PaymentError com mensagem clara. Prioridade: recusa do usuário, erro do contrato (decodificado), saldo, genérico.
+function toPaymentError(e, rejectedMsg, failedMsg) {
+  if (e instanceof PaymentError) return e;
+  if (e?.code === 4001) return new PaymentError('user_rejected', rejectedMsg);
+  const friendly = explainError(e);
+  if (friendly) return new PaymentError('contract', friendly);
+  if (/insufficient funds/i.test(e?.message || '')) return new PaymentError('no_funds', 'Saldo insuficiente para o valor + taxa de rede.');
+  return new PaymentError('failed', e?.shortMessage || e?.message || failedMsg);
+}
+
 export async function payWithWallet(win, cfg, cardId, priceWei, stock) {
   if (!hasWallet(win)) throw new PaymentError('no_wallet', 'Nenhuma carteira encontrada no navegador');
   if (stock <= 0) throw new PaymentError('sold_out', 'Card esgotado');
@@ -39,10 +49,16 @@ export async function payWithWallet(win, cfg, cardId, priceWei, stock) {
       params: [{ from, to: cfg.contractAddress, data, value: hex(priceWei) }]
     });
     return { hash, from };
-  } catch (e) {
-    if (e instanceof PaymentError) throw e;
-    if (e.code === 4001) throw new PaymentError('user_rejected', 'Transação rejeitada na carteira');
-    if (/insufficient funds/i.test(e.message || '')) throw new PaymentError('no_funds', 'Saldo insuficiente');
-    throw new PaymentError('failed', e.shortMessage || e.message || 'Falha ao enviar a transação');
-  }
+  } catch (e) { throw toPaymentError(e, 'Transação rejeitada na carteira', 'Falha ao enviar a transação'); }
+}
+
+// Envia `amount` unidades do card `id` para `to` (ERC-1155 safeTransferFrom). Irreversível: a validação e o aviso ficam na interface.
+export async function transferWithWallet(win, cfg, { from, to, id, amount }) {
+  if (!hasWallet(win)) throw new PaymentError('no_wallet', 'Nenhuma carteira encontrada no navegador');
+  const eth = win.ethereum;
+  try {
+    await ensureChain(eth, cfg);
+    const hash = await eth.request({ method: 'eth_sendTransaction', params: [{ from, to: cfg.contractAddress, data: encodeSafeTransferFrom(from, to, id, amount) }] });
+    return { hash };
+  } catch (e) { throw toPaymentError(e, 'Envio rejeitado na carteira', 'Falha ao enviar o card'); }
 }

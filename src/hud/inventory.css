@@ -105,3 +105,45 @@
   .inv-wallet{padding:6px 8px;gap:5px}.w-note{display:none}.w-actions button,.w-paste input,.w-paste button{min-height:30px}
   .inv-grid{grid-template-columns:repeat(5,1fr);gap:5px}  .inv-detail{bottom:calc(10px + env(safe-area-inset-bottom,0px));right:16px}
   .inv-detail .slot{font-size:48px}.inv-detail h3{font-size:22px}}
+
+/* saldo e contrato no bloco da carteira */
+.w-meta{display:flex;flex-wrap:wrap;gap:4px 14px;font:500 10px 'Fira Code',monospace;letter-spacing:.12em;color:var(--dim)}
+.w-meta a{color:var(--neon);text-decoration:none}.w-meta a:hover{text-decoration:underline}
+.w-balance{color:var(--ink)}
+
+/* detalhe: estoque, enviar e OpenSea */
+.inv-detail .stockline{margin:0;font:500 10.5px 'Fira Code',monospace;letter-spacing:.2em;color:var(--dim)}
+.inv-detail .stockline:empty{display:none}
+.d-actions{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap;justify-content:flex-end}
+.send-btn{min-height:38px;padding:0 18px;background:transparent;border:1px solid rgba(255,255,255,.7);cursor:pointer;letter-spacing:.18em;font-size:11px;text-transform:uppercase;pointer-events:auto}
+.send-btn:hover{background:rgba(255,255,255,.14)}.send-btn.off{opacity:.45;border-style:dashed}
+.os-link{font:600 10.5px 'Fira Code',monospace;letter-spacing:.14em;color:var(--neon);text-decoration:none;text-transform:uppercase;pointer-events:auto;padding:8px 2px}
+.os-link:hover{text-decoration:underline}
+
+/* modal de envio */
+.send{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(3,5,12,.72);pointer-events:auto;padding:16px;z-index:5}
+.send[hidden]{display:none}
+.send-box{width:min(460px,100%);max-height:100%;overflow:auto;background:linear-gradient(160deg,#0b1024,#080b1a);border:1px solid var(--line);padding:22px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.send-box h3{margin:0;font:400 30px 'Bebas Neue',sans-serif;letter-spacing:.1em}
+.send-card{margin:0;font:500 11px 'Fira Code',monospace;letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
+.send-form{display:flex;flex-direction:column;gap:12px}
+.send-box label{display:flex;flex-direction:column;gap:6px;font:500 10px 'Fira Code',monospace;letter-spacing:.2em;color:var(--dim);text-transform:uppercase}
+.send-box input[type=text],.send-to,.send-qty{background:rgba(0,0,0,.4);border:1px solid var(--line);min-height:42px;padding:0 12px;font:13px 'Fira Code',monospace;outline:none;color:var(--ink);letter-spacing:.02em;text-transform:none}
+.send-to:focus,.send-qty:focus{border-color:var(--neon)}
+.qty-row{display:flex;gap:6px}.qty-row .send-qty{flex:1;text-align:center}
+.qty-row button{min-width:44px;background:transparent;border:1px solid var(--line);cursor:pointer;font-size:18px}
+.qty-row button:hover{border-color:#fff}
+.send-warn{margin:0;padding:10px 12px;border-left:3px solid #ffb02e;background:rgba(255,176,46,.08);font-size:12.5px;line-height:1.45;color:#ffd9a0}
+.send-warn u{text-decoration-thickness:2px}
+.send-sum{margin:0;line-height:1.6;font-size:14px}.send-sum code{font:12px 'Fira Code',monospace;word-break:break-all;color:var(--neon)}
+.send-ack{flex-direction:row!important;align-items:center;gap:10px!important;font:500 12px 'Space Grotesk',sans-serif!important;letter-spacing:.04em!important;color:var(--ink)!important;text-transform:none!important;cursor:pointer;padding:6px 0}
+.send-ack input{width:20px;height:20px;accent-color:#ff2a44}
+.send-msg{margin:0;min-height:18px;font-size:12.5px}.send-msg.err{color:#ff7d8d}.send-msg.ok{color:#35d07f}.send-msg.busy{color:var(--neon)}
+.send-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.send-actions button{min-height:42px;padding:0 18px;background:transparent;border:1px solid var(--line);cursor:pointer;letter-spacing:.14em;font-size:11px;text-transform:uppercase}
+.send-actions button:hover:not(:disabled){border-color:#fff;background:rgba(255,255,255,.08)}
+.send-actions .send-go{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.send-actions .send-go.danger{background:#d9302f;border-color:#d9302f}
+.send-actions button:disabled{opacity:.4;cursor:not-allowed}
+
+@media (max-width:900px),(orientation:portrait){ .d-actions{justify-content:flex-start} }

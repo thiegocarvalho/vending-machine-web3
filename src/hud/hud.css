@@ -43,7 +43,7 @@
 .net{position:absolute;right:clamp(16px,4vw,56px);top:calc(14px + var(--safe-t));font:11px 'Fira Code',monospace;letter-spacing:.2em;color:var(--dim)}
 
 /* toque: joystick, D-pad e botões (escondidos no desktop) */
-.joy,.m-use,.m-ok,.m-back,.m-inv{display:none}
+.joy,.m-use,.m-ok,.m-back,.m-inv,.m-wallet{display:none}
 @media (pointer:coarse),(max-width:900px){
   .keys{display:none!important}
   .info{bottom:calc(150px + var(--safe-b))}.slot{font-size:48px}.name{font-size:20px}
@@ -53,6 +53,12 @@
   .mode-select .m-ok{display:block;position:absolute;left:20px;bottom:calc(28px + var(--safe-b))}
   .mode-select .m-back,.mode-pay .m-back{display:block;position:absolute;left:20px;top:calc(14px + var(--safe-t))}
   .mode-walk .m-inv,.mode-select .m-inv{display:block;position:absolute;right:14px;top:calc(40px + var(--safe-t));min-height:40px;font-size:11px}
+  .mode-pay.no-wallet .m-wallet{display:block;position:absolute;left:50%;transform:translateX(-50%);bottom:calc(34px + var(--safe-b));min-height:52px;padding:0 22px;font-size:13px;background:var(--red);border-color:var(--red);font-weight:700}
   .can-use .prompt{display:none}
   .can-use .m-use{display:block;position:absolute;right:24px;bottom:calc(64px + var(--safe-b));min-width:96px;min-height:56px;font-size:15px;border-width:2px}
 }
+
+/* aviso de falta de conexão com a rede (RPC) */
+.net-alert{position:absolute;left:50%;top:calc(14px + var(--safe-t));transform:translateX(-50%);display:flex;align-items:center;gap:14px;padding:8px 8px 8px 16px;background:rgba(40,8,14,.88);border:1px solid #ff6b7d;font-size:12px;letter-spacing:.08em;max-width:94vw;pointer-events:auto}
+.net-alert[hidden]{display:none}
+.net-alert button{min-height:34px;padding:0 12px;font-size:10.5px}

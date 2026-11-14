@@ -49,7 +49,7 @@ export function createMachineScreen(screenMesh) {
   }
 
   // state: idle | select | awaiting | sent | confirmed | error
-  function draw({ state = 'idle', slot = '', name = '', price = '', stock, soldOut = false, qrText = '', message = '', hover = false, wallet = 'ok' } = {}) {
+  function draw({ state = 'idle', slot = '', name = '', price = '', stock, max, soldOut = false, missing = false, offline = false, qrText = '', message = '', hover = false, wallet = 'ok' } = {}) {
     paintLcdBackground(ctx, SCREEN_W, SCREEN_H);
     if (state === 'idle') {
       line('DEFI', 96, 8); line('VENDING', 168, 3); line('MACHINE', 196, 3);
@@ -57,14 +57,14 @@ export function createMachineScreen(screenMesh) {
     } else if (state === 'select') {
       line(slot, 40, 9);
       lines(name, 130, 3, 14);
-      if (soldOut) { line('ESGOTADO', 206, 5); line('INDISPONIVEL', 330, 2); }
-      else { line(price, 214, 4); if (stock !== undefined) line(`ESTOQUE ${stock}/100`, 262, 2); line('CONFIRME PARA PAGAR', 330, 2); }
+      if (soldOut) { line(offline ? 'SEM REDE' : missing ? 'SEM CARD' : 'ESGOTADO', 206, 5); line('INDISPONIVEL', 330, 2); }
+      else { line(price, 214, 4); if (stock !== undefined) line(`ESTOQUE ${stock}/${max ?? 100}`, 262, 2); line('CONFIRME PARA PAGAR', 330, 2); }
     } else if (state === 'awaiting') {
       line(`${slot} · ${price}`, 14, 2);
       if (qrText) drawQr(ctx, qrText, 28, 36, 200, QR_COLORS); else line('MODO DEMO', 130, 3);
-      lines('ESCANEIE OU PAGUE COM A CARTEIRA', 242, 2, 17);
+      lines(wallet === 'low' ? 'SEM SALDO NA CARTEIRA' : 'ESCANEIE OU PAGUE COM A CARTEIRA', 242, 2, 17);
       line(name, 296, 2);
-      button(wallet === 'none' ? 'SEM CARTEIRA' : 'PAGAR COM CARTEIRA', { hover, enabled: wallet !== 'none' });
+      button(wallet === 'none' ? 'SEM CARTEIRA' : wallet === 'low' ? 'SEM SALDO' : 'PAGAR COM CARTEIRA', { hover, enabled: wallet === 'ok' });
     } else if (state === 'sent') {
       line('TRANSACAO', 118, 4); line('ENVIADA', 158, 4); line('AGUARDANDO O BLOCO…', 230, 2);
     } else if (state === 'confirmed') {

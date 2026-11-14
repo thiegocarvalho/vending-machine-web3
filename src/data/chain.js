@@ -1,12 +1,25 @@
-import { ethCall, decodeCardsInfo, decodeString, decodeBool, encodeUri, SELECTORS } from './rpc.js';
+import { ethCall, loadMintedCounts, decodeCardsInfo, decodeString, decodeBool, encodeUri, SELECTORS } from './rpc.js';
 import { config } from '../config.js';
 import { demoCardsInfo } from './demo.js';
 import { fetchIpfs, idToHex } from './ipfs.js';
 
+export const SLOTS = 30;                           // a máquina tem 5x6 espaços
+
+// Monta as 30 posições da máquina a partir do que o contrato devolve. O contrato pode ter menos cards que espaços (os que sobram
+// ficam "SEM CARD", indisponíveis) e `max` é o estoque inicial real (estoque + emitidos), não um 100 fixo.
+export function buildInfos({ prices, stocks, active }, minted = [], slots = SLOTS) {
+  return Array.from({ length: slots }, (_, i) => {
+    if (i >= prices.length) return { price: 0n, stock: 0, active: false, missing: true, minted: 0, max: 0 };
+    const stock = Number(stocks[i]), m = minted[i] ?? null;
+    return { price: prices[i], stock, active: !!active[i], missing: false, minted: m, max: m === null ? Math.max(100, stock) : stock + m };
+  });
+}
+
 export async function loadCardsInfo() {
   if (config.demoMode) return demoCardsInfo();
-  const { prices, stocks, active } = decodeCardsInfo(await ethCall(config.contractAddress, SELECTORS.getAllCardsInfo));
-  return prices.map((p, i) => ({ price: p, stock: Number(stocks[i]), active: active[i] }));
+  const raw = decodeCardsInfo(await ethCall(config.contractAddress, SELECTORS.getAllCardsInfo));
+  const minted = await loadMintedCounts(Math.min(raw.prices.length, SLOTS)).catch(() => []);       // falhou? usa o padrão do contrato (100)
+  return buildInfos(raw, minted);
 }
 
 // A máquina está pausada (Pausable do contrato)? No modo demo nunca.
