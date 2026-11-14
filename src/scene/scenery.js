@@ -33,6 +33,28 @@ export function paintPaving(ctx, w, h, rand = Math.random) {
   for (let i = 0; i <= n; i++) { ctx.beginPath(); ctx.moveTo(i * sw, 0); ctx.lineTo(i * sw, h); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, i * sh); ctx.lineTo(w, i * sh); ctx.stroke(); }
 }
 
+// Rua de asfalto (60 m x 4,8 m): remendos, rachaduras, manchas de óleo, poças, marcas de pneu, faixa central tracejada e bueiros.
+export const ROAD = { z0: 4.2, z1: 9.0, w: 60 };
+export function paintRoad(g, w, h, rand = Math.random) {
+  g.fillStyle = '#23252e'; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 2600; i++) { const v = 28 + rand() * 22; g.fillStyle = `rgba(${v},${v},${v + 6},0.55)`; g.fillRect(rand() * w, rand() * h, 1 + rand() * 2, 1 + rand() * 2); }   // granulado
+  for (let i = 0; i < 6; i++) { g.fillStyle = `rgba(14,14,18,${0.25 + rand() * 0.2})`; g.beginPath(); g.ellipse(rand() * w, rand() * h, 30 + rand() * 90, 6 + rand() * 18, rand(), 0, Math.PI * 2); g.fill(); }   // remendos/óleo
+  g.strokeStyle = 'rgba(8,8,10,0.6)'; g.lineWidth = 1.5;                                        // rachaduras
+  for (let i = 0; i < 14; i++) { let x = rand() * w, y = rand() * h; g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 6; k++) { x += (rand() - 0.3) * 30; y += (rand() - 0.5) * 14; g.lineTo(x, y); } g.stroke(); }
+  g.fillStyle = 'rgba(8,8,12,0.22)'; g.fillRect(0, h * 0.2, w, h * 0.09); g.fillRect(0, h * 0.34, w, h * 0.09);      // marcas de pneu
+  g.fillRect(0, h * 0.62, w, h * 0.09); g.fillRect(0, h * 0.76, w, h * 0.09);
+  g.fillStyle = '#d9d9c8';                                                                       // faixa central tracejada
+  for (let x = 20; x < w; x += 110) g.fillRect(x, h * 0.5 - 3, 62, 6);
+  g.fillStyle = '#0d0e14'; g.fillRect(0, 0, w, h * 0.07);                                        // sarjeta escura junto ao meio-fio
+  g.fillStyle = 'rgba(120,130,190,0.14)';                                                        // poças que refletem a luz
+  for (let i = 0; i < 5; i++) { g.beginPath(); g.ellipse(rand() * w, h * (0.25 + rand() * 0.5), 40 + rand() * 60, 8 + rand() * 10, 0, 0, Math.PI * 2); g.fill(); }
+  for (const bx of [w * 0.28, w * 0.7]) {                                                        // bueiros
+    g.fillStyle = '#0a0b0f'; g.beginPath(); g.arc(bx, h * 0.62, 14, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = '#3a3d4a'; g.lineWidth = 2; g.stroke();
+    g.beginPath(); g.moveTo(bx - 10, h * 0.62); g.lineTo(bx + 10, h * 0.62); g.moveTo(bx, h * 0.62 - 10); g.lineTo(bx, h * 0.62 + 10); g.stroke();
+  }
+}
+
 // Luz sobre o chão molhado: brilho frio da máquina, reflexo violeta do neon e poça quente do poste (aditiva).
 const LIGHT = { size: 26, px: 256 };
 function groundLightTexture() {
@@ -216,9 +238,18 @@ function brickTexture() {
 
 export function buildScenery() {
   const g = new THREE.Group();
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(60, 60),
-    new THREE.MeshBasicMaterial({ map: canvasTex(128, 128, (c, w, h) => paintPaving(c, w, h), { repeat: [30, 30] }), color: 0xa0a8c4 }));
-  ground.rotation.x = -Math.PI / 2; g.add(ground);
+  // calçada junto ao muro, meio-fio, rua de asfalto 15 cm abaixo e calçada do outro lado
+  const pave = canvasTex(128, 128, (c, w, h) => paintPaving(c, w, h), { repeat: [30, 12] });
+  const flat = (w, d, x, z, y, map, color = 0xffffff) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshBasicMaterial({ map, color }));
+    m.rotation.x = -Math.PI / 2; m.position.set(x, y, z); g.add(m); return m;
+  };
+  const near = flat(60, 4.5, 0, 1.75, 0, pave, 0xa0a8c4);                       // calçada z -0.5..4.0
+  const farWalk = flat(60, 21, 0, 19.7, 0, pave.clone(), 0x8890ac); farWalk.material.map.repeat.set(30, 10.5); farWalk.material.map.needsUpdate = true;
+  const roadTex = canvasTex(1024, 128, (c, w, h) => paintRoad(c, w, h));
+  roadTex.anisotropy = 8;
+  flat(ROAD.w, ROAD.z1 - ROAD.z0, 0, (ROAD.z0 + ROAD.z1) / 2, -0.15, roadTex, 0xd2d6ec);
+
   const wet = new THREE.Mesh(new THREE.PlaneGeometry(LIGHT.size, LIGHT.size),                  // luz/reflexos sobre o chão molhado
     new THREE.MeshBasicMaterial({ map: groundLightTexture(), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
   wet.rotation.x = -Math.PI / 2; wet.position.y = 0.012; wet.renderOrder = 1; g.add(wet);
@@ -232,6 +263,8 @@ export function buildScenery() {
   b.add(0.3, 0.3, 0.3, 0x232b3c, 0.8, POST.x, 0.15, POST.z);
   b.add(1.0, 0.1, 0.1, 0x232b3c, 0.8, POST.x - 0.45, POST.h - 0.05, POST.z);
   b.add(0.55, 0.1, 0.3, 0x2c3650, 0.9, POST.x - 0.95, POST.h - 0.05, POST.z);
+  b.add(60, 0.15, 0.2, 0x8a93a8, 0.9, 0, -0.075, 4.1);                         // meio-fio (lado da calçada)
+  b.add(60, 0.15, 0.2, 0x8a93a8, 0.9, 0, -0.075, 9.1);                         // meio-fio (outro lado)
   b.add(0.6, 0.55, 0.6, 0x7a8294, 0.8, SIGN.x, 0.275, SIGN.z);                 // bloco de concreto
   b.add(0.07, 2.4, 0.07, 0x20262f, 0.8, SIGN.x, 1.75, SIGN.z);                 // haste da placa
   b.add(0.1, 0.1, 0.12, 0x4a4f5a, 0.7, -1.9, 0.05, 2.2); b.add(0.1, 0.1, 0.1, 0x6a5a4a, 0.7, 2.0, 0.05, 2.7);   // latas no chão
