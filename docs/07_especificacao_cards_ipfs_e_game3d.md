@@ -59,7 +59,7 @@ sequenceDiagram
     Scene->>Scene: Câmera foca no painel da máquina
     Player->>Scene: Escolhe slot (ex: B3 / Card #09)
     Scene->>Scene: Câmera foca na tela LCD de pagamento
-    Scene->>Scene: Renderiza QR Code nativo (EIP-681) e botão "Conectar Carteira"
+    Scene->>Scene: Mostra o card, o preço e o botão "Pagar com carteira"
     Player->>Contract: Executa buyCard(9) com envio de ETH
     Contract-->>Scene: Emite evento CardPurchased(buyer, 9, 1, cost)
     Scene->>Scene: Toca SFX mecânico de mola soltando
@@ -69,15 +69,15 @@ sequenceDiagram
 
 ---
 
-## 4. O QR Code de Pagamento On-Chain (EIP-681)
+## 4. O Pagamento pelo Botão (sem QR Code)
 
-O QR Code gerado na telinha da máquina segue o padrão **EIP-681** para URLs de pagamento EVM:
+O pagamento é feito só pelo botão, no desktop e no celular, sem QR Code:
+
+1. **Com extensão de carteira:** o botão "Pagar com carteira" da telinha chama `buyCard(9)` com o valor do card (0,0046 ETH) e a carteira pede a aprovação. A rede Sepolia é trocada ou adicionada sozinha.
+2. **Celular sem extensão:** o botão "Abrir na carteira" abre, direto no aplicativo da carteira, um link no padrão **EIP-681**:
 
 ```text
 ethereum:<ENDERECO_DO_CONTRATO>@11155111/buyCard?uint256=9&value=4600000000000000
 ```
 
-Isso permite que:
-1. O usuário que está jogando no PC possa simplesmente apontar a câmera do celular (com MetaMask Mobile, Rainbow ou Rabby) para a tela do jogo.
-2. O app da carteira abre diretamente com a função `buyCard(9)` e o valor de 0,0046 ETH preenchidos.
-3. Ou, se preferir, clica no botão "Pagar com Carteira do Navegador" e a extensão do navegador abre para aprovação.
+O jogo observa o evento `CardPurchased` e atualiza a tela quando o pagamento é confirmado.

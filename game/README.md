@@ -31,7 +31,7 @@ Sem `VITE_METADATA_CID`, o modo demo lê metadados e imagens de `public/dev-meta
 ## Como usar
 - **Andando:** mouse olha (o primeiro clique ou tecla captura o cursor), `WASD` move, mira no centro. Perto da máquina e olhando para ela aparece **[E] Usar a máquina**. O cartaz do faucet também usa **E** (no celular, o botão da direita).
 - **Selecionando:** a câmera segue o card. Mouse, setas ou `WASD` escolhem; Enter ou clique confirma; `Esc` sai. No celular, toque escolhe e toque de novo confirma.
-- **Pagando:** a câmera vai para a telinha LCD da máquina com o QR Code e o botão **PAGAR COM CARTEIRA** (clique no 3D). Sem extensão, no celular, aparece **ABRIR NA CARTEIRA**.
+- **Pagando:** a câmera vai para a telinha LCD da máquina com o card, o preço e o botão **PAGAR COM CARTEIRA** (clique no 3D). Não há QR Code de pagamento. Sem extensão de carteira, no celular, aparece **ABRIR NA CARTEIRA**, que abre o link de pagamento direto no aplicativo da carteira.
 - **Inventário (`I`):** saldos de todos os cards, card em 3D (arrastar gira, roda/pinça dá zoom, duplo clique restaura), estoque e emitidos, **enviar card** a outro endereço (irreversível, com aviso e confirmação), links do contrato e do card no explorer, conexão/desconexão da carteira.
 - **Painel LED vermelho:** mostra só `DISPONIVEL` / `INDISPONIVEL` (contrato pausado) ou `SEM REDE`.
 
@@ -43,7 +43,7 @@ Preço, estoque, ativo e quantos cards existem (`getAllCardsInfo`), emitidos (`g
 | --- | --- |
 | `src/scene` | cena 3D: máquina, cenário, cards, etiquetas de preço, seletor, visualizador de card |
 | `src/player` | movimento, câmera suave, seleção |
-| `src/payment` | carteira (EIP-1193), pagamento, envio, LCD da telinha, QR |
+| `src/payment` | carteira (EIP-1193), pagamento, envio, LCD da telinha |
 | `src/data` | RPC enxuto (sem biblioteca), cache de inventário, IPFS, decodificação de imagens |
 | `src/hud` | HUD e inventário (DOM) |
 | `src/render` | renderizador, qualidade adaptativa |

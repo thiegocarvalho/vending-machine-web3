@@ -49,7 +49,7 @@ export function createHud(root) {
   return {
     el: hud,
     onInventory: f => cbs.inv = f, onOpenWallet: f => cbs.wallet = f, onUse: f => cbs.use = f, onConfirm: f => cbs.ok = f, onBack: f => cbs.back = f, onJoystick: f => cbs.joy = f,
-    // celular sem extensão de carteira: o QR não adianta (é o mesmo aparelho) — o botão abre o link ethereum: direto no app da carteira
+    // celular sem extensão de carteira: o botão abre o link ethereum: direto no app da carteira
     setMode(mode) { hud.className = `mode-${mode}`; hud.classList.toggle('no-wallet', !window.ethereum?.request); if (mode !== 'walk') hud.classList.remove('can-use'); },
     // kind: null | 'machine' | 'faucet'
     showPrompt(kind) {

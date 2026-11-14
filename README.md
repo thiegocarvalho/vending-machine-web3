@@ -73,5 +73,5 @@ A apresentação web (`apresentacao/index.html`) adota uma estética cyberpunk r
   1. Resiliência Web2 vs Web3 (Derrubar servidores/nós).
   2. Auditoria local determinística de blocos (Detecção instantânea de fraude).
   3. Mecânica de pontes (Lock & Mint vs Dreno de cofre estilo Ronin).
-  4. Vending Machine interativa dos 30 cards com geração de QR Code EIP-681 em tempo real!
+  4. O jogo 3D: print, QR Code para abrir o jogo online e as informações do contrato publicado.
 

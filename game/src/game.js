@@ -151,8 +151,7 @@ cardsApi.onLoaded((id) => { wake(); if (id === selection.id) refresh(); });
 
 // ---------- pagamento ----------
 function setState(state, { message = '', hash } = {}) {
-  const qrText = state === 'awaiting' ? buildEip681(contractForQr, config.chainId, selection.id, infos[selection.id - 1].price) : '';
-  drawScreen({ state, message, qrText });
+  drawScreen({ state, message });
   hud.setStatus({ awaiting: '', sent: 'Transação enviada, aguardando bloco…', confirmed: 'ADQUIRIDO! Abrindo o seu inventário…', error: message, idle: '', select: '' }[state] ?? '',
     { error: state === 'error', hash });
 }
