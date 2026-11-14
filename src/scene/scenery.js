@@ -4,6 +4,7 @@ import { drawQr } from '../payment/machineScreen.js';
 import { config } from '../config.js';
 
 const POST = { x: 3.2, z: 3.4, h: 4.2 };                              // poste de luz ao lado da máquina
+const SIGN = { x: -6.0, z: 1.0, yaw: 0.9 };                            // placa de trânsito no fim da rua (limite da área), voltada para o centro
 const FOG = 0x141a2e;                           // neblina azul-arroxeada da noite
 
 const canvasTex = (w, h, draw, { repeat, srgb = true } = {}) => {
@@ -169,6 +170,29 @@ export function paintPoster(g, w, h, qr = () => 0, rand = Math.random) {
   g.save(); g.translate(w - 110, 10); g.rotate(0.3); g.fillRect(-34, -9, 70, 18); g.restore();
 }
 
+// Placa de alerta amarela com OVNI raptando uma pessoa.
+export function paintUfoSign(g, w, h) {
+  g.clearRect(0, 0, w, h);
+  const tri = (inset, color) => {
+    g.fillStyle = color; g.strokeStyle = color; g.lineJoin = 'round'; g.lineWidth = 26 - inset * 0.6;
+    g.beginPath(); g.moveTo(w / 2, 20 + inset); g.lineTo(w - 22 - inset, h - 22 - inset * 0.6); g.lineTo(22 + inset, h - 22 - inset * 0.6); g.closePath(); g.fill(); g.stroke();
+  };
+  tri(0, '#e9cc2f');                                              // amarelo
+  g.strokeStyle = '#0b0b0b'; g.lineWidth = 9; g.lineJoin = 'round';  // moldura preta
+  g.beginPath(); g.moveTo(w / 2, 36); g.lineTo(w - 36, h - 34); g.lineTo(36, h - 34); g.closePath(); g.stroke();
+  g.fillStyle = '#0b0b0b';
+  g.beginPath(); g.ellipse(w / 2, 108, 62, 12, 0, 0, Math.PI * 2); g.fill();          // disco
+  g.beginPath(); g.ellipse(w / 2, 100, 28, 13, 0, Math.PI, 0); g.fill();               // cúpula
+  g.fillRect(w / 2 - 14, 116, 28, 5);
+  g.strokeStyle = '#0b0b0b'; g.lineWidth = 2.5;                                          // feixe
+  g.beginPath(); g.moveTo(w / 2 - 12, 122); g.lineTo(w / 2 - 36, h - 44); g.moveTo(w / 2 + 12, 122); g.lineTo(w / 2 + 16, h - 44); g.stroke();
+  g.beginPath(); g.arc(w / 2 - 12, 150, 7, 0, Math.PI * 2); g.fill();                  // pessoa flutuando
+  g.lineWidth = 7; g.lineCap = 'round';
+  g.beginPath(); g.moveTo(w / 2 - 8, 160); g.lineTo(w / 2 + 2, 180); g.stroke();       // tronco
+  g.lineWidth = 5;
+  g.beginPath(); g.moveTo(w / 2 - 6, 164); g.lineTo(w / 2 - 20, 150); g.moveTo(w / 2 - 4, 168); g.lineTo(w / 2 + 12, 164);
+  g.moveTo(w / 2 + 2, 180); g.lineTo(w / 2 + 14, 194); g.moveTo(w / 2 + 2, 180); g.lineTo(w / 2 - 10, 194); g.stroke();
+}
 
 // Horizonte urbano ao fundo (visto por cima do muro): prédios com janelas acesas na neblina.
 
@@ -176,7 +200,8 @@ export function paintPoster(g, w, h, qr = () => 0, rand = Math.random) {
 const WALL_H = 4.5, WALL_W = 60, WALL_Z = -0.8, WALL_D = 0.6;
 export const SCENERY_COLLIDERS = [
   { minX: -WALL_W / 2, maxX: WALL_W / 2, minZ: WALL_Z - WALL_D / 2, maxZ: WALL_Z + WALL_D / 2 },
-  { minX: POST.x - 0.15, maxX: POST.x + 0.15, minZ: POST.z - 0.15, maxZ: POST.z + 0.15 }
+  { minX: POST.x - 0.15, maxX: POST.x + 0.15, minZ: POST.z - 0.15, maxZ: POST.z + 0.15 },
+  { minX: SIGN.x - 0.3, maxX: SIGN.x + 0.3, minZ: SIGN.z - 0.3, maxZ: SIGN.z + 0.3 }
 ];
 
 // Textura de tijolos (1 tile = 2,0 m x 0,8 m: 4 tijolos x 4 fiadas), repetida pela parede.
@@ -228,6 +253,8 @@ export function buildScenery() {
   b.add(0.55, 0.1, 0.3, 0x2c3650, 0.9, POST.x - 0.95, POST.h - 0.05, POST.z);
   b.add(60, 0.15, 0.2, 0x8a93a8, 0.9, 0, -0.075, 4.1);                         // meio-fio (lado da calçada)
   b.add(60, 0.15, 0.2, 0x8a93a8, 0.9, 0, -0.075, ROAD.z1 + 0.1);                         // meio-fio (outro lado)
+  b.add(0.6, 0.55, 0.6, 0x7a8294, 0.8, SIGN.x, 0.275, SIGN.z);                 // bloco de concreto
+  b.add(0.07, 2.4, 0.07, 0x20262f, 0.8, SIGN.x, 1.75, SIGN.z);                 // haste da placa
   b.add(0.1, 0.1, 0.12, 0x4a4f5a, 0.7, -1.9, 0.05, 2.2); b.add(0.1, 0.1, 0.1, 0x6a5a4a, 0.7, 2.0, 0.05, 2.7);   // latas no chão
   b.add(0.1, 0.1, 0.1, 0x4a4f5a, 0.7, 0.9, 0.05, 3.1);
   g.add(b.build());
@@ -248,6 +275,12 @@ export function buildScenery() {
     new THREE.MeshBasicMaterial({ map: canvasTex(POSTER_PX.w, POSTER_PX.h, (c, w, h) => paintPoster(c, w, h, drawQr)), transparent: true, alphaTest: 0.5, color: 0xe2deef }));
   poster.name = 'faucet-poster'; poster.rotation.z = -0.045;
   poster.position.set(POSTER.x, POSTER.y, WALL_Z + WALL_D / 2 + 0.012); g.add(poster);
+
+  // placa de alerta triangular: abdução por OVNI (alpha recortado, sem ordenação)
+  const disc = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 0.9),
+    new THREE.MeshBasicMaterial({ map: canvasTex(256, 230, (c, w, h) => paintUfoSign(c, w, h)), transparent: true, alphaTest: 0.5, color: 0xc8c0d8, side: THREE.DoubleSide }));
+  disc.rotation.y = SIGN.yaw;
+  disc.position.set(SIGN.x + Math.sin(SIGN.yaw) * 0.05, 2.75, SIGN.z + Math.cos(SIGN.yaw) * 0.05); g.add(disc);
 
   const bulb = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.03, 0.2), new THREE.MeshBasicMaterial({ color: 0xfff1d0 }));
   bulb.position.set(POST.x - 0.95, POST.h - 0.12, POST.z); g.add(bulb);        // lâmpada acesa
