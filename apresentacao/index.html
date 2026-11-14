@@ -581,7 +581,7 @@
       </span>
       <div class="flex items-center font-mono text-[11px]">
         <span class="text-noir-muted mr-1.5">FRAME</span>
-        <span class="text-noir-red font-bold"><span id="currentSlideNum">1</span> / <span id="totalSlidesNum">18</span></span>
+        <span class="text-noir-red font-bold"><span id="currentSlideNum">1</span> / <span id="totalSlidesNum">22</span></span>
       </div>
     </div>
 
@@ -1671,8 +1671,8 @@
             São as gavetas internas onde o contrato <strong>guarda informações</strong> gravadas para sempre na blockchain.
           </p>
           <div class="pt-1.5 border-t border-noir-border/60 font-mono text-xs text-gray-300 space-y-0.5">
-            <div>> <strong class="text-white">estoque</strong> = 100 unidades</div>
-            <div>> <strong class="text-white">preco</strong> = 0.0046 ETH</div>
+            <div>> <strong class="text-white">estoque de cada card</strong> = 100</div>
+            <div>> <strong class="text-white">preço do card</strong> = 0.0046 ETH</div>
             <div>> <strong class="text-white">dono</strong> = 0x71C...</div>
           </div>
         </div>
@@ -1712,19 +1712,19 @@
         </div>
       </div>
 
-      <!-- Exemplo Visual Integrado de Código Limpo -->
+      <!-- Exemplo Visual: versão simplificada do contrato real (estoque POR CARD) -->
       <div class="pt-2 border-t border-noir-border/80 font-mono text-xs sm:text-sm leading-relaxed text-gray-200 space-y-1 relative z-10 pl-4 border-l-4 border-l-noir-red bg-noir-surface/80 p-3 shadow-xl">
         <div class="flex flex-wrap items-center justify-between gap-2">
-          <div class="text-noir-red font-bold text-xs uppercase tracking-wider">// Exemplo simples: os 3 elementos juntos num contrato</div>
+          <div class="text-noir-red font-bold text-xs uppercase tracking-wider">// Versão simplificada do contrato real: cada card tem o seu estoque</div>
           <div class="cl-hint">👆 CLIQUE EM UMA LINHA PARA ENTENDER</div>
         </div>
         <div class="cl" data-x="ex-contract"><span class="text-noir-red font-bold">contract</span> <span class="text-white font-bold">VendingMachine</span> {</div>
-        <div class="pl-6 text-noir-muted text-xs">// 1. VARIÁVEIS (as gavetas)</div>
-        <div class="cl pl-6" data-x="ex-estoque"><span class="text-noir-red font-bold">uint256</span> <span class="text-white font-bold">public estoque</span> = <span class="text-amber-300 font-bold">100</span>;</div>
-        <div class="cl pl-6" data-x="ex-preco"><span class="text-noir-red font-bold">uint256</span> <span class="text-white font-bold">public preco</span> = <span class="text-amber-300 font-bold">0.0046 ether</span>;</div>
+        <div class="pl-6 text-noir-muted text-xs">// 1. VARIÁVEIS: uma ficha para cada card</div>
+        <div class="cl pl-6" data-x="ex-struct"><span class="text-noir-red font-bold">struct</span> Card { <span class="text-noir-red font-bold">uint128</span> price; <span class="text-noir-red font-bold">uint48</span> stock; }</div>
+        <div class="cl pl-6" data-x="ex-map"><span class="text-noir-red font-bold">mapping</span>(uint256 => Card) <span class="text-white font-bold">public cards</span>;</div>
         <div class="pl-6 pt-1 text-noir-muted text-xs">// 2. FUNÇÃO (o botão) com 3. ARGUMENTO (a escolha)</div>
         <div class="cl pl-6" data-x="ex-func"><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">buyCard</span>(<span class="text-noir-red font-bold">uint256</span> <span class="text-rose-300 font-bold">cardId</span>) <span class="text-noir-red font-bold">public payable</span> {</div>
-        <div class="cl pl-12 text-white font-bold" data-x="ex-body">estoque = estoque - 1;</div>
+        <div class="cl pl-12 text-white font-bold" data-x="ex-body">cards[cardId].stock = cards[cardId].stock - <span class="text-amber-300">1</span>;</div>
         <div class="pl-6">}</div>
         <div>}</div>
       </div>
@@ -1946,7 +1946,72 @@
       </div>
     </section>
 
-    <!-- SLIDE 15: PASSO A PASSO (4/5): O DONO -->
+    <!-- SLIDE 15: FLUXO COMPLETO DA COMPRA -->
+    <section class="slide flex-col max-w-6xl w-full mx-auto space-y-7 relative" data-topic="06. FLUXO // COMPRAR UM CARD">
+      <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 買 (Kai): Comprar">買</div>
+      <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap justify-between items-end gap-2 relative z-10 w-full">
+        <div>
+          <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// O FLUXO COMPLETO // 1 DE 3</span>
+          <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">COMPRAR UM CARD, PASSO A PASSO</h2>
+        </div>
+        <div class="cl-hint">👆 CLIQUE EM UM PASSO PARA ENTENDER</div>
+      </div>
+
+      <div class="flow grid grid-cols-1 md:grid-cols-6 gap-5 md:gap-6 pt-2 relative z-10">
+        <div class="fstep u cx" data-x="f1-1" data-kind="step" data-code="buyCard(cardId = 7)" tabindex="0" role="button"><span class="fnum">1</span><span class="fico">👆</span><span class="fti">VOCÊ ESCOLHE</span><span class="fde">Aperta o card no jogo.</span><span class="ftag">buyCard(7)</span></div>
+        <div class="fstep u cx" data-x="f1-2" data-kind="step" data-code="msg.value = 0,0046 ETH" tabindex="0" role="button"><span class="fnum">2</span><span class="fico">👛</span><span class="fti">PAGA O PREÇO</span><span class="fde">A carteira pede a sua aprovação.</span><span class="ftag">msg.value</span></div>
+        <div class="fstep c cx" data-x="f1-3" data-kind="step" data-code="if (…) revert …;   // as 5 conferências" tabindex="0" role="button"><span class="fnum">3</span><span class="fico">🔎</span><span class="fti">CONFERE TUDO</span><span class="fde">Card existe, à venda, com estoque e valor exato.</span><span class="ftag">5 conferências</span></div>
+        <div class="fstep c cx" data-x="f1-4" data-kind="step" data-code="card.stock = remaining;" tabindex="0" role="button"><span class="fnum">4</span><span class="fico">📉</span><span class="fti">BAIXA O ESTOQUE</span><span class="fde">Só o estoque deste card diminui.</span><span class="ftag">card.stock</span></div>
+        <div class="fstep r cx" data-x="f1-5" data-kind="step" data-code="_mint(msg.sender, cardId, 1, &quot;&quot;);" tabindex="0" role="button"><span class="fnum">5</span><span class="fico">🎁</span><span class="fti">ENTREGA O CARD</span><span class="fde">O card aparece na sua carteira.</span><span class="ftag">_mint</span></div>
+        <div class="fstep r cx" data-x="f1-6" data-kind="step" data-code="emit CardPurchased(…);" tabindex="0" role="button"><span class="fnum">6</span><span class="fico">📣</span><span class="fti">AVISA TODO MUNDO</span><span class="fde">O jogo escuta o aviso e atualiza a tela.</span><span class="ftag">emit CardPurchased</span></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 relative z-10 pt-1">
+        <div class="fstep x cx" data-x="f1-err" data-kind="step" data-code="revert  →  tudo é desfeito" tabindex="0" role="button">
+          <span class="fico">↩️</span><span class="fti">DEU ERRADO NO PASSO 3?</span><span class="fde">A compra inteira é cancelada e o ETH volta para você. Só sobra a taxa da rede.</span>
+        </div>
+        <div class="fstep c cx" data-x="f1-money" data-kind="step" data-code="address(this).balance" tabindex="0" role="button">
+          <span class="fico">🏦</span><span class="fti">PARA ONDE VAI O DINHEIRO?</span><span class="fde">Fica guardado no próprio contrato. Só o dono consegue sacar.</span>
+        </div>
+        <div class="fstep u cx" data-x="f1-who" data-kind="step" data-code="msg.sender  =  a sua carteira" tabindex="0" role="button">
+          <span class="fico">🔑</span><span class="fti">QUEM ASSINA?</span><span class="fde">Só você: ninguém compra no seu nome, e o jogo nunca vê a sua chave.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 16: FLUXO DA TRANSFERÊNCIA -->
+    <section class="slide flex-col max-w-6xl w-full mx-auto space-y-7 relative" data-topic="06. FLUXO // ENVIAR UM CARD">
+      <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 送 (Okuru): Enviar">送</div>
+      <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap justify-between items-end gap-2 relative z-10 w-full">
+        <div>
+          <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// O FLUXO COMPLETO // 2 DE 3</span>
+          <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">ENVIAR UM CARD PARA OUTRA PESSOA</h2>
+        </div>
+        <div class="cl-hint">👆 CLIQUE EM UM PASSO PARA ENTENDER</div>
+      </div>
+
+      <div class="flow grid grid-cols-1 md:grid-cols-5 gap-5 md:gap-6 pt-2 relative z-10">
+        <div class="fstep u cx" data-x="f2-1" data-kind="step" data-code="safeTransferFrom(você, amigo, cardId, 1, &quot;&quot;)" tabindex="0" role="button"><span class="fnum">1</span><span class="fico">✍️</span><span class="fti">VOCÊ PEDE O ENVIO</span><span class="fde">Escolhe o card, a quantidade e o endereço de quem recebe.</span><span class="ftag">safeTransferFrom</span></div>
+        <div class="fstep c cx" data-x="f2-2" data-kind="step" data-code="whenNotPaused  ·  saldo suficiente  ·  destino válido" tabindex="0" role="button"><span class="fnum">2</span><span class="fico">🔎</span><span class="fti">CONFERE</span><span class="fde">Máquina em operação? Você tem o card? O destino é válido?</span><span class="ftag">conferências</span></div>
+        <div class="fstep c cx" data-x="f2-3" data-kind="step" data-code="saldo[você] -= 1;   saldo[amigo] += 1;" tabindex="0" role="button"><span class="fnum">3</span><span class="fico">⇄</span><span class="fti">MOVE O SALDO</span><span class="fde">Tira 1 da sua conta e coloca 1 na dele.</span><span class="ftag">_update</span></div>
+        <div class="fstep c cx" data-x="f2-4" data-kind="step" data-code="onERC1155Received(…)   // se o destino for um contrato" tabindex="0" role="button"><span class="fnum">4</span><span class="fico">🤝</span><span class="fti">DESTINO ACEITA?</span><span class="fde">Se quem recebe for um contrato, ele precisa dizer que aceita.</span><span class="ftag">onERC1155Received</span></div>
+        <div class="fstep r cx" data-x="f2-5" data-kind="step" data-code="emit TransferSingle(…);" tabindex="0" role="button"><span class="fnum">5</span><span class="fico">📣</span><span class="fti">AVISA</span><span class="fde">Registra o envio publicamente.</span><span class="ftag">emit TransferSingle</span></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 relative z-10 pt-1">
+        <div class="fstep x cx" data-x="f2-irrev" data-kind="step" data-code="não existe “desfazer” depois de confirmado" tabindex="0" role="button">
+          <span class="fico">⚠️</span><span class="fti">NÃO TEM VOLTA</span><span class="fde">Enviou para o endereço errado? Só quem recebeu pode devolver.</span>
+        </div>
+        <div class="fstep c cx" data-x="f2-stock" data-kind="step" data-code="card.stock  (não muda)" tabindex="0" role="button">
+          <span class="fico">📦</span><span class="fti">O ESTOQUE NÃO MUDA</span><span class="fde">Enviar não é vender: só muda quem tem o card.</span>
+        </div>
+        <div class="fstep u cx" data-x="f2-approve" data-kind="step" data-code="setApprovalForAll(operador, true)" tabindex="0" role="button">
+          <span class="fico">🪪</span><span class="fti">OUTRA PERMISSÃO</span><span class="fde">Você pode autorizar um app (como um marketplace) a mover os seus cards.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 17: PASSO A PASSO (4/5): O DONO -->
     <section class="slide flex-col max-w-6xl w-full mx-auto space-y-3 relative" data-topic="06. CÓDIGO // O DONO: PODERES E LIMITES">
       <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 統 (Tō): Governança / Controle Administrativo (Owner)">統</div>
       <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap justify-between items-end gap-2 relative z-10 w-full">
@@ -2007,7 +2072,40 @@
       </div>
     </section>
 
-    <!-- SLIDE 16: PASSO A PASSO (5/5): CONSULTAR É DE GRAÇA -->
+    <!-- SLIDE 18: FLUXO DE CRIAR UM NOVO CARD -->
+    <section class="slide flex-col max-w-6xl w-full mx-auto space-y-7 relative" data-topic="06. FLUXO // CRIAR UM NOVO CARD">
+      <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 創 (Sō): Criar">創</div>
+      <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap justify-between items-end gap-2 relative z-10 w-full">
+        <div>
+          <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// O FLUXO COMPLETO // 3 DE 3</span>
+          <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">CRIAR UM NOVO CARD (SÓ O DONO)</h2>
+        </div>
+        <div class="cl-hint">👆 CLIQUE EM UM PASSO PARA ENTENDER</div>
+      </div>
+
+      <div class="flow grid grid-cols-1 md:grid-cols-6 gap-5 md:gap-6 pt-2 relative z-10">
+        <div class="fstep u cx" data-x="f3-1" data-kind="step" data-code="IPFS: 31.json + imagem do card" tabindex="0" role="button"><span class="fnum">1</span><span class="fico">🖼️</span><span class="fti">PREPARA A ARTE</span><span class="fde">Imagem e descrição vão para o IPFS, com o número do novo card.</span><span class="ftag">fora do contrato</span></div>
+        <div class="fstep u cx" data-x="f3-2" data-kind="step" data-code="addCard(4600000000000000, 100)" tabindex="0" role="button"><span class="fnum">2</span><span class="fico">👤</span><span class="fti">DONO CHAMA</span><span class="fde">Informa o preço e a tiragem do novo card.</span><span class="ftag">addCard</span></div>
+        <div class="fstep c cx" data-x="f3-3" data-kind="step" data-code="public onlyOwner" tabindex="0" role="button"><span class="fnum">3</span><span class="fico">🔑</span><span class="fti">É O DONO?</span><span class="fde">Qualquer outra carteira é recusada.</span><span class="ftag">onlyOwner</span></div>
+        <div class="fstep c cx" data-x="f3-4" data-kind="step" data-code="newCardId = ++totalCardTypes;   // 31" tabindex="0" role="button"><span class="fnum">4</span><span class="fico">🔢</span><span class="fti">PRÓXIMO NÚMERO</span><span class="fde">O contador sobe de 30 para 31.</span><span class="ftag">totalCardTypes</span></div>
+        <div class="fstep c cx" data-x="f3-5" data-kind="step" data-code="cards[31] = Card(price, stock, stock, true, true);" tabindex="0" role="button"><span class="fnum">5</span><span class="fico">🏷️</span><span class="fti">CRIA A FICHA</span><span class="fde">Preço, estoque e “à venda” ligados.</span><span class="ftag">cards[31]</span></div>
+        <div class="fstep r cx" data-x="f3-6" data-kind="step" data-code="emit CardAdded(31, price, stock);" tabindex="0" role="button"><span class="fnum">6</span><span class="fico">📣</span><span class="fti">AVISA</span><span class="fde">O card já pode ser comprado por qualquer um.</span><span class="ftag">emit CardAdded</span></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 relative z-10 pt-1">
+        <div class="fstep c cx" data-x="f3-batch" data-kind="step" data-code="addCardsBatch(prices[], stocks[])" tabindex="0" role="button">
+          <span class="fico">📚</span><span class="fti">VÁRIOS DE UMA VEZ</span><span class="fde">Existe uma versão que cria vários cards numa só operação.</span>
+        </div>
+        <div class="fstep x cx" data-x="f3-locked" data-kind="step" data-code="não existe setPrice() nem setStock()" tabindex="0" role="button">
+          <span class="fico">🔒</span><span class="fti">DEPOIS NÃO MUDA</span><span class="fde">Preço e estoque de um card criado ficam fixos. Só dá para ligar ou desligar a venda.</span>
+        </div>
+        <div class="fstep u cx" data-x="f3-game" data-kind="step" data-code="SLOTS = 30   // 5 × 6 no jogo" tabindex="0" role="button">
+          <span class="fico">🎮</span><span class="fti">E NO JOGO?</span><span class="fde">A máquina do jogo desenha 30 slots (5×6). Cards além disso existem no contrato, mas a tela precisaria crescer.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 19: PASSO A PASSO (5/5): CONSULTAR É DE GRAÇA -->
     <section class="slide flex-col max-w-6xl w-full mx-auto space-y-3 relative" data-topic="06. CÓDIGO // CONSULTAR É DE GRAÇA">
       <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 読 (Doku): Leitura / Consulta de Estado Sem Gás">読</div>
       <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap justify-between items-end gap-2 relative z-10 w-full">
@@ -2067,7 +2165,54 @@
       </div>
     </section>
 
-    <!-- SLIDE 17: DEPLOY NA SEPOLIA E FAUCETS -->
+    <!-- SLIDE 20: MAPA DE TODAS AS FUNÇÕES -->
+    <section class="slide flex-col max-w-6xl w-full mx-auto space-y-3 relative" data-topic="06. MAPA DE TODAS AS FUNÇÕES">
+      <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 図 (Zu): Mapa / Diagrama">図</div>
+      <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap justify-between items-end gap-2 relative z-10 w-full">
+        <div>
+          <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// RESUMO DO CONTRATO</span>
+          <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">O MAPA DE TODAS AS FUNÇÕES</h2>
+        </div>
+        <div class="cl-hint">👆 CLIQUE EM UMA FUNÇÃO PARA ENTENDER</div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 relative z-10">
+        <div class="space-y-1.5">
+          <div class="border-b border-white/60 pb-1"><span class="font-display text-2xl text-white tracking-wide">🛒 COMPRAR</span><span class="block text-[10px] font-mono text-gray-300">QUALQUER UM · PAGA</span></div>
+          <button type="button" class="fn-chip cx" data-x="m-buy" data-kind="fn" data-code="buyCard(cardId)">buyCard<small>compra 1 card</small></button>
+          <button type="button" class="fn-chip cx" data-x="m-buy2" data-kind="fn" data-code="buyCard(cardId, amount)">buyCard (qtd.)<small>compra várias unidades</small></button>
+          <button type="button" class="fn-chip cx" data-x="m-batch" data-kind="fn" data-code="buyCardsBatch(cardIds[], amounts[])">buyCardsBatch<small>vários cards de uma vez</small></button>
+        </div>
+        <div class="space-y-1.5">
+          <div class="border-b border-white/60 pb-1"><span class="font-display text-2xl text-white tracking-wide">🔁 TRANSFERIR</span><span class="block text-[10px] font-mono text-gray-300">QUEM TEM O CARD</span></div>
+          <button type="button" class="fn-chip cx" data-x="m-send" data-kind="fn" data-code="safeTransferFrom(from, to, id, amount, data)">safeTransferFrom<small>envia card a alguém</small></button>
+          <button type="button" class="fn-chip cx" data-x="m-send2" data-kind="fn" data-code="safeBatchTransferFrom(from, to, ids[], amounts[], data)">safeBatchTransferFrom<small>envia vários de uma vez</small></button>
+          <button type="button" class="fn-chip cx" data-x="m-appr" data-kind="fn" data-code="setApprovalForAll(operator, approved)">setApprovalForAll<small>autoriza um app a mover</small></button>
+        </div>
+        <div class="space-y-1.5">
+          <div class="border-b border-noir-red pb-1"><span class="font-display text-2xl text-noir-red tracking-wide">🛠️ SÓ O DONO</span><span class="block text-[10px] font-mono text-gray-300">onlyOwner</span></div>
+          <button type="button" class="fn-chip cx" data-x="m-add" data-kind="fn" data-code="addCard(price, initialStock)">addCard<small>cria um card (ou vários)</small></button>
+          <button type="button" class="fn-chip cx" data-x="m-active" data-kind="fn" data-code="setCardActive(cardId, active)">setCardActive<small>liga/desliga a venda</small></button>
+          <button type="button" class="fn-chip cx" data-x="m-pause" data-kind="fn" data-code="pause()  /  unpause()">pause / unpause<small>botão de emergência</small></button>
+          <button type="button" class="fn-chip cx" data-x="m-wd" data-kind="fn" data-code="withdraw()  /  withdrawTo(recipient)">withdraw<small>saca o dinheiro das vendas</small></button>
+          <button type="button" class="fn-chip cx" data-x="m-uri" data-kind="fn" data-code="setURI(newURI)  /  setContractURI(newURI)">setURI<small>troca o endereço dos dados</small></button>
+          <button type="button" class="fn-chip cx" data-x="m-roy" data-kind="fn" data-code="setDefaultRoyalty(receiver, fee)  /  setTokenRoyalty(…)">setDefaultRoyalty<small>ajusta a comissão (até 10%)</small></button>
+          <button type="button" class="fn-chip cx" data-x="m-own" data-kind="fn" data-code="transferOwnership(novo)  →  acceptOwnership()">transferOwnership<small>passa a posse em 2 etapas</small></button>
+        </div>
+        <div class="space-y-1.5">
+          <div class="border-b border-emerald-400/70 pb-1"><span class="font-display text-2xl text-emerald-400 tracking-wide">🔍 CONSULTAR</span><span class="block text-[10px] font-mono text-gray-300">QUALQUER UM · DE GRAÇA</span></div>
+          <button type="button" class="fn-chip cx" data-x="m-all" data-kind="fn" data-code="getAllCardsInfo()">getAllCardsInfo<small>a vitrine inteira</small></button>
+          <button type="button" class="fn-chip cx" data-x="m-stock" data-kind="fn" data-code="getStock(cardId)  /  getAllStocks()">getStock<small>quantos restam</small></button>
+          <button type="button" class="fn-chip cx" data-x="m-info" data-kind="fn" data-code="getCardInfo(cardId)  /  getCardDetails(cardId)">getCardInfo<small>dados de um card</small></button>
+          <button type="button" class="fn-chip cx" data-x="m-minted" data-kind="fn" data-code="getMintedCount(cardId)  /  totalSupply(cardId)">getMintedCount<small>quantos já foram vendidos</small></button>
+          <button type="button" class="fn-chip cx" data-x="m-bal" data-kind="fn" data-code="balanceOf(account, id)  /  balanceOfBatch(…)">balanceOf<small>quantos cards alguém tem</small></button>
+          <button type="button" class="fn-chip cx" data-x="m-uriR" data-kind="fn" data-code="uri(cardId)  /  contractURI()">uri<small>onde estão nome e imagem</small></button>
+          <button type="button" class="fn-chip cx" data-x="m-state" data-kind="fn" data-code="paused()  /  owner()  /  totalCardTypes()">paused · owner<small>estado geral da máquina</small></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 21: DEPLOY NA SEPOLIA E FAUCETS -->
     <section class="slide flex-col max-w-6xl w-full mx-auto space-y-3 relative" data-topic="07. COLOCAR NO AR (SEPOLIA)">
       <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 配 (Hai): Distribuição / Deploy em Rede de Testes">配</div>
       <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap justify-between items-end gap-2 relative z-10 w-full">
@@ -2123,7 +2268,7 @@
       </div>
     </section>
 
-    <!-- SLIDE 18: SIMULADOR INTERATIVO DA VENDING MACHINE RETRO TOTALMENTE ABERTO -->
+    <!-- SLIDE 22: SIMULADOR INTERATIVO DA VENDING MACHINE RETRO TOTALMENTE ABERTO -->
     <section class="slide flex-col max-w-6xl w-full mx-auto space-y-3 relative" data-topic="08. LIVE DEMO // VENDING MACHINE">
       
       <!-- Watermark Kanji -->
@@ -6597,6 +6742,32 @@
     <span id="jpTooltipText" class="text-gray-200 text-[11px] font-sans"></span>
   </div>
 
+  <style>
+    .cx { cursor: pointer; transition: border-color .15s, transform .15s, background .15s; }
+    .cx:hover { border-color: #FF0033 !important; transform: translateY(-2px); background: rgba(255,0,51,.07); }
+    .cx:focus-visible { outline: 1px solid #FF0033; outline-offset: 2px; }
+    .cx.cl-on { border-color: #FF0033 !important; background: rgba(255,0,51,.14); }
+    .fstep { position: relative; background: rgba(10,6,8,.9); border: 1px solid #241216; border-top-width: 3px; padding: 10px 10px 10px; display: flex; flex-direction: column; gap: 4px; }
+    .fstep.u { border-top-color: #FFFFFF; } .fstep.c { border-top-color: #FF0033; } .fstep.r { border-top-color: #34D399; } .fstep.x { border-top-color: #FF0033; border-style: dashed; border-top-style: solid; }
+    .fnum { position: absolute; top: -11px; left: 8px; width: 20px; height: 20px; border-radius: 50%; background: #FF0033; color: #fff; font: 700 11px 'Fira Code', monospace; display: flex; align-items: center; justify-content: center; }
+    .fstep.u .fnum { background: #fff; color: #040204; } .fstep.r .fnum { background: #34D399; color: #040204; }
+    .fico { font-size: 22px; line-height: 1; }
+    .fti { font-family: 'Bebas Neue', impact, sans-serif; font-size: 21px; letter-spacing: .03em; color: #fff; line-height: 1.05; }
+    .fde { font-size: 12px; line-height: 1.3; color: #D6CBD0; font-family: 'Space Grotesk', sans-serif; }
+    .ftag { margin-top: auto; padding-top: 4px; font: 600 10px 'Fira Code', monospace; color: #FF0033; word-break: break-word; }
+    .fstep.u .ftag { color: #D6CBD0; } .fstep.r .ftag { color: #34D399; }
+    .flow .fstep { min-height: 190px; padding: 18px 12px 12px; gap: 6px; }
+    .flow .fico { font-size: 34px; }
+    .flow .fti { font-size: 26px; }
+    .flow .fde { font-size: 14px; }
+    .flow .ftag { font-size: 11px; }
+    .fstep.x, .fstep.c.cx:not(.flow .fstep), .grid > .fstep { min-height: 118px; }
+    .grid > .fstep .fde { font-size: 13px; }
+    .flow > .fstep:not(:last-child)::after { content: '▼'; position: absolute; left: 50%; bottom: -15px; transform: translateX(-50%); color: #806870; font-size: 11px; z-index: 2; }
+    @media (min-width: 768px) { .flow > .fstep:not(:last-child)::after { content: '▶'; left: auto; right: -14px; bottom: auto; top: 50%; transform: translateY(-50%); } }
+    .fn-chip { display: block; width: 100%; text-align: left; background: rgba(10,6,8,.9); border: 1px solid #241216; padding: 5px 8px; font: 500 12px 'Fira Code', monospace; color: #fff; }
+    .fn-chip small { display: block; font: 400 11px 'Space Grotesk', sans-serif; color: #A99AA1; margin-top: 1px; }
+  </style>
   <!-- ============ EXPLICAÇÃO DAS LINHAS DE CÓDIGO (modal) ============ -->
   <style>
     .cl { cursor: pointer; border-left: 2px solid transparent; margin-left: -2px; padding-left: 2px; border-radius: 1px; transition: background .12s, border-color .12s; }
@@ -6646,10 +6817,10 @@
       var EX = {
         // ---- slide 10: exemplo simples ----
         'ex-contract': ['O contrato é a máquina inteira', 'Tudo o que está entre as chaves { } pertence a este contrato, assim como tudo o que fica dentro da carcaça pertence à máquina de vendas.', 'A caixa metálica da máquina.'],
-        'ex-estoque': ['Uma gaveta com um número', 'Isso é uma variável: um espaço de memória com nome. Aqui, a gaveta “estoque” guarda o número 100. A palavra “public” quer dizer que qualquer pessoa pode olhar o que está dentro.', 'O visor que mostra quantos itens ainda restam.'],
-        'ex-preco': ['Outra gaveta: o preço', 'Mais uma variável. Ela guarda o preço de cada card e o contrato lembra desse valor para sempre, sem precisar de ninguém.', 'A etiqueta de preço colada na máquina.'],
+        'ex-struct': ['A ficha de cada card', 'Uma “struct” é uma ficha com campos. Cada card tem a sua: o preço (price) e o estoque (stock). Ou seja, o estoque é guardado por card, e não um só para a máquina inteira.', 'A etiqueta presa em cada slot, com o preço e quantos restam.'],
+        'ex-map': ['Uma ficha para cada número', 'Liga o número do card à sua ficha: card 1 aponta para a ficha 1, card 2 para a ficha 2, e assim por diante. É por isso que cada card tem o seu próprio estoque.', 'O painel onde cada botão aponta para um slot diferente.'],
         'ex-func': ['Um botão da máquina', 'Função é um comando que alguém pode acionar. “buyCard” é o nome do botão (comprar card). “cardId” é a escolha que você informa ao apertar: qual card quer. “payable” significa que esse botão aceita dinheiro junto.', 'Apertar o botão do slot A1 e inserir as moedas.'],
-        'ex-body': ['A função mexe na memória', 'Quando o botão é apertado, a função executa o que está escrito dentro dela. Aqui: desconta 1 do estoque. Só as funções conseguem mudar o que está guardado nas gavetas.', 'Um item cai e o visor passa de 100 para 99.'],
+        'ex-body': ['Só o estoque deste card diminui', 'cards[cardId] escolhe a ficha do card que foi comprado, e só o estoque dela cai 1. Os outros 29 cards ficam como estavam.', 'Comprar do slot A1 não mexe no estoque do A2.'],
         // ---- slide 11: peças prontas ----
         'oz-pragma': ['A versão da linguagem', 'Solidity é a língua em que o contrato é escrito. Esta linha fixa a edição exata dessa língua, para o código se comportar sempre do mesmo jeito.', 'O idioma e a edição do manual de instruções.'],
         'oz-contract': ['O contrato herda peças prontas', 'A palavra “is” significa “é feito com”. Em vez de escrever tudo do zero, o contrato junta peças prontas da biblioteca OpenZeppelin, listadas nas linhas abaixo.', 'Montar a máquina com módulos já testados.'],
@@ -6716,7 +6887,57 @@
         'p-2': ['Onde estão os dados da coleção', 'O endereço com as informações da coleção inteira: nome, imagem de capa e comissão.', 'A capa do catálogo.'],
         'p-3': ['O preço de cada card', 'Em Wei, a menor unidade do Ether: 4.600.000.000.000.000 Wei = 0,0046 ETH.', 'A etiqueta de preço, com todos os zeros.'],
         'p-4': ['Quem recebe a comissão', 'A carteira que recebe a comissão quando os cards são revendidos.', 'A conta bancária do artista.'],
-        'p-5': ['O tamanho da comissão', 'Medida em “pontos-base”: 100 pontos equivalem a 1%, então 500 é 5%.', 'A porcentagem combinada com o artista.']
+        'p-5': ['O tamanho da comissão', 'Medida em “pontos-base”: 100 pontos equivalem a 1%, então 500 é 5%.', 'A porcentagem combinada com o artista.'],
+        // ---- fluxo 1: compra ----
+        'f1-1': ['Você escolhe o card', 'No jogo, você seleciona o card e aperta comprar. Por trás, o jogo prepara a chamada da função buyCard com o número do card (aqui, o 7). Nada acontece ainda: falta você aprovar.', 'Apertar o botão do slot na máquina.'],
+        'f1-2': ['A carteira paga o preço exato', 'Sua carteira (como a MetaMask) mostra o valor e a taxa da rede e pede a sua aprovação. O valor enviado junto (msg.value) precisa ser exatamente o preço do card. A taxa da rede (gás) vai para quem mantém a rede, não para a máquina.', 'Inserir as moedas certas.'],
+        'f1-3': ['O contrato confere tudo', 'Antes de entregar, o contrato faz as 5 conferências: o card existe, a quantidade é válida, está à venda, tem estoque e o valor é exato. Qualquer falha cancela a compra.', 'O caixa conferindo o pedido.'],
+        'f1-4': ['O estoque do card diminui', 'Só a ficha deste card muda: o estoque cai em 1. Os outros cards não são afetados.', 'O visor do slot passa de 100 para 99.'],
+        'f1-5': ['O card vai para a sua carteira', 'O contrato cria (“minta”) o card diretamente na sua carteira. A partir daí o card é seu: você pode ver, guardar ou enviar.', 'O item cai na bandeja.'],
+        'f1-6': ['O contrato avisa todo mundo', 'Um aviso público (evento) fica gravado: quem comprou, qual card e quanto restou. O jogo escuta esse aviso e atualiza a tela, sem precisar recarregar.', 'O recibo que qualquer pessoa pode consultar.'],
+        'f1-err': ['Se algo der errado, nada acontece', 'Se qualquer conferência falhar, a compra é desfeita por completo: nenhum card é entregue e o ETH enviado volta. A única coisa que você paga é a taxa da rede pela tentativa.', 'A máquina devolve as moedas.'],
+        'f1-money': ['Para onde vai o dinheiro', 'O pagamento fica guardado dentro do próprio contrato. Não vai para a conta de ninguém automaticamente. Só o dono pode sacar (função withdraw).', 'O cofre da máquina.'],
+        'f1-who': ['Quem assina a compra', 'Toda ação no contrato é assinada pela carteira de quem a faz. Por isso ninguém compra no seu nome, e o jogo nunca vê a sua chave privada: a assinatura acontece dentro da sua carteira.', 'Só você tem a chave da sua carteira.'],
+        // ---- fluxo 2: transferência ----
+        'f2-1': ['Você pede o envio', 'Você escolhe o card, a quantidade e o endereço de quem vai receber, e confirma na carteira. A função usada é a safeTransferFrom, que já vem pronta no padrão ERC-1155.', 'Entregar um item a um amigo.'],
+        'f2-2': ['O contrato confere', 'Confere três coisas: a máquina não está pausada (pausada, ninguém envia), você realmente tem o card e a quantidade, e o endereço de destino é válido (não pode ser o endereço zero).', 'Checar o bilhete antes de passar adiante.'],
+        'f2-3': ['O saldo é movido', 'O contrato tira a quantidade do seu saldo e soma ao do destinatário. Nenhum dinheiro é envolvido: só muda quem possui o card.', 'Trocar o nome do dono na etiqueta.'],
+        'f2-4': ['O destino precisa aceitar', 'Se o destinatário for um contrato (e não a carteira de uma pessoa), ele precisa responder “aceito receber”. Se não souber lidar com cards, o envio é cancelado e o card não se perde.', 'O recebedor assina o recibo de entrega.'],
+        'f2-5': ['O envio é registrado', 'Um aviso público (TransferSingle) registra quem enviou, quem recebeu, qual card e quantos. O jogo e os exploradores de blockchain usam isso.', 'O comprovante de entrega.'],
+        'f2-irrev': ['Não tem volta', 'Depois de confirmado, o envio não pode ser desfeito por ninguém, nem pelo dono do contrato. Se enviou ao endereço errado, só quem recebeu pode devolver. Por isso o jogo mostra um aviso antes.', 'Uma carta já postada.'],
+        'f2-stock': ['O estoque não muda', 'O estoque da máquina é só para vendas. Enviar um card entre pessoas não mexe nele: só muda quem possui o card.', 'Dar um item que você já comprou não esvazia a máquina.'],
+        'f2-approve': ['Dar permissão a um aplicativo', 'Com setApprovalForAll você autoriza outro endereço (um marketplace, por exemplo) a mover os seus cards. É assim que as vendas em lojas funcionam. Autorize só aplicativos de confiança; dá para revogar a qualquer momento.', 'Entregar a chave do armário a um despachante.'],
+        // ---- fluxo 3: criar card ----
+        'f3-1': ['Prepara a arte e os dados', 'Antes de criar o card no contrato, o dono publica a imagem e a descrição no IPFS, num arquivo com o número do novo card (31.json). O contrato não verifica isso: se esquecer, o card existe, mas aparece sem imagem.', 'Imprimir a etiqueta antes de abastecer o slot.'],
+        'f3-2': ['O dono chama addCard', 'O dono informa o preço (em Wei) e a tiragem. Se a tiragem for 0, o contrato usa 100.', 'O técnico abre a máquina para colocar um item novo.'],
+        'f3-3': ['É mesmo o dono?', 'O modificador “onlyOwner” confere quem está chamando. Qualquer outra carteira é recusada.', 'A chave da portinhola.'],
+        'f3-4': ['Escolhe o próximo número', 'O contador de tipos de card sobe de 30 para 31, e o novo card recebe esse número.', 'Dar o próximo número de slot.'],
+        'f3-5': ['Cria a ficha do card', 'Grava preço, estoque e tiragem, e liga os interruptores “à venda” e “cadastrado”.', 'Colar a etiqueta no slot novo.'],
+        'f3-6': ['Avisa que existe um card novo', 'O evento CardAdded avisa o número, o preço e a tiragem. A partir daí, qualquer pessoa pode comprar.', 'A luz verde do slot novo acende.'],
+        'f3-batch': ['Vários de uma vez', 'A função addCardsBatch cria vários cards numa única operação, cada um com seu preço e estoque. Economiza taxas.', 'Abastecer vários slots de uma vez.'],
+        'f3-locked': ['Depois de criado, não muda', 'O contrato não tem função para alterar o preço ou o estoque de um card existente. Isso protege os compradores. O que o dono pode é ligar ou desligar a venda.', 'A etiqueta de preço lacrada.'],
+        'f3-game': ['E no jogo?', 'O jogo desenha 30 slots (5 fileiras de 6). Um card 31 existiria no contrato, mas a tela da máquina precisaria ser ampliada para mostrá-lo.', 'A máquina física tem 30 espaços.'],
+        // ---- mapa de funções ----
+        'm-buy': ['Comprar 1 card', 'Qualquer pessoa chama, paga o preço exato e recebe 1 unidade. É o botão que o jogo usa.', 'Apertar o botão e pagar.'],
+        'm-buy2': ['Comprar várias unidades do mesmo card', 'Igual à anterior, mas você informa a quantidade. O valor a enviar é preço × quantidade.', 'Levar 3 do mesmo item.'],
+        'm-batch': ['Comprar vários cards numa transação', 'Você manda duas listas: os cards e as quantidades. Paga o total de uma vez e recebe tudo junto. Se um item falhar, nada é comprado.', 'Um carrinho de compras.'],
+        'm-send': ['Enviar um card a alguém', 'Função padrão do ERC-1155: transfere cards de uma carteira para outra. Só quem tem o card (ou foi autorizado) pode enviar. Não funciona com a máquina pausada.', 'Dar um item a um amigo.'],
+        'm-send2': ['Enviar vários de uma vez', 'Igual à anterior, mas com listas de cards e quantidades.', 'Entregar uma caixa com vários itens.'],
+        'm-appr': ['Autorizar um aplicativo', 'Permite que outro endereço mova os seus cards. É necessário para vender em marketplaces e pode ser revogado.', 'Dar a chave do armário a um despachante.'],
+        'm-add': ['Criar cards novos', 'addCard cria um; addCardsBatch cria vários. Só o dono. Define preço e tiragem, que depois não mudam.', 'Abastecer slots novos.'],
+        'm-active': ['Ligar ou desligar a venda de um card', 'O dono pode parar as vendas de um card sem apagar nada. Quem já tem o card continua com ele.', 'Apagar a luz de um slot.'],
+        'm-pause': ['O botão de emergência', 'pause() trava compras e transferências; unpause() libera. Só o dono.', 'A placa “em manutenção”.'],
+        'm-wd': ['Sacar o dinheiro das vendas', 'withdraw() manda tudo para o dono; withdrawTo() manda para o endereço escolhido. Só o dono, e só se houver saldo.', 'Abrir o cofre.'],
+        'm-uri': ['Trocar os endereços dos dados', 'Altera onde ficam nome, descrição e imagem dos cards e da coleção. Útil para corrigir, mas é um ponto de confiança: quem coleciona precisa confiar que o dono não troca a arte.', 'Trocar o encarte dos produtos.'],
+        'm-roy': ['Ajustar a comissão de revenda', 'Define quem recebe e quanto (no máximo 10%). Pode ser geral ou para um card específico.', 'Renegociar a parte do artista.'],
+        'm-own': ['Passar a posse em duas etapas', 'O dono atual indica o novo (transferOwnership) e o novo aceita (acceptOwnership). Evita perder o contrato por erro de digitação.', 'Passar a chave com recibo assinado.'],
+        'm-all': ['A vitrine inteira', 'Preço, estoque e se está à venda, de todos os cards, numa única consulta. De graça.', 'Uma foto da máquina.'],
+        'm-stock': ['Quantos restam', 'getStock responde para um card; getAllStocks, para todos.', 'Olhar o visor.'],
+        'm-info': ['Dados de um card', 'Preço, estoque e se está à venda (getCardInfo); getCardDetails acrescenta quantos já foram vendidos.', 'Ler a etiqueta do slot.'],
+        'm-minted': ['Quantos já foram vendidos', 'getMintedCount e totalSupply contam as unidades que já existem de um card.', 'O contador de vendas.'],
+        'm-bal': ['Quantos cards alguém tem', 'balanceOf responde para um card e uma carteira; balanceOfBatch, para vários de uma vez. É assim que o inventário do jogo funciona.', 'Consultar o seu estoque pessoal.'],
+        'm-uriR': ['Onde estão nome e imagem', 'uri(cardId) devolve o endereço IPFS com os dados do card; contractURI(), os da coleção.', 'O encarte do produto.'],
+        'm-state': ['Estado geral da máquina', 'paused() diz se está em manutenção; owner(), quem é o dono; totalCardTypes(), quantos cards existem.', 'O painel de status.']
       };
 
       var ov = document.getElementById('explainOverlay');
@@ -6728,7 +6949,7 @@
       var group = [], idx = -1, opener = null;
       window.__explainOpen = false;
 
-      function lines() { return Array.prototype.slice.call(document.querySelectorAll('.slide.active .cl[data-x]')); }
+      function lines() { return Array.prototype.slice.call(document.querySelectorAll('.slide.active [data-x]')); }
       function clean(t) { return t.replace(/\s+/g, ' ').trim(); }
 
       function show(i) {
@@ -6736,8 +6957,8 @@
         group.forEach(function (g) { g.classList.remove('cl-on'); });
         idx = i; var el = group[i], d = EX[el.getAttribute('data-x')];
         el.classList.add('cl-on');
-        els.count.textContent = 'LINHA ' + (i + 1) + ' DE ' + group.length;
-        els.code.textContent = clean(el.textContent);
+        var kind = el.getAttribute('data-kind'); els.count.textContent = (kind === 'step' ? 'PASSO ' : kind === 'fn' ? 'FUNÇÃO ' : 'LINHA ') + (i + 1) + ' DE ' + group.length;
+        els.code.textContent = el.getAttribute('data-code') || clean(el.textContent);
         els.title.textContent = d ? d[0] : 'Sem explicação';
         els.text.textContent = d ? d[1] : '';
         els.analogy.textContent = d ? d[2] : '';
@@ -6757,12 +6978,12 @@
 
       document.addEventListener('click', function (e) {
         if (e.target === ov) return close();
-        var el = e.target.closest && e.target.closest('.cl[data-x]');
+        var el = e.target.closest && e.target.closest('[data-x]');
         if (el && !ov.classList.contains('open')) open(el);
       });
       document.addEventListener('keydown', function (e) {
         if (!window.__explainOpen) {
-          if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('cl')) { e.preventDefault(); e.stopPropagation(); open(e.target); }
+          if ((e.key === 'Enter' || e.key === ' ') && e.target.hasAttribute && e.target.hasAttribute('data-x')) { e.preventDefault(); e.stopPropagation(); open(e.target); }
           return;
         }
         if (e.key === 'Escape') { e.preventDefault(); close(); }
@@ -6780,9 +7001,9 @@
       els.next.addEventListener('click', function () { show(idx + 1); });
 
       // linhas acessíveis por teclado
-      Array.prototype.forEach.call(document.querySelectorAll('.cl[data-x]'), function (el) { el.setAttribute('tabindex', '0'); el.setAttribute('role', 'button'); });
+      Array.prototype.forEach.call(document.querySelectorAll('[data-x]'), function (el) { el.setAttribute('tabindex', '0'); el.setAttribute('role', 'button'); });
       // checagem em desenvolvimento: toda linha precisa ter explicação
-      var faltam = Array.prototype.map.call(document.querySelectorAll('.cl[data-x]'), function (el) { return el.getAttribute('data-x'); }).filter(function (k) { return !EX[k]; });
+      var faltam = Array.prototype.map.call(document.querySelectorAll('[data-x]'), function (el) { return el.getAttribute('data-x'); }).filter(function (k) { return !EX[k]; });
       if (faltam.length) console.warn('Linhas sem explicação:', faltam);
     })();
   </script>
