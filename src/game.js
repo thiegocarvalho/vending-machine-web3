@@ -15,7 +15,7 @@ import { hasWallet, payWithWallet } from './payment/wallet.js';
 import { config } from './config.js';
 import { cardIdToSlot } from './grid.js';
 import { createModes, pickInteractable } from './interaction.js';
-import { formatEther } from 'viem';
+import { formatEther, waitForReceipt } from './data/rpc.js';
 import { TIERS, RESOLUTION_LEVELS, detectTier, createAdaptiveScale } from './render/quality.js';
 
 // As fontes do cartaz/telinha precisam estar prontas antes de pintar as texturas (com tempo-limite para ficar offline).
@@ -26,19 +26,30 @@ await Promise.race([
 
 const canvas = document.getElementById('game');
 const tier = TIERS[detectTier()];
-const { renderer, resize, render, setResolutionFactor } = createRenderer(canvas, tier);
+const { renderer, resize, render, setResolutionFactor, onRestore } = createRenderer(canvas, tier);
+onRestore(() => wake());
 
 // Renderização sob demanda: só desenha enquanto há atividade (entrada, animação, carregamento).
-let activeUntil = 0, loading = true;              // sempre ativo durante o carregamento inicial
-const wake = (ms = 1500) => { activeUntil = Math.max(activeUntil, performance.now() + ms); };
-['pointerdown', 'pointermove', 'pointerup', 'mousemove', 'keydown', 'keyup', 'wheel', 'touchstart', 'touchmove', 'resize', 'orientationchange', 'visibilitychange']
+let activeUntil = 0, loading = true, needsFrame = true;   // sempre ativo durante o carregamento inicial; needsFrame garante ao menos 1 desenho por pedido
+const wake = (ms = 1500) => { activeUntil = Math.max(activeUntil, performance.now() + ms); needsFrame = true; schedule(); };
+// Sem quadros agendados quando ocioso: zero acordadas da CPU. Um quadro pedido há mais de 300 ms sem disparar (alguns navegadores
+// móveis descartam callbacks de rAF ao ir para segundo plano) é substituído; a "ficha" invalida o antigo para não rodar duas vezes.
+let rafId = 0, rafAt = 0, rafTok = 0;
+const schedule = () => {
+  const now = performance.now();
+  if (rafId && now - rafAt < 300) return;
+  const tok = ++rafTok; rafAt = now;
+  rafId = requestAnimationFrame((t) => { if (tok === rafTok) loop(t); });
+};
+['pointerdown', 'pointermove', 'pointerup', 'mousemove', 'keydown', 'keyup', 'wheel', 'touchstart', 'touchmove', 'resize', 'orientationchange', 'visibilitychange', 'focus', 'pageshow']
   .forEach((ev) => window.addEventListener(ev, () => wake(), { passive: true }));
+document.addEventListener('visibilitychange', () => wake());
 const adaptive = createAdaptiveScale({ base: 0, max: RESOLUTION_LEVELS.length - 1, onChange: (n) => { setResolutionFactor(RESOLUTION_LEVELS[n]); wake(); } });
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(65, 1, 0.1, 100);
 addLighting(scene);
-const sceneryGroup = buildScenery();
+const sceneryGroup = buildScenery(tier);
 scene.add(sceneryGroup);
 const poster = sceneryGroup.getObjectByName('faucet-poster');
 const machine = buildMachine();
@@ -57,7 +68,7 @@ const hud = createHud(hudRoot);
 let infos = await loadCardsInfo();
 const cardsApi = populateCards(machine.slotAnchors, infos, tier);
 cardsApi.done.then(() => { loading = false; wake(); });
-window.__game = { renderer, scene, camera, machine, controls, cardsApi, selection, tier, adaptive, wake, modes, rig, hud };
+window.__game = { get state() { return { loopRuns, rafId, loading, activeUntil, now: performance.now(), hidden: document.hidden, mode: modes.mode }; }, renderer, scene, camera, machine, controls, cardsApi, selection, tier, adaptive, wake, modes, rig, hud };
 
 const priceText = (i) => `${formatEther(infos[i - 1].price)} ETH`;
 const contractForQr = config.contractAddress || '0x0000000000000000000000000000000000000000';
@@ -156,8 +167,7 @@ async function payNow() {
     }
     const { hash } = await payWithWallet(window, config, id, info.price, info.stock);
     setState('sent', { hash });
-    const { publicClient } = await import('./data/chain.js');
-    await publicClient.waitForTransactionReceipt({ hash });
+    await waitForReceipt(hash);
     onConfirmed(id, hash);
   } catch (e) {
     busy = false; setState('error', { message: e.message });
@@ -260,14 +270,22 @@ function onResize() {
 window.addEventListener('resize', onResize); window.addEventListener('orientationchange', onResize); onResize();
 
 let last = performance.now(), lastDraw = 0;
-(function loop(t) {
-  requestAnimationFrame(loop);
-  if (document.hidden) { lastDraw = 0; return; }
+const minFrameMs = 1000 / (tier.maxFps || 60);
+let loopRuns = 0;
+function loop(t) {
+  rafId = 0; loopRuns++;
+  if (document.hidden) {                                                         // aba escondida: não desenha; só reverifica 1x/s enquanto havia trabalho pendente
+    lastDraw = 0; if (loading || t < activeUntil) setTimeout(schedule, 1000);
+    return;
+  }
   const flying = rig.update(t);
   if (flying) wake();
   if (pendingWalk && !flying) { pendingWalk = false; controls.setEnabled(true); }
   if (controls.isActive()) wake();
-  if (!loading && t >= activeUntil) { lastDraw = 0; return; }                  // ocioso: não gasta GPU nem bateria
+  if (!loading && !needsFrame && t >= activeUntil) { lastDraw = 0; return; }     // ocioso: não gasta GPU, bateria nem acorda a CPU
+  needsFrame = false;
+  schedule();
+  if (lastDraw && t - lastDraw < minFrameMs - 2) return;                         // limite de FPS do nível (30 fps no baixo)
   const dt = Math.min(0.05, (t - last) / 1000); last = t;
   if (modes.mode === 'select' && !flying) {                                      // profundidade: a câmera acompanha de leve o mouse
     parallax.yaw = approachNum(parallax.yaw, -parallax.x * 0.05, 8, dt); parallax.pitch = approachNum(parallax.pitch, -parallax.y * 0.035, 8, dt);
@@ -276,7 +294,7 @@ let last = performance.now(), lastDraw = 0;
   }
   if (spot.update(dt)) wake(400);
   controls.update(dt);
-  if (modes.mode === 'walk' && controls.enabled) {                              // prompt "E" quando perto e olhando a máquina
+  if (modes.mode === 'walk' && controls.enabled) {                               // prompt "E" quando perto e olhando
     const { yaw, pitch } = controls.pose();
     const now = pickInteractable(camera.position, yaw, pitch, INTERACTABLES);
     if (now !== aimed) { aimed = now; hud.showPrompt(now); }
@@ -284,4 +302,5 @@ let last = performance.now(), lastDraw = 0;
   render(scene, camera);
   if (lastDraw) adaptive.sample(t - lastDraw);
   lastDraw = t;
-})(last);
+}
+schedule();

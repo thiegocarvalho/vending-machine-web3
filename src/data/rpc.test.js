@@ -1,0 +1,45 @@
+import { describe, it, expect } from 'vitest';
+import { encodeFunctionData, decodeFunctionResult, encodeFunctionResult, parseAbi, toFunctionSelector, toEventSelector, formatEther as viemFormatEther } from 'viem';
+import { SELECTORS, TOPIC_CARD_PURCHASED, encodeBuyCard, encodeUri, decodeCardsInfo, decodeString, formatEther, pad32 } from './rpc.js';
+
+const ABI = parseAbi([
+  'function uri(uint256 cardId) view returns (string)',
+  'function getAllCardsInfo() view returns (uint256[] prices, uint256[] stocks, bool[] activeStatuses)',
+  'function buyCard(uint256 cardId) payable'
+]);
+
+// O RPC enxuto substitui a biblioteca viem no navegador; estes testes provam que gera/decodifica exatamente o mesmo ABI.
+describe('rpc ABI (equivalência com viem)', () => {
+  it('selectors e tópico do evento batem com a assinatura do contrato', () => {
+    expect(SELECTORS.getAllCardsInfo).toBe(toFunctionSelector('getAllCardsInfo()'));
+    expect(SELECTORS.uri).toBe(toFunctionSelector('uri(uint256)'));
+    expect(SELECTORS.buyCard).toBe(toFunctionSelector('buyCard(uint256)'));
+    expect(TOPIC_CARD_PURCHASED).toBe(toEventSelector('CardPurchased(address,uint256,uint256,uint256,uint256)'));
+  });
+  it('encodeBuyCard / encodeUri iguais ao viem', () => {
+    for (const id of [1, 7, 30, 255, 65535]) {
+      expect(encodeBuyCard(id)).toBe(encodeFunctionData({ abi: ABI, functionName: 'buyCard', args: [BigInt(id)] }));
+      expect(encodeUri(id)).toBe(encodeFunctionData({ abi: ABI, functionName: 'uri', args: [BigInt(id)] }));
+    }
+  });
+  it('decodeCardsInfo lê o retorno de getAllCardsInfo', () => {
+    const prices = Array.from({ length: 30 }, (_, i) => 100000000000000n + BigInt(i)), stocks = Array.from({ length: 30 }, (_, i) => BigInt(100 - i));
+    const active = Array.from({ length: 30 }, (_, i) => i % 7 !== 0);
+    const hex = encodeFunctionResult({ abi: ABI, functionName: 'getAllCardsInfo', result: [prices, stocks, active] });
+    expect(decodeCardsInfo(hex)).toEqual({ prices, stocks, active });
+  });
+  it('decodeString lê strings (inclusive UTF-8)', () => {
+    for (const str of ['ipfs://bafy.../{id}.json', 'Pirâmide Bem No Comecinho ✓', '']) {
+      const hex = encodeFunctionResult({ abi: ABI, functionName: 'uri', result: str });
+      expect(decodeString(hex)).toBe(str);
+    }
+  });
+  it('formatEther igual ao viem', () => {
+    for (const wei of [0n, 1n, 100000000000000n, 1000000000000000000n, 1234500000000000000n, 999999999999999999999n]) {
+      expect(formatEther(wei)).toBe(viemFormatEther(wei));
+    }
+  });
+  it('pad32 completa a 32 bytes', () => {
+    expect(pad32('0xAbC0000000000000000000000000000000000001')).toBe('0x000000000000000000000000abc0000000000000000000000000000000000001');
+  });
+});

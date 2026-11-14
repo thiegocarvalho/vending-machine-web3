@@ -1,5 +1,4 @@
-import { encodeFunctionData } from 'viem';
-import { ABI } from '../data/chain.js';
+import { encodeBuyCard } from '../data/rpc.js';
 
 export class PaymentError extends Error {
   constructor(code, message) { super(message || code); this.code = code; }
@@ -30,7 +29,7 @@ export async function payWithWallet(win, cfg, cardId, priceWei, stock) {
         await eth.request({ method: 'wallet_addEthereumChain', params: [chainParams(cfg)] });
       }
     }
-    const data = encodeFunctionData({ abi: ABI, functionName: 'buyCard', args: [BigInt(cardId)] });
+    const data = encodeBuyCard(cardId);
     const hash = await eth.request({
       method: 'eth_sendTransaction',
       params: [{ from, to: cfg.contractAddress, data, value: hex(priceWei) }]

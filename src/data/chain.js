@@ -1,32 +1,17 @@
-import { createPublicClient, defineChain, http, parseAbi } from 'viem';
+import { ethCall, decodeCardsInfo, decodeString, encodeUri, SELECTORS } from './rpc.js';
 import { config } from '../config.js';
 import { demoCardsInfo } from './demo.js';
 import { fetchIpfs, idToHex } from './ipfs.js';
 
-export const ABI = parseAbi([
-  'function uri(uint256 cardId) view returns (string)',
-  'function getAllCardsInfo() view returns (uint256[] prices, uint256[] stocks, bool[] activeStatuses)',
-  'function buyCard(uint256 cardId) payable',
-  'event CardPurchased(address indexed buyer, uint256 indexed cardId, uint256 amount, uint256 totalCost, uint256 remainingStock)'
-]);
-
-export const chain = defineChain({
-  id: config.chainId, name: config.chainName,
-  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: [config.rpcUrl] } }
-});
-
-export const publicClient = createPublicClient({ chain, transport: http(config.rpcUrl) });
-
 export async function loadCardsInfo() {
   if (config.demoMode) return demoCardsInfo();
-  const [prices, stocks, active] = await publicClient.readContract({ address: config.contractAddress, abi: ABI, functionName: 'getAllCardsInfo' });
+  const { prices, stocks, active } = decodeCardsInfo(await ethCall(config.contractAddress, SELECTORS.getAllCardsInfo));
   return prices.map((p, i) => ({ price: p, stock: Number(stocks[i]), active: active[i] }));
 }
 
 export async function tokenMetadataUri(id) {
   if (config.demoMode) return `ipfs://${config.metadataCid}/${idToHex(id)}.json`;
-  const uri = await publicClient.readContract({ address: config.contractAddress, abi: ABI, functionName: 'uri', args: [BigInt(id)] });
+  const uri = decodeString(await ethCall(config.contractAddress, encodeUri(id)));
   return uri.replace('{id}', idToHex(id));
 }
 

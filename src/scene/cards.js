@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { loadMetadata, imageUrlFor } from '../data/chain.js';
 import { fetchIpfs } from '../data/ipfs.js';
 import { config } from '../config.js';
+import { decodeCardImage } from '../data/decode.js';
 
 const CARD_W = 0.17, CARD_H = CARD_W * 4 / 3, CONCURRENCY = 6;
 
@@ -18,17 +19,18 @@ function placeholderTexture(label, failed = false) {
   t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 
-async function loadTexture(meta, { texW, texH }) {
+async function loadTexture(meta, { texW, texH, mip = true, aniso = 4 }) {
   const url = imageUrlFor(meta);
   const blob = url.startsWith('ipfs://') ? await fetchIpfs(url, config.gateways, { as: 'blob', timeoutMs: 15000 })
                                          : await (await fetch(url)).blob();
-  const bmp = await createImageBitmap(blob, { resizeWidth: texW, resizeHeight: texH, resizeQuality: 'medium', imageOrientation: 'flipY' });
-  // ImageBitmap ignora flipY: a inversão vem de imageOrientation no createImageBitmap
-  const t = new THREE.Texture(bmp); t.flipY = false; t.anisotropy = 4;
-  t.colorSpace = THREE.SRGBColorSpace; t.needsUpdate = true; return t;
+  const canvas = await decodeCardImage(blob, { texW, texH });
+  const t = new THREE.CanvasTexture(canvas); t.flipY = false;               // já invertido no decode
+  t.anisotropy = aniso; t.colorSpace = THREE.SRGBColorSpace;
+  if (!mip) { t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; }   // aparelho fraco: -33% de memória de textura
+  return t;
 }
 
-export function populateCards(anchors, infos, { texW = 300, texH = 400 } = {}) {
+export function populateCards(anchors, infos, { texW = 300, texH = 400, mip = true, aniso = 4 } = {}) {
   const cards = [], metas = new Array(anchors.length).fill(null), listeners = [];
   anchors.forEach((anchor, i) => {
     const mesh = new THREE.Mesh(CARD_GEO, new THREE.MeshBasicMaterial({ map: placeholderTexture(String(i + 1)) }));
@@ -36,16 +38,18 @@ export function populateCards(anchors, infos, { texW = 300, texH = 400 } = {}) {
     anchor.add(mesh); cards.push(mesh);
   });
 
+  function swapMap(mesh, tex) { const old = mesh.material.map; mesh.material.map = tex; mesh.material.needsUpdate = true; old?.dispose(); }   // libera a textura anterior da GPU
+
   async function loadOne(i) {
     const mesh = cards[i];
     try {
       const meta = await loadMetadata(i + 1);
       metas[i] = meta;
-      mesh.material.map = await loadTexture(meta, { texW, texH }); mesh.material.needsUpdate = true;
+      swapMap(mesh, await loadTexture(meta, { texW, texH, mip, aniso }));
       listeners.forEach(cb => cb(i + 1, meta));
     } catch (e) {
       console.warn(`card ${i + 1} failed`, e.message);
-      mesh.material.map = placeholderTexture('', true); mesh.material.needsUpdate = true;
+      swapMap(mesh, placeholderTexture('', true));
     }
   }
   async function run() {

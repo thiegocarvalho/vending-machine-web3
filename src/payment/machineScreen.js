@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import QRCode from 'qrcode';
+import * as QRCode from 'qrcode/lib/core/qrcode.js';
 
 export const SCREEN_W = 256, SCREEN_H = 384;
 export const BUTTON = { x: 20, y: 318, w: 216, h: 50 };         // botão "pagar com carteira" na telinha 3D

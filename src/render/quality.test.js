@@ -13,6 +13,15 @@ describe('pickTier', () => {
     expect(pickTier({ hardwareConcurrency: 6 })).toBe('medium');
     expect(pickTier({})).toBe('medium');
   });
+  it('economia de dados força o nível baixo e celular nunca passa de médio', () => {
+    expect(pickTier({ saveData: true, deviceMemory: 8, hardwareConcurrency: 8 })).toBe('low');
+    expect(pickTier({ coarse: true, deviceMemory: 8, hardwareConcurrency: 8 })).toBe('medium');
+  });
+  it('níveis mais baixos usam menos memória de textura e menos FPS máximo', () => {
+    expect(TIERS.low.roadPx).toBeLessThan(TIERS.high.roadPx);
+    expect(TIERS.low.maxFps).toBeLessThanOrEqual(TIERS.medium.maxFps);
+    expect(TIERS.low.mip).toBe(false);
+  });
   it('lower tiers render fewer pixels and use smaller textures', () => {
     expect(TIERS.low.dprCap).toBeLessThan(TIERS.high.dprCap);
     expect(TIERS.low.antialias).toBe(false);

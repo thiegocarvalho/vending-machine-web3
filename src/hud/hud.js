@@ -1,6 +1,6 @@
 import './hud.css';
 import { cardIdToSlot } from '../grid.js';
-import { formatEther } from 'viem';
+import { formatEther } from '../data/rpc.js';
 import { config } from '../config.js';
 
 const el = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstChild; };
