@@ -1,13 +1,23 @@
 import { describe, it, expect } from 'vitest';
-import { SCENERY_COLLIDERS } from './scenery.js';
+import { SCENERY_COLLIDERS, paintBricks } from './scenery.js';
 import { MACHINE_COLLIDER } from './machine.js';
 import { collideCircle } from '../player/movement.js';
 
 const ALL = [...SCENERY_COLLIDERS, MACHINE_COLLIDER];
 
+describe('paintBricks', () => {
+  it('paints mortar plus staggered bricks (4 rows x 5 incl. offset bleed)', () => {
+    const calls = []; const ctx = { fillRect: (...a) => calls.push(a), set fillStyle(v) {} };
+    paintBricks(ctx, 256, 128, () => 0.5);
+    expect(calls[0]).toEqual([0, 0, 256, 128]);       // argamassa
+    expect(calls.length).toBe(1 + 4 * 5);
+  });
+});
+
 describe('physical scenery', () => {
-  it('has a wall behind the machine and two side walls', () => {
-    expect(SCENERY_COLLIDERS).toHaveLength(3);
+  it('has only the brick wall behind the machine, reaching the horizon (no side walls)', () => {
+    expect(SCENERY_COLLIDERS).toHaveLength(1);
+    expect(SCENERY_COLLIDERS[0].maxX - SCENERY_COLLIDERS[0].minX).toBeGreaterThanOrEqual(60);
     const back = SCENERY_COLLIDERS[0];
     expect(back.maxZ).toBeLessThanOrEqual(MACHINE_COLLIDER.minZ + 0.05);
   });
@@ -29,12 +39,6 @@ describe('physical scenery', () => {
   it('walking straight at the back wall stops in front of it', () => {
     const p = walk(2.5, 3, 0, -0.05, 120);
     expect(p.z).toBeCloseTo(SCENERY_COLLIDERS[0].maxZ + 0.3, 2);
-  });
-  it('walking at a side wall from inside the nook stops before it', () => {
-    const r = walk(4, 2, 0.05, 0, 100);
-    expect(r.x).toBeCloseTo(SCENERY_COLLIDERS[2].minX - 0.3, 2);
-    const l = walk(-4, 2, -0.05, 0, 100);
-    expect(l.x).toBeCloseTo(SCENERY_COLLIDERS[1].maxX + 0.3, 2);
   });
   it('walking at the machine front stops in front of it', () => {
     const p = walk(0, 3, 0, -0.05, 100);
