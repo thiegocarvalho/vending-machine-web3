@@ -8,10 +8,12 @@ export class PaymentError extends Error {
 export const hasWallet = (win) => !!win?.ethereum?.request;
 
 const hex = (n) => '0x' + BigInt(n).toString(16);
-const SEPOLIA_PARAMS = {
-  chainId: '0xaa36a7', chainName: 'Sepolia', nativeCurrency: { name: 'Sepolia ETH', symbol: 'ETH', decimals: 18 },
-  rpcUrls: ['https://ethereum-sepolia-rpc.publicnode.com'], blockExplorerUrls: ['https://sepolia.etherscan.io']
-};
+const chainParams = (cfg) => ({
+  chainId: hex(cfg.chainId), chainName: cfg.chainName || 'Sepolia',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: [cfg.rpcUrl || 'https://ethereum-sepolia-rpc.publicnode.com'],
+  ...(cfg.explorer ? { blockExplorerUrls: [cfg.explorer] } : {})
+});
 
 export async function payWithWallet(win, cfg, cardId, priceWei, stock) {
   if (!hasWallet(win)) throw new PaymentError('no_wallet', 'Nenhuma carteira encontrada no navegador');
@@ -25,7 +27,7 @@ export async function payWithWallet(win, cfg, cardId, priceWei, stock) {
         await eth.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hex(cfg.chainId) }] });
       } catch (e) {
         if (e.code !== 4902) throw e;
-        await eth.request({ method: 'wallet_addEthereumChain', params: [SEPOLIA_PARAMS] });
+        await eth.request({ method: 'wallet_addEthereumChain', params: [chainParams(cfg)] });
       }
     }
     const data = encodeFunctionData({ abi: ABI, functionName: 'buyCard', args: [BigInt(cardId)] });

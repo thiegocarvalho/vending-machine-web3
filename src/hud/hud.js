@@ -3,6 +3,7 @@ import { renderMinimap } from './minimap.js';
 import { cardIdToSlot } from '../grid.js';
 import { drawQr } from '../payment/machineScreen.js';
 import { formatEther } from 'viem';
+import { config } from '../config.js';
 
 const el = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstChild; };
 
@@ -78,7 +79,7 @@ export function createHud(root) {
     },
     setStatus(text, { error = false, hash } = {}) {
       const s = q('.status'); s.className = 'status' + (error ? ' err' : ''); s.textContent = text;
-      if (hash) { const a = document.createElement('a'); a.href = `https://sepolia.etherscan.io/tx/${hash}`; a.target = '_blank'; a.rel = 'noopener'; a.textContent = ' ver no Etherscan'; s.appendChild(a); }
+      if (hash && config.explorer) { const a = document.createElement('a'); a.href = `${config.explorer}/tx/${hash}`; a.target = '_blank'; a.rel = 'noopener'; a.textContent = ' ver no explorer'; s.appendChild(a); }
     }
   };
 }

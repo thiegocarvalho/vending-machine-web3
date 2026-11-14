@@ -1,5 +1,4 @@
-import { createPublicClient, http, parseAbi } from 'viem';
-import { sepolia } from 'viem/chains';
+import { createPublicClient, defineChain, http, parseAbi } from 'viem';
 import { config } from '../config.js';
 import { demoCardsInfo } from './demo.js';
 import { fetchIpfs, idToHex } from './ipfs.js';
@@ -11,7 +10,13 @@ export const ABI = parseAbi([
   'event CardPurchased(address indexed buyer, uint256 indexed cardId, uint256 amount, uint256 totalCost, uint256 remainingStock)'
 ]);
 
-export const publicClient = createPublicClient({ chain: sepolia, transport: http(config.rpcUrl) });
+export const chain = defineChain({
+  id: config.chainId, name: config.chainName,
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { default: { http: [config.rpcUrl] } }
+});
+
+export const publicClient = createPublicClient({ chain, transport: http(config.rpcUrl) });
 
 export async function loadCardsInfo() {
   if (config.demoMode) return demoCardsInfo();
