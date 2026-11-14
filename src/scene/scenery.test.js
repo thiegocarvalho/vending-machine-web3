@@ -15,8 +15,11 @@ describe('paintBricks', () => {
 });
 
 describe('physical scenery', () => {
-  it('has only the brick wall behind the machine, reaching the horizon (no side walls)', () => {
-    expect(SCENERY_COLLIDERS).toHaveLength(1);
+  it('has the brick wall behind the machine (to the horizon) and a solid lamp post, no side walls', () => {
+    expect(SCENERY_COLLIDERS).toHaveLength(2);
+    const post = SCENERY_COLLIDERS[1];
+    expect(post.maxX - post.minX).toBeLessThan(0.5);
+    expect(post.minX).toBeGreaterThan(MACHINE_COLLIDER.maxX);
     expect(SCENERY_COLLIDERS[0].maxX - SCENERY_COLLIDERS[0].minX).toBeGreaterThanOrEqual(60);
     const back = SCENERY_COLLIDERS[0];
     expect(back.maxZ).toBeLessThanOrEqual(MACHINE_COLLIDER.minZ + 0.05);
@@ -39,6 +42,11 @@ describe('physical scenery', () => {
   it('walking straight at the back wall stops in front of it', () => {
     const p = walk(2.5, 3, 0, -0.05, 120);
     expect(p.z).toBeCloseTo(SCENERY_COLLIDERS[0].maxZ + 0.3, 2);
+  });
+  it('cannot walk through the lamp post', () => {
+    const post = SCENERY_COLLIDERS[1], cx = (post.minX + post.maxX) / 2;
+    const p = walk(cx, 4, 0, -0.05, 120);
+    expect(p.z).toBeCloseTo(post.maxZ + 0.3, 2);
   });
   it('walking at the machine front stops in front of it', () => {
     const p = walk(0, 3, 0, -0.05, 100);
