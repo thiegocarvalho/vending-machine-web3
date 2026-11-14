@@ -32,6 +32,14 @@ async function main() {
   const address = await c.getAddress();
   console.log('Contrato:', address);
 
+  // Histórico de deploys por rede: cada deploy é um contrato NOVO e os cards comprados ficam no contrato antigo.
+  const histFile = path.resolve(__dirname, '../deployments.json');
+  const hist = fs.existsSync(histFile) ? JSON.parse(fs.readFileSync(histFile, 'utf8')) : {};
+  const prev = hist[hre.network.name] ?? [];
+  hist[hre.network.name] = [...prev, { address, metadataCid, at: new Date().toISOString() }];
+  fs.writeFileSync(histFile, JSON.stringify(hist, null, 2) + '\n');
+  if (prev.length) console.log(`ATENÇÃO: já havia ${prev.length} contrato(s) nesta rede. Cards comprados nele NÃO migram para este novo contrato:\n  ` + prev.map((d) => d.address).join('\n  '));
+
   const local = net.chainId === 31337n;
   setEnv(path.join(GAME_DIR, '.env'), local
     ? { VITE_CONTRACT_ADDRESS: address, VITE_METADATA_CID: metadataCid, VITE_CHAIN_ID: '31337', VITE_CHAIN_NAME: 'Local', VITE_RPC_URL: 'http://127.0.0.1:8545', VITE_EXPLORER_URL: '' }
