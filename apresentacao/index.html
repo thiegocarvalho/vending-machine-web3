@@ -2188,98 +2188,44 @@
       </div>
     </section>
 
-    <!-- SLIDE 21: SIMULADOR INTERATIVO DA VENDING MACHINE RETRO TOTALMENTE ABERTO -->
-    <section class="slide flex-col max-w-6xl w-full mx-auto space-y-3 relative" data-topic="08. LIVE DEMO // VENDING MACHINE">
-      
-      <!-- Watermark Kanji -->
-      <div class="watermark-kanji jp-kanji-trans right-4 top-1/4 text-[300px]" data-jp-tooltip="Kanji 機 (Ki): Máquina / Mecanismo Autônomo da Vending Machine">
-        機
-      </div>
+    <!-- SLIDE 21: O JOGO 3D (PRINT + QR CODE + BOTÃO) -->
+    <section class="slide flex-col max-w-6xl w-full mx-auto space-y-4 relative" data-topic="08. O JOGO 3D // JOGUE AGORA" data-game-url="https://thiegocarvalho.github.io/vending-machine-web3/">
+      <div class="watermark-kanji jp-kanji-trans right-4 top-1/4 text-[300px]" data-jp-tooltip="Kanji 遊 (Asobu): Jogar / Brincar">遊</div>
 
-      <div class="slide-header border-b border-noir-border/80 pb-2 flex items-center justify-between relative z-10 w-full">
+      <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap items-end justify-between gap-2 relative z-10 w-full">
         <div>
-          <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// EXPERIÊNCIA INTERATIVA ON-CHAIN</span>
-          <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">VENDING MACHINE ZERU // <span class="jp-trans" data-jp-tooltip="ぜる: Zeru (em Hiragana)">ぜる</span> (30 CARDS)</h2>
+          <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// AGORA É A SUA VEZ</span>
+          <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">JOGUE: COMPRE UM CARD DE VERDADE</h2>
         </div>
-        <div class="flex items-center gap-3">
-          <a href="../card_showcase.html" target="_blank" class="px-3 py-1 bg-noir-red text-white text-xs font-mono font-bold tracking-wider rounded hover:bg-white hover:text-black transition flex items-center gap-1.5 shadow-lg">
-            <span>🎴</span> [VER SHOWCASE DOS 30 CARDS]
-          </a>
-          <span class="text-xs font-mono text-noir-red font-bold tracking-widest hidden sm:block">
-            [LIVE_DEMO // SEPOLIA]
-          </span>
-        </div>
+        <span class="text-xs font-mono text-noir-muted font-jp hidden sm:block jp-trans" data-jp-tooltip="ゲーム (Gēmu): Jogo">ゲーム</span>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start pt-1 relative z-10">
-        
-        <!-- Esquerda: Matriz Aberta dos 30 Cards (7 colunas) -->
-        <div class="md:col-span-7 space-y-2.5">
-          <div class="flex items-center justify-between text-xs font-mono text-noir-muted border-b border-noir-border/60 pb-1">
-            <span class="uppercase tracking-wider">MATRIZ DE PRODUTOS (5x6 = 30 SLOTS)</span>
-            <span class="text-noir-red font-bold font-jp jp-trans" data-jp-tooltip="スロット選択 (Surotto Sentaku): Seleção de Slot / Produto da Máquina">スロット選択</span>
-          </div>
-
-          <!-- O Grid 5x6 ABERTO (Estilo Matriz de Terminal Vermelho) -->
-          <div id="vendingGrid" class="grid grid-cols-6 gap-2 font-mono text-xs">
-            <!-- Gerado via JS de A1 a E6 -->
-          </div>
-
-          <!-- Gaveta de Retirada da Máquina Aberta -->
-          <div id="vendingTray" class="py-2 border-t border-b border-noir-border/80 text-center font-mono text-xs transition-all">
-            <span id="vendingTrayText" class="text-noir-muted">GAVETA DE RETIRADA: [ Vazia ]</span>
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center pt-1 relative z-10">
+        <!-- Print do jogo -->
+        <div class="md:col-span-8">
+          <div class="relative border border-noir-border/80 bg-noir-pitch p-1.5 shadow-2xl">
+            <span class="absolute -top-px -left-px w-5 h-5 border-t-2 border-l-2 border-noir-red"></span>
+            <span class="absolute -top-px -right-px w-5 h-5 border-t-2 border-r-2 border-noir-red"></span>
+            <span class="absolute -bottom-px -left-px w-5 h-5 border-b-2 border-l-2 border-noir-red"></span>
+            <span class="absolute -bottom-px -right-px w-5 h-5 border-b-2 border-r-2 border-noir-red"></span>
+            <img src="jogo-3d.jpg" alt="Captura do jogo 3D: uma vending machine azul numa rua à noite, com 30 cards nas prateleiras, neon roxo e um cartaz de faucet" class="w-full h-auto block">
+            <div class="absolute left-3 bottom-3 px-2 py-0.5 bg-noir-pitch/85 border border-noir-border/80 font-mono text-[10px] tracking-wider text-gray-200">JOGO 3D // 30 CARDS // SEPOLIA</div>
           </div>
         </div>
 
-        <!-- Direita: Telinha LCD da Máquina, QR Code e Pagamento (5 colunas) -->
-        <div class="md:col-span-5 space-y-2.5 font-mono text-xs md:border-l md:border-noir-border/80 md:pl-6">
-          
-          <!-- LCD Display Aberto -->
-          <div class="space-y-1 font-mono border-b border-noir-border/60 pb-1.5">
-            <div class="text-[10px] uppercase text-noir-muted flex justify-between">
-              <span class="text-noir-red font-bold">:: LCD_PANEL // ZERU_OS ::</span>
-              <span id="lcdCardSlot" class="text-white font-bold">SLOT: [ A1 ]</span>
-            </div>
-            <div id="lcdCardName" class="text-base font-bold tracking-wider text-white">CARD #01: GENESIS CAPSULE</div>
-            <div class="flex justify-between text-xs pt-0.5 text-noir-muted">
-              <span>PREÇO: <strong id="lcdCardPrice" class="text-noir-red font-bold">0.0046 ETH</strong></span>
-              <span>ESTOQUE: <strong id="lcdCardStock" class="text-white font-bold">100 UNID</strong></span>
-            </div>
+        <!-- QR Code + botão -->
+        <div class="md:col-span-4 flex flex-col items-center gap-3 text-center">
+          <div class="font-display text-2xl text-white tracking-wide">ESCANEIE PARA JOGAR</div>
+          <div class="relative p-3 bg-white border-2 border-noir-red shadow-[0_0_30px_rgba(255,0,51,.25)]">
+            <div id="gameQr" class="w-[190px] h-[190px] flex items-center justify-center" aria-label="QR Code que abre o jogo online"></div>
           </div>
-
-          <!-- QR Code EIP-681 Integrado com Mira de Terminal -->
-          <div class="flex flex-col items-center justify-center p-2.5 relative bg-white">
-            <div id="qrcodeContainer"></div>
-            <span class="text-[10px] text-black font-mono mt-1 text-center font-bold tracking-widest">
-              [EIP-681 ON-CHAIN QR]
-            </span>
-          </div>
-
-          <!-- Painel de Compra Aberto -->
-          <div class="space-y-2 pt-0.5 font-sans">
-            <div class="flex items-center justify-between text-xs font-mono">
-              <span class="text-noir-muted">1 CARD POR COMPRA</span>
-              <span class="text-noir-muted">TOTAL: <strong id="buyTotalCost" class="text-noir-red font-bold">0.0046 ETH</strong></span>
-            </div>
-
-            <!-- Input estilo Terminal Aberto com Linha Inferior -->
-            <div class="flex items-center justify-between text-xs font-mono border-b border-noir-border pb-1">
-              <span class="text-noir-muted text-[10.5px]">VALOR PAGO (ETH):</span>
-              <input id="inputSentValue" type="number" step="0.0001" value="0.0046" class="w-24 bg-transparent text-right text-white text-xs font-bold font-mono focus:outline-none focus:text-noir-red">
-            </div>
-
-            <button onclick="executePurchase()" class="term-btn w-full text-center text-sm py-2">
-              [ > EXEC: INSERT_COIN // ON-CHAIN TX ]
-            </button>
-          </div>
-
-          <!-- Log de Eventos On-Chain Aberto -->
-          <div id="onChainLog" class="pt-1.5 border-t border-noir-border/80 text-[10.5px] font-mono text-noir-muted max-h-16 overflow-y-auto">
-            > Conectado ao contrato 0x71C... Sepolia.<br>
-            > Aguardando seleção de card...
-          </div>
+          <div id="gameUrlText" class="font-mono text-[11px] text-noir-muted break-all max-w-[240px]"></div>
+          <button id="gameOpenBtn" type="button" class="w-full max-w-[260px] px-4 py-3 bg-noir-red text-white font-mono text-sm font-bold tracking-widest hover:bg-white hover:text-black transition border border-noir-red flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M7 5l12 7-12 7z"/></svg>
+            ABRIR O JOGO
+          </button>
+          <p class="text-[11px] font-sans text-noir-muted max-w-[240px] leading-snug">Rede de testes: você precisa de ETH de teste (grátis, pelo faucet) para comprar.</p>
         </div>
-
       </div>
     </section>
 
@@ -6434,124 +6380,17 @@
     function simL0FraudAttempt() {}
     function simL0Reset() {}
 
-    // --- 5. Simulador Slide 10: Vending Machine dos 30 Cards ---
-    const CARD_NAMES = [
-      "Altseason Manifest", "Amor Powell", "Berachain Nutshell", "BTC Season Dominance", "Chilling Felp", "Fariax Holyfield",
-      "Felp 4K Ultra HD", "Felp Depende", "Felp The Forecaster", "Kawai Victor", "Supreme Leader Ns1ght", "Lippe Mafioso Godfather",
-      "Missing Felp Protocol", "Sem Amor No Mercado", "Oito e Sete Resistance", "Pirâmide No Comecinho", "Pobres vs Liquidez", "Victão Na Live",
-      "Victor Sheik de Dubai", "Victor Original", "Victor Bear Survivor", "Victor Beta Tester", "Victor CZ 4 Binance", "Moraes vs Victor",
-      "Victor vs Dog Memecoin", "Papa Victor I", "Victor Poker Face", "Zeru Confuso EVM", "Zeru Perplexo Terminal", "Zeru Sem Barba Mythic"
-    ];
-
-    let cardStocks = new Array(30).fill(100);
-    let selectedSlotIndex = 0;
-    const currentBuyAmount = 1;   // sempre 1 card por compra
-    const CARD_PRICE_ETH = 0.0046;
-
-    function initVendingGrid() {
-      const grid = document.getElementById('vendingGrid');
-      if (!grid) return;
-      grid.innerHTML = '';
-      const rows = ['A', 'B', 'C', 'D', 'E'];
-
-      for (let i = 0; i < 30; i++) {
-        const row = rows[Math.floor(i / 6)];
-        const col = (i % 6) + 1;
-        const slotCode = `${row}${col}`;
-
-        const btn = document.createElement('button');
-        btn.id = `slotBtn_${i}`;
-        btn.onclick = () => selectCard(i);
-        btn.className = `py-1.5 px-1 border-b transition-all text-center ${
-          i === selectedSlotIndex 
-            ? 'border-noir-red bg-noir-red text-black font-black' 
-            : 'border-noir-border text-noir-muted hover:border-white hover:text-white'
-        }`;
-        btn.innerHTML = `
-          <div class="text-[11px] font-bold font-mono tracking-wider">${slotCode}</div>
-          <div class="text-[9px] font-mono opacity-60">#${String(i + 1).padStart(2, '0')}</div>
-        `;
-        grid.appendChild(btn);
-      }
-    }
-
-    function selectCard(index) {
-      document.getElementById(`slotBtn_${selectedSlotIndex}`).className = 'py-1.5 px-1 border-b border-noir-border text-noir-muted hover:border-white hover:text-white transition-all text-center';
-      selectedSlotIndex = index;
-      document.getElementById(`slotBtn_${selectedSlotIndex}`).className = 'py-1.5 px-1 border-b-2 border-noir-red bg-noir-red text-black font-black transition-all text-center';
-
-      const rows = ['A', 'B', 'C', 'D', 'E'];
-      const slotCode = `${rows[Math.floor(index / 6)]}${(index % 6) + 1}`;
-      
-      document.getElementById('lcdCardSlot').textContent = `SLOT: [ ${slotCode} ]`;
-      document.getElementById('lcdCardName').textContent = `CARD #${String(index + 1).padStart(2, '0')}: ${CARD_NAMES[index]}`;
-      document.getElementById('lcdCardStock').textContent = `${cardStocks[index]} UNID`;
-      
-      updateTotal();
-      renderQRCode();
-    }
-
-    function updateTotal() {
-      const totalCost = (currentBuyAmount * CARD_PRICE_ETH).toFixed(4);
-      document.getElementById('buyTotalCost').textContent = `${totalCost} ETH`;
-      const inputEl = document.getElementById('inputSentValue');
-      if (inputEl) inputEl.value = totalCost;
-    }
-
-    let qrcodeObj = null;
-    function renderQRCode() {
-      const qrEl = document.getElementById('qrcodeContainer');
-      if (!qrEl) return;
-      qrEl.innerHTML = '';
-
-      const cardId = selectedSlotIndex + 1;
-      const totalWei = BigInt(Math.round(currentBuyAmount * CARD_PRICE_ETH * 1e18)).toString();
-      const eip681Url = `ethereum:0x71C8F392b8A1e04A671c6f93d39572c84A59E7A3@11155111/buyCard?uint256=${cardId}&value=${totalWei}`;
-
-      qrcodeObj = new QRCode(qrEl, {
-        text: eip681Url,
-        width: 85,
-        height: 85,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.M
-      });
-    }
-
-    function executePurchase() {
-      const cardId = selectedSlotIndex + 1;
-      const availableStock = cardStocks[selectedSlotIndex];
-      const log = document.getElementById('onChainLog');
-      const tray = document.getElementById('vendingTray');
-      const trayText = document.getElementById('vendingTrayText');
-
-      if (availableStock < 1) {
-        log.innerHTML += `<br><span class="text-noir-red font-bold">> [ERR: CardIsSoldOut] cardId: ${cardId}</span>`;
-        log.scrollTop = log.scrollHeight;
-        return;
-      }
-
-      const totalCost = parseFloat((currentBuyAmount * CARD_PRICE_ETH).toFixed(4));
-      const sentValue = parseFloat(document.getElementById('inputSentValue').value) || 0;
-
-      if (Math.abs(sentValue - totalCost) > 0.00001) {
-        log.innerHTML += `<br><span class="text-noir-red font-bold">> [REVERT: IncorrectPayment] enviado: ${sentValue.toFixed(4)} ETH | exigido EXATAMENTE: ${totalCost.toFixed(4)} ETH</span>`;
-        log.scrollTop = log.scrollHeight;
-        return;
-      }
-
-      cardStocks[selectedSlotIndex] -= currentBuyAmount;
-      document.getElementById('lcdCardStock').textContent = `${cardStocks[selectedSlotIndex]} UNID`;
-
-      tray.className = 'py-2.5 border-t border-b border-noir-red text-noir-red text-center font-mono text-xs transition-all font-bold';
-      trayText.innerHTML = `*CLACK!* ${currentBuyAmount}x Card #${cardId} (${CARD_NAMES[selectedSlotIndex]}) DISPENSADO NA GAVETA!`;
-
-      log.innerHTML += `
-        <br><span class="text-white font-bold">> [TX_SUCCESS] Block #21450892</span>
-        <br><span class="text-noir-red font-bold">> Emit CardPurchased(buyer: 0xUser..., cardId: ${cardId}, amount: ${currentBuyAmount}, cost: ${totalCost.toFixed(4)} ETH)</span>
-        <br><span class="text-emerald-400 font-bold">> [ATOMIC_MINT] Tokens cunhados diretamente na carteira!</span>
-      `;
-      log.scrollTop = log.scrollHeight;
+    // --- Slide final: QR Code e botão para abrir o jogo online ---
+    function initGameSlide() {
+      const sec = document.querySelector('[data-game-url]');
+      const box = document.getElementById('gameQr');
+      if (!sec || !box) return;
+      const url = sec.getAttribute('data-game-url');
+      document.getElementById('gameUrlText').textContent = url.replace(/^https?:\/\//, '');
+      document.getElementById('gameOpenBtn').addEventListener('click', () => window.open(url, '_blank', 'noopener'));
+      try {
+        new QRCode(box, { text: url, width: 190, height: 190, colorDark: '#040204', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+      } catch (e) { box.textContent = 'QR indisponível'; }
     }
 
     
@@ -6631,10 +6470,7 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       updateSlide(0);
-      if (document.getElementById('vendingGrid')) {
-        initVendingGrid();
-        selectCard(0);
-      }
+      initGameSlide();
       // Pré-inicializa cenas 3D
       init3DWeb2();
       init3DWeb3();
