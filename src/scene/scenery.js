@@ -217,12 +217,10 @@ export function paintSkyline(g, w, h, rand = Math.random) {
 
 // Parede de tijolos atrás da máquina, até o horizonte (a névoa esconde o fim). Fonte única para geometria e colisão.
 const WALL_H = 4.5, WALL_W = 60, WALL_Z = -0.8, WALL_D = 0.6;
-const CAR1 = { x: 4.6, z: 6.4 };                                       // carro estacionado na faixa de perto (sólido)
 export const SCENERY_COLLIDERS = [
   { minX: -WALL_W / 2, maxX: WALL_W / 2, minZ: WALL_Z - WALL_D / 2, maxZ: WALL_Z + WALL_D / 2 },
   { minX: POST.x - 0.15, maxX: POST.x + 0.15, minZ: POST.z - 0.15, maxZ: POST.z + 0.15 },
-  { minX: SIGN.x - 0.3, maxX: SIGN.x + 0.3, minZ: SIGN.z - 0.3, maxZ: SIGN.z + 0.3 },
-  { minX: CAR1.x - 2.15, maxX: CAR1.x + 2.15, minZ: CAR1.z - 0.95, maxZ: CAR1.z + 0.95 }
+  { minX: SIGN.x - 0.3, maxX: SIGN.x + 0.3, minZ: SIGN.z - 0.3, maxZ: SIGN.z + 0.3 }
 ];
 
 // Textura de tijolos (1 tile = 2,0 m x 0,8 m: 4 tijolos x 4 fiadas), repetida pela parede.
@@ -279,18 +277,7 @@ export function buildScenery() {
   b.add(0.07, 2.4, 0.07, 0x20262f, 0.8, SIGN.x, 1.75, SIGN.z);                 // haste da placa
   b.add(0.1, 0.1, 0.12, 0x4a4f5a, 0.7, -1.9, 0.05, 2.2); b.add(0.1, 0.1, 0.1, 0x6a5a4a, 0.7, 2.0, 0.05, 2.7);   // latas no chão
   b.add(0.1, 0.1, 0.1, 0x4a4f5a, 0.7, 0.9, 0.05, 3.1);
-  const lit = createBatch({ flat: true });                                    // luzes acesas dos carros
-  const car = (x, z, body, glass) => {                                        // carro low-poly, frente para +x
-    b.add(4.3, 0.55, 1.85, body, 0.9, x, 0.62, z);                            // carroceria
-    b.add(2.2, 0.55, 1.65, glass, 0.8, x - 0.25, 1.17, z);                    // cabine envidraçada
-    b.add(1.8, 0.06, 1.5, body, 0.9, x - 0.25, 1.48, z);                      // teto
-    for (const dx of [-1.4, 1.4]) for (const dz of [-0.82, 0.82]) b.add(0.72, 0.72, 0.26, 0x08090c, 0.6, x + dx, 0.36, z + dz);   // rodas
-    for (const dz of [-0.62, 0.62]) { lit.add(0.06, 0.14, 0.4, 0xfff0c8, 1, x + 2.17, 0.7, z + dz); lit.add(0.06, 0.12, 0.4, 0xff2a2a, 1, x - 2.17, 0.74, z + dz); }
-  };
-  car(CAR1.x, CAR1.z, 0x2a3552, 0x131c2c);
-  car(-8.5, 12.9, 0x4a4f5e, 0x161d2a);                                         // carro distante, outro lado da rua (não alcançável)
-  car(9.5, 13.0, 0x3a2a4a, 0x161d2a);
-  g.add(b.build()); g.add(lit.build());
+  g.add(b.build());
 
   const wall = new THREE.Mesh(new THREE.PlaneGeometry(WALL_W, WALL_H),
     new THREE.MeshBasicMaterial({ map: canvasTex(256, 128, (c, w, h) => paintBricks(c, w, h), { repeat: [WALL_W / 2.0, WALL_H / 0.8] }), color: 0x9a96b0 }));

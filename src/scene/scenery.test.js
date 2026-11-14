@@ -42,7 +42,7 @@ describe('poster layout', () => {
 
 describe('physical scenery', () => {
   it('has the brick wall behind the machine (to the horizon) and a solid lamp post, no side walls', () => {
-    expect(SCENERY_COLLIDERS).toHaveLength(4);                        // muro, poste de luz, bloco da placa e carro
+    expect(SCENERY_COLLIDERS).toHaveLength(3);                        // muro, poste de luz e bloco da placa
     const post = SCENERY_COLLIDERS[1];
     expect(post.maxX - post.minX).toBeLessThan(0.5);
     expect(post.minX).toBeGreaterThan(MACHINE_COLLIDER.maxX);
