@@ -14,12 +14,17 @@ jobs:
         with: { node-version: 22, cache: npm, cache-dependency-path: game/package-lock.json }
       - run: npm ci
       - run: npm test
-      - run: npm run build
-        env:   # variáveis do repositório (Settings > Secrets and variables > Actions > Variables) sobrepõem o .env.production; vazias = usa o arquivo
+      - name: Variáveis do repositório (só entram se tiverem valor; senão vale o .env.production)
+        env:
           VITE_CONTRACT_ADDRESS: ${{ vars.VITE_CONTRACT_ADDRESS }}
           VITE_METADATA_CID: ${{ vars.VITE_METADATA_CID }}
           VITE_RPC_URL: ${{ vars.VITE_RPC_URL }}
           VITE_SITE_URL: ${{ vars.VITE_SITE_URL }}
+        run: |
+          for v in VITE_CONTRACT_ADDRESS VITE_METADATA_CID VITE_RPC_URL VITE_SITE_URL; do
+            if [ -n "${!v}" ]; then echo "$v=${!v}" >> "$GITHUB_ENV"; fi
+          done
+      - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with: { path: game/dist }
   deploy:
