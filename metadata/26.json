@@ -3,7 +3,7 @@
   "description": "The papal blessing ensuring your transactions remain immune to predatory MEV bots. Official DeFi Vending Machine collectible card (Slot E2). Edition 001.",
   "image": "ipfs://bafybeie4zqipkiubavbv2n5o6yszri5wuaufply3fv4nmsu5ty33t4ys3e/26_E2.png",
   "image_thumbnail": "ipfs://bafybeibnkd7yymvbyesnk6qd4rm7iltprndz2auvf2j7q43q4xzmnvfnli/26_E2.webp",
-  "external_url": "https://vendingmachine.cards/cards/26",
+  "external_url": "https://thiegocarvalho.github.io/vending-machine-web3/",
   "attributes": [
     {
       "trait_type": "Machine Slot",

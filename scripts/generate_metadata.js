@@ -9,7 +9,10 @@ function readCids() {
   try { return JSON.parse(fs.readFileSync(CIDS_FILE, 'utf8')); } catch { return {}; }
 }
 function readImagesCid() { return readCids().imagesCid || "bafybeicards1155"; }
-const CONTRACT_EXTERNAL_URL = "https://vendingmachine.cards";
+// Site público do jogo (GitHub Pages). Mantenha ROYALTY_BPS / ROYALTY_RECEIVER do deploy iguais a estes valores.
+const CONTRACT_EXTERNAL_URL = "https://thiegocarvalho.github.io/vending-machine-web3/";
+const ROYALTY_BPS = 500;
+const ROYALTY_RECEIVER = "0xa78276259faC49aF008Be85D855e0Cb0F1aD9433";
 
 const CARDS_DATA = [
   { id: 1, slot: "A1", file: "altseason.png", name: "Altseason Manifest", format: "Square", size: "852x803", desc: "The legendary capital rotation from Bitcoin into altcoins, anticipated by generations." },
@@ -56,7 +59,7 @@ function buildMetadata(card, imagesCid, thumbsCid) {
     image: `ipfs://${imagesCid}/${stem}.png`,
     // miniatura leve (300x400 WebP) para o jogo 3D: ~30 KB em vez de ~1 MB por card
     ...(thumbsCid ? { image_thumbnail: `ipfs://${thumbsCid}/${stem}.webp` } : {}),
-    external_url: `${CONTRACT_EXTERNAL_URL}/cards/${card.id}`,
+    external_url: CONTRACT_EXTERNAL_URL,
     attributes: [
       { trait_type: "Machine Slot", value: card.slot },
       { trait_type: "Row", value: card.slot[0] },
@@ -89,8 +92,8 @@ function generateAll() {
   description: "Collection of 30 DeFi Vending Machine Cards (5x6 Grid). Each card has a strictly limited supply of 100 units and can only be purchased 1 at a time from the on-chain Vending Machine.",
   image: `ipfs://${IPFS_IMAGES_CID}/collection.png`,
   external_link: CONTRACT_EXTERNAL_URL,
-  seller_fee_basis_points: 250,
-  fee_recipient: "0x0000000000000000000000000000000000000000"
+  seller_fee_basis_points: ROYALTY_BPS,
+  fee_recipient: ROYALTY_RECEIVER
 };
   fs.writeFileSync(path.join(METADATA_DIR, "contractURI.json"), JSON.stringify(contractMetadata, null, 2), 'utf8');
 

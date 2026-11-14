@@ -3,7 +3,7 @@
   "description": "The live broadcast where legendary high-leverage trades come alive. Official DeFi Vending Machine collectible card (Slot C6). Edition 001.",
   "image": "ipfs://bafybeie4zqipkiubavbv2n5o6yszri5wuaufply3fv4nmsu5ty33t4ys3e/18_C6.png",
   "image_thumbnail": "ipfs://bafybeibnkd7yymvbyesnk6qd4rm7iltprndz2auvf2j7q43q4xzmnvfnli/18_C6.webp",
-  "external_url": "https://vendingmachine.cards/cards/18",
+  "external_url": "https://thiegocarvalho.github.io/vending-machine-web3/",
   "attributes": [
     {
       "trait_type": "Machine Slot",
