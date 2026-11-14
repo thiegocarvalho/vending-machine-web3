@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { fitDistance, zoomRange, zoomBy, stepInertia, paintCardBack, CARD } from './cardViewer.js';
+import { fitDistance, zoomRange, zoomBy, stepInertia, paintCardBack, paintViewerBackdrop, CARD } from './cardViewer.js';
 
 describe('visualizador: matemática', () => {
   it('o card inteiro cabe na tela em qualquer proporção (retrato, quadrado, paisagem)', () => {
@@ -21,6 +21,10 @@ describe('visualizador: matemática', () => {
     let steps = 0; while (stepInertia(s, 1 / 60) && steps < 2000) steps++;
     expect(steps).toBeGreaterThan(5); expect(steps).toBeLessThan(2000);
     expect(s.yaw).toBeGreaterThan(0); expect(Math.abs(s.pitch)).toBeLessThanOrEqual(0.9);
+  });
+  it('o fundo do visualizador pinta sem erro', () => {
+    const g = new Proxy({}, { get: (t, k) => (/^create(Linear|Radial)Gradient$/.test(k) ? () => ({ addColorStop() {} }) : () => {}), set: () => true });
+    expect(() => paintViewerBackdrop(g, 512, 512, () => 0.5)).not.toThrow();
   });
   it('o verso do card pinta sem erro', () => {
     const g = new Proxy({}, { get: (t, k) => (k === 'createLinearGradient' ? () => ({ addColorStop() {} }) : () => {}), set: () => true });

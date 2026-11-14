@@ -44,15 +44,27 @@ const shineTexture = () => canvasTexture(256, 64, (g, w, h) => {
   gr.addColorStop(0.58, 'rgba(255,255,255,0)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
   g.fillStyle = gr; g.fillRect(0, 0, w, h);
 });
-const glowTexture = () => canvasTexture(128, 128, (g) => {
-  const r = g.createRadialGradient(64, 64, 4, 64, 64, 64); r.addColorStop(0, 'rgba(130,100,255,0.55)'); r.addColorStop(1, 'rgba(130,100,255,0)');
+const glowTexture = (rgb = '110,140,255', a = 0.32) => canvasTexture(128, 128, (g) => {
+  const r = g.createRadialGradient(64, 64, 4, 64, 64, 64); r.addColorStop(0, `rgba(${rgb},${a})`); r.addColorStop(1, `rgba(${rgb},0)`);
   g.fillStyle = r; g.fillRect(0, 0, 128, 128);
 });
+// Fundo do inventário: noite azul-arroxeada com névoa de luz e um leve toque de vermelho da marca no chão; vinheta nas bordas.
+export function paintViewerBackdrop(g, w, h, rand = Math.random) {
+  const sky = g.createLinearGradient(0, 0, 0, h); sky.addColorStop(0, '#03050c'); sky.addColorStop(0.55, '#0a1126'); sky.addColorStop(1, '#101734');
+  g.fillStyle = sky; g.fillRect(0, 0, w, h);
+  const haze = g.createRadialGradient(w * 0.5, h * 0.55, 10, w * 0.5, h * 0.55, w * 0.7); haze.addColorStop(0, 'rgba(80,120,255,0.22)'); haze.addColorStop(1, 'rgba(80,120,255,0)');
+  g.fillStyle = haze; g.fillRect(0, 0, w, h);
+  const floor = g.createRadialGradient(w * 0.5, h * 1.02, 4, w * 0.5, h * 1.02, w * 0.55); floor.addColorStop(0, 'rgba(255,42,68,0.09)'); floor.addColorStop(1, 'rgba(255,42,68,0)');
+  g.fillStyle = floor; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 90; i++) { g.fillStyle = `rgba(190,205,255,${0.08 + rand() * 0.35})`; const r = rand() < 0.1 ? 2 : 1; g.fillRect(rand() * w, rand() * h * 0.9, r, r); }   // poeira de luz
+  const vig = g.createRadialGradient(w / 2, h / 2, h * 0.35, w / 2, h / 2, h * 0.85); vig.addColorStop(0, 'rgba(0,0,0,0)'); vig.addColorStop(1, 'rgba(0,0,0,0.55)');
+  g.fillStyle = vig; g.fillRect(0, 0, w, h);
+}
 
 // ---------- visualizador ----------
 // Cena própria renderizada pelo MESMO renderer do jogo (nada de segundo contexto WebGL: poupa memória no celular).
 export function createCardViewer() {
-  const scene = new THREE.Scene(); scene.background = new THREE.Color(0x090c1a);
+  const scene = new THREE.Scene(); scene.background = canvasTexture(512, 512, (g, w, h) => paintViewerBackdrop(g, w, h));
   const camera = new THREE.PerspectiveCamera(FOV, 1, 0.05, 30);
   const group = new THREE.Group(); scene.add(group);
 
@@ -65,6 +77,8 @@ export function createCardViewer() {
   shine.position.z = CARD.d / 2 + 0.001; group.add(shine);
   const glow = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 2.6), new THREE.MeshBasicMaterial({ map: glowTexture(), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
   glow.position.z = -0.6; scene.add(glow);
+  const floorGlow = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 0.5), new THREE.MeshBasicMaterial({ map: glowTexture('255,60,80', 0.16), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+  scene.add(floorGlow);                                                            // reflexo vermelho sob o card (a marca)
 
   const s = { yaw: 0.45, pitch: -0.12, vyaw: 0, vpitch: 0 };
   let aspect = 1, fit = fitDistance(1), dist = fit, layout = { sx: 0, sy: 0 };
@@ -73,7 +87,7 @@ export function createCardViewer() {
     camera.aspect = aspect; camera.updateProjectionMatrix();
     camera.position.set(0, 0, dist); camera.lookAt(0, 0, 0);
     const halfH = TAN * dist, halfW = halfH * aspect;                       // desloca o card para a região livre (ao lado do painel)
-    group.position.set(layout.sx * halfW, layout.sy * halfH, 0); glow.position.set(group.position.x, group.position.y, -0.6);
+    group.position.set(layout.sx * halfW, layout.sy * halfH, 0); glow.position.set(group.position.x, group.position.y, -0.6); floorGlow.position.set(group.position.x, group.position.y - 0.62, -0.2);
     group.rotation.set(s.pitch, s.yaw, 0);
     shineMap.offset.x = 0.5 + Math.sin(s.yaw * 1.4 + s.pitch) * 0.45;       // brilho que desliza conforme o card gira
   }

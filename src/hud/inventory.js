@@ -8,21 +8,34 @@ export function createInventoryPanel(root, cb) {
   const el = document.createElement('div'); el.id = 'inv';
   el.innerHTML = `
     <div class="inv-panel">
-      <header><h2>INVENTÁRIO</h2><span class="inv-count"></span><button class="inv-close" aria-label="Fechar">ESC ✕</button></header>
-      <div class="inv-wallet"><span class="addr"></span>
+      <header>
+        <div class="inv-title"><small>DEFI VENDING MACHINE</small><h2>INVENTÁRIO</h2></div>
+        <button class="inv-close" aria-label="Fechar"><span>ESC</span> FECHAR</button>
+      </header>
+      <div class="inv-stats">
+        <div class="stat"><b class="s-owned">0</b><em>/30</em><small>COLETADOS</small></div>
+        <div class="stat"><b class="s-total">0</b><small>CARDS NO TOTAL</small></div>
+        <div class="bar"><i></i></div>
+      </div>
+      <div class="inv-wallet"><div class="addr"></div>
         <div class="row"><button class="connect">Conectar carteira</button></div>
         <div class="row"><input class="paste" placeholder="ou cole um endereço 0x…" spellcheck="false" autocomplete="off" /><button class="use">Ver</button></div>
       </div>
       <div class="inv-grid"></div>
+      <footer class="inv-keys"><span class="k">←</span><span class="k">→</span> navegar <i></i> <span class="k">I</span> fechar</footer>
     </div>
-    <div class="inv-detail"><div class="slot"></div><h3></h3><p class="bal"></p><span class="loading">carregando arte completa…</span>
-      <p class="hint">Arraste para girar · roda ou pinça para zoom · duplo clique restaura</p></div>`;
+    <div class="inv-detail">
+      <div class="owned"></div><div class="slot"></div><h3></h3><p class="bal"></p>
+      <span class="loading">carregando arte completa…</span>
+      <p class="hint"><span class="k">ARRASTAR</span> girar <i></i> <span class="k">RODA</span> zoom <i></i> <span class="k">2×</span> restaurar</p>
+    </div>`;
   root.appendChild(el);
   const q = (s) => el.querySelector(s);
   const grid = q('.inv-grid'), cells = [];
   for (let id = 1; id <= TOTAL; id++) {
     const b = document.createElement('button'); b.className = 'inv-cell locked'; b.dataset.id = id; b.title = cardIdToSlot(id).label;
     const c = document.createElement('canvas'); c.width = 90; c.height = 120; b.appendChild(c);
+    const lbl = document.createElement('span'); lbl.className = 'lbl'; lbl.textContent = cardIdToSlot(id).label; b.appendChild(lbl);
     const qty = document.createElement('span'); qty.className = 'qty'; qty.hidden = true; b.appendChild(qty);
     b.onclick = () => { if (!b.classList.contains('locked')) cb.onSelect(id); };
     grid.appendChild(b); cells.push({ b, c, qty });
@@ -41,8 +54,8 @@ export function createInventoryPanel(root, cb) {
     setData({ balances, address, hasWallet, demo }) {
       cells.forEach(({ b, qty }, i) => { const n = balances[i] | 0; b.classList.toggle('locked', n <= 0); qty.hidden = n <= 0; qty.textContent = `×${n}`; });
       const owned = balances.filter((n) => n > 0).length, total = balances.reduce((a, n) => a + n, 0);
-      q('.inv-count').textContent = `${owned}/${TOTAL} COLETADOS · ${total} CARDS`;
-      q('.addr').textContent = demo ? 'MODO DEMO · saldos guardados neste navegador' : address ? `Carteira ${short(address)}` : 'Conecte a carteira ou cole um endereço para ver seus cards.';
+      q('.s-owned').textContent = owned; q('.s-total').textContent = total; q('.bar i').style.width = `${(owned / TOTAL) * 100}%`;
+      q('.addr').innerHTML = demo ? '<b>MODO DEMO</b> saldos guardados neste navegador' : address ? `<b>CARTEIRA</b> ${short(address)}` : 'Conecte a carteira ou cole um endereço para ver seus cards.';
       q('.inv-wallet').querySelectorAll('.row').forEach((r) => { r.style.display = demo ? 'none' : ''; });
       q('.connect').style.display = !demo && hasWallet ? '' : 'none';
       grid.querySelector('.inv-empty')?.remove();
@@ -50,10 +63,10 @@ export function createInventoryPanel(root, cb) {
     },
     setSelected(id, meta, balance) {
       cells.forEach(({ b }, i) => b.classList.toggle('sel', i + 1 === id));
-      if (!id) { q('.slot').textContent = ''; q('h3').textContent = ''; q('.bal').textContent = ''; return; }
+      if (!id) { q('.slot').textContent = ''; q('h3').textContent = ''; q('.bal').textContent = ''; q('.owned').textContent = ''; return; }
       q('.slot').textContent = cardIdToSlot(id).label;
       q('h3').textContent = meta ? meta.name.replace(/^Card #\d+:\s*/, '') : `Card #${String(id).padStart(2, '0')}`;
-      q('.bal').textContent = `Você tem ${balance} · card #${String(id).padStart(2, '0')}`;
+      q('.owned').textContent = `×${balance}`; q('.bal').textContent = `CARD #${String(id).padStart(2, '0')} · EDIÇÃO 001`;
     },
     // desenha a miniatura (canvas já invertido para o WebGL) na célula
     setThumb(id, srcCanvas) {
