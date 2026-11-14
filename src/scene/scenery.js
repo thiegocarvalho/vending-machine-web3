@@ -4,7 +4,7 @@ import { drawQr } from '../payment/machineScreen.js';
 import { config } from '../config.js';
 
 const POST = { x: 3.2, z: 1.2, h: 4.2 };                              // poste de luz ao lado da máquina
-const SIGN = { x: -1.4, z: 1.6 };                                      // placa de rua sobre bloco de concreto
+const SIGN = { x: -6.0, z: 1.0, yaw: 0.9 };                            // placa de trânsito no fim da rua (limite da área), voltada para o centro
 const FOG = 0x141a2e;                           // neblina azul-arroxeada da noite
 
 const canvasTex = (w, h, draw, { repeat, srgb = true } = {}) => {
@@ -258,7 +258,8 @@ export function buildScenery() {
   // placa de alerta triangular: abdução por OVNI (alpha recortado, sem ordenação)
   const disc = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 0.9),
     new THREE.MeshBasicMaterial({ map: canvasTex(256, 230, (c, w, h) => paintUfoSign(c, w, h)), transparent: true, alphaTest: 0.5, color: 0xc8c0d8, side: THREE.DoubleSide }));
-  disc.position.set(SIGN.x, 2.75, SIGN.z + 0.05); g.add(disc);
+  disc.rotation.y = SIGN.yaw;
+  disc.position.set(SIGN.x + Math.sin(SIGN.yaw) * 0.05, 2.75, SIGN.z + Math.cos(SIGN.yaw) * 0.05); g.add(disc);
 
   const bulb = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.03, 0.2), new THREE.MeshBasicMaterial({ color: 0xfff1d0 }));
   bulb.position.set(POST.x - 0.95, POST.h - 0.12, POST.z); g.add(bulb);        // lâmpada acesa
