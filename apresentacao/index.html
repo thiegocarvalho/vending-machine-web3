@@ -1395,179 +1395,154 @@
 
     </section>
 
-    <!-- SLIDE 8: TOKEN SINTÉTICO & ARQUITETURA DA PONTE (wBTC vs L0) -->
-    <section class="slide flex-col max-w-6xl w-full mx-auto space-y-2 relative" data-topic="03. ESTUDO DE CASO: wBTC & L0">
-      
-      <!-- Watermark Kanji -->
-      <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 橋 (Hashi): Ponte / Interoperabilidade Cross-Chain">
-        橋
-      </div>
+    <!-- SLIDE 8: INTEROPERABILIDADE — PONTE DE CUSTÓDIA (WEB2 DISFARÇADO) VS PONTE DE VERIFICAÇÃO (WEB3) -->
+    <section class="slide flex-col max-w-6xl w-full mx-auto space-y-2.5 relative" data-topic="03. ESTUDO DE CASO: wBTC & L0">
+      <style>
+        .br-card .br-x { opacity: 0; transition: opacity .35s; }
+        .br-card .br-half, .br-card .br-ghost { transition: opacity .35s; }
+        .br-card[data-test="sanction"] .br-x-sanction { opacity: 1; }
+        .br-card[data-test="sanction"] .br-ghost { opacity: .22; }
+        .br-card[data-test="fail"] .br-x-fail { opacity: 1; }
+        .br-card[data-test="fail"] .br-half { opacity: .2; }
+        .br-card[data-test="exit"] .br-x-exit { opacity: 1; }
+        .br-card .br-idle { transition: opacity .35s; }
+        .br-card[data-test] .br-idle { opacity: 0; }
+        @keyframes brFlow { to { stroke-dashoffset: -16; } }
+        .br-flow { stroke-dasharray: 5 3; animation: brFlow 1s linear infinite; }
+      </style>
 
-      <!-- Top Section Header (UI LIMPA SEM BOTÕES) -->
+      <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 橋 (Hashi): Ponte / Interoperabilidade Cross-Chain">橋</div>
+
       <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap justify-between items-end gap-2 relative z-10 w-full">
         <div>
-          <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// MÓDULO 03B — ESTUDO DE CASO: INTEROPERABILIDADE & SINTÉTICOS</span>
-          <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">ESTRUTURA DE PONTES: CUSTÓDIA WEB2 vs CONSENSO WEB3</h2>
+          <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// MÓDULO 03B — INTEROPERABILIDADE: ONDE FICA A CONFIANÇA?</span>
+          <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">PONTE DE CUSTÓDIA vs PONTE DE VERIFICAÇÃO</h2>
         </div>
         <div class="flex items-center gap-2 font-mono text-xs text-noir-muted">
           <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span class="text-gray-300">COMPARAÇÃO ESTRUTURAL EM TEMPO REAL</span>
+          <span class="text-gray-300">1 BTC → ETHEREUM: DOIS CAMINHOS</span>
         </div>
       </div>
 
-      <!-- Banner Superior de Veredicto (Compacto, Sem Botões) -->
-      <div class="py-1 px-3 border border-noir-border/80 bg-noir-pitch/90 flex flex-wrap items-center justify-between text-xs font-mono relative z-10 gap-2">
-        <div class="flex items-center gap-2 flex-wrap">
-          <span class="px-2 py-0.5 font-bold text-[10px] bg-[#F7931A]/20 border border-[#F7931A] text-[#F7931A] tracking-wider">
-            [ ESTRUTURA COMPARADA LADO A LADO ]
-          </span>
-          <span class="text-gray-200 font-sans text-xs sm:text-[13px]">
-            <strong>Web2 (wBTC):</strong> BTC real fica no cofre da <strong>BitGo (AWS)</strong>; wBTC na EVM é um <strong>IOU</strong>.
-            <span class="mx-1.5 text-noir-border">|</span>
-            <strong>Web3 (LayerZero):</strong> Comunicação direta entre contratos via <strong>Multi-DVN e Provas ZK</strong>.
-          </span>
+      <div class="flex items-center justify-between gap-2 sm:gap-3 bg-noir-surface/70 border border-noir-border/80 px-3 sm:px-4 py-1.5 font-mono text-xs relative z-10 overflow-x-auto">
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="inline-block w-2 h-2 rounded-full bg-noir-red animate-pulse"></span>
+          <span class="text-white font-bold tracking-wider text-xs">E SE…?</span>
         </div>
-        <div class="flex items-center gap-2 text-[10.5px] font-mono ml-auto">
-          <span class="text-noir-muted">DIFERENÇA: <strong class="text-noir-red font-bold">CUSTÓDIA PRIVADA (SPOF)</strong> vs <strong class="text-emerald-400 font-bold">PROVA MATEMÁTICA (ZERO SPOF)</strong></span>
+        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <button onclick="runBridgeTest('sanction')" class="px-2.5 py-1 border border-noir-border/80 bg-noir-pitch hover:bg-noir-red hover:text-noir-pitch hover:border-noir-red text-[11px] font-mono text-noir-terminalText transition duration-150" title="O custodiante é sancionado, falha ou congela o cofre">🏛️ O CUSTODIANTE É SANCIONADO</button>
+          <button onclick="runBridgeTest('fail')" class="px-2.5 py-1 border border-noir-border/80 bg-noir-pitch hover:bg-noir-red hover:text-noir-pitch hover:border-noir-red text-[11px] font-mono text-noir-terminalText transition duration-150" title="Um dos participantes da aprovação sai do ar">⚡ 1 APROVADOR FALHA</button>
+          <button onclick="runBridgeTest('exit')" class="px-2.5 py-1 border border-noir-border/80 bg-noir-pitch hover:bg-noir-red hover:text-noir-pitch hover:border-noir-red text-[11px] font-mono text-noir-terminalText transition duration-150" title="Voltar para o Bitcoin">↩ VOCÊ QUER SAIR</button>
+          <button onclick="resetBridgeTest()" class="px-2 py-1 border border-noir-border/60 text-noir-muted hover:text-white hover:border-noir-muted text-[11px] font-mono transition duration-150" title="Restaurar">↺</button>
         </div>
       </div>
 
-      <!-- Estrutura Lado a Lado: Web2 vs Web3 -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 relative z-10">
-        
-        <!-- COLUNA ESQUERDA: CAMINHO WEB2 (wBTC / CUSTÓDIA CENTRALIZADA) -->
-        <div class="blueprint-box-btc p-2.5 flex flex-col space-y-2 bg-noir-surface/40 border border-[#F7931A]/40">
-          <div class="flex items-center justify-between border-b border-[#F7931A]/30 pb-1 font-mono">
-            <span class="text-[#F7931A] font-bold text-xs tracking-wider flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-[#F7931A] animate-pulse"></span>
-              01. VIA WEB2: CUSTÓDIA PRIVADA (wBTC)
-            </span>
-            <span id="badgeStatusWeb2" class="text-[10px] px-1.5 py-0.5 border border-[#F7931A]/60 bg-[#F7931A]/10 text-[#F7931A] font-bold">
-              SPOF: SERVIDORES AWS
-            </span>
-          </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 relative z-10 text-left">
 
-          <!-- Canvas Visual Animado Web2 Ampliado -->
-          <div id="containerBridgeWeb2" class="relative w-full h-[225px] bg-noir-pitch/95 border border-[#F7931A]/30 overflow-hidden select-none cursor-grab">
-            <canvas id="canvasBridgeWeb2" class="w-full h-full block"></canvas>
-            <div class="absolute top-2 left-2 pointer-events-none font-mono text-[9px] text-[#F7931A] tracking-wider bg-noir-pitch/85 px-1.5 py-0.5 border border-[#F7931A]/40">
-              BITCOIN UTXO
-            </div>
-            <div class="absolute top-2 left-1/2 -translate-x-1/2 pointer-events-none font-mono text-[9px] text-noir-red tracking-wider bg-noir-pitch/85 px-1.5 py-0.5 border border-noir-red/40">
-              AWS OFF-CHAIN (SPOF)
-            </div>
-            <div class="absolute top-2 right-2 pointer-events-none font-mono text-[9px] text-blue-400 tracking-wider bg-noir-pitch/85 px-1.5 py-0.5 border border-blue-400/40">
-              ETHEREUM (wBTC)
-            </div>
-            <div class="absolute bottom-1.5 left-2 pointer-events-none font-mono text-[8.5px] text-noir-muted">
-              ARRASTE O MOUSE PARA ROTACIONAR 3D
-            </div>
+        <!-- WEB2 DISFARÇADO: wBTC -->
+        <div id="bridgeCardWeb2" class="br-card bg-noir-pitch/75 border border-[#F7931A]/40 p-3 flex flex-col gap-2 transition-all duration-300">
+          <div class="flex items-end justify-between gap-2">
+            <h3 class="font-display text-2xl text-white tracking-wider leading-none">wBTC <span class="text-[#F7931A]">· CUSTÓDIA</span></h3>
+            <span class="text-[10px] font-mono text-noir-red text-right leading-tight font-bold">WEB2 DISFARÇADO</span>
           </div>
-
-          <!-- Specs Compactas da Estrutura Web2 -->
-          <div class="space-y-1 font-mono text-[11px] text-gray-200 bg-noir-pitch/80 p-2 border border-noir-border/60">
-            <div class="flex items-baseline justify-between">
-              <span class="text-noir-muted uppercase text-[10px]">FLUXO:</span>
-              <span class="text-white font-bold text-right">Depósito BTC ➔ Cofre BitGo ➔ API ➔ Mint wBTC</span>
-            </div>
-            <div class="flex items-baseline justify-between">
-              <span class="text-noir-muted uppercase text-[10px]">INFRAESTRUTURA:</span>
-              <span class="text-[#F7931A] font-bold text-right">Nuvem AWS + Banco de Dados + Chave HSM</span>
-            </div>
-            <div class="flex items-baseline justify-between">
-              <span class="text-noir-muted uppercase text-[10px]">CONFIANÇA:</span>
-              <span class="text-gray-300 text-right">Institucional Privada (BitGo / BiT Global)</span>
-            </div>
-            <div class="flex items-baseline justify-between">
-              <span class="text-noir-muted uppercase text-[10px]">PONTO CRÍTICO:</span>
-              <span class="text-noir-red font-bold text-right">SPOF // Falência, sanção ou KYC travam paridade</span>
-            </div>
+          <svg viewBox="0 0 400 190" class="w-full h-auto bg-noir-surface/80 border border-noir-border/60" role="img" aria-label="1 BTC é entregue ao cofre de uma empresa; a empresa emite um wBTC na Ethereum, que é só uma promessa.">
+            <defs><marker id="b2m" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#F7931A"/></marker></defs>
+            <!-- Bitcoin -->
+            <rect x="8" y="44" width="96" height="102" fill="#0A0608" stroke="#F7931A"/>
+            <text x="56" y="58" font-size="8" fill="#F7931A" font-family="monospace" text-anchor="middle" font-weight="bold">BITCOIN</text>
+            <circle cx="56" cy="98" r="22" fill="#F7931A"/><text x="56" y="102" font-size="11" fill="#040204" font-family="monospace" text-anchor="middle" font-weight="bold">1 BTC</text>
+            <text x="56" y="136" font-size="7.5" fill="#806870" font-family="monospace" text-anchor="middle">VOCÊ ENTREGA</text>
+            <line x1="104" y1="95" x2="146" y2="95" stroke="#F7931A" stroke-width="2" marker-end="url(#b2m)" class="br-flow"/>
+            <!-- Cofre -->
+            <rect x="150" y="34" width="100" height="122" fill="#0A0608" stroke="#FF0033" stroke-width="2"/>
+            <text x="200" y="28" font-size="7.5" fill="#FF0033" font-family="monospace" text-anchor="middle" font-weight="bold">1 EMPRESA · 1 CHAVE</text>
+            <g transform="translate(200,56)"><polygon points="-9,5 -9,-5 -4.5,0 0,-8 4.5,0 9,-5 9,5" fill="#FF0033"/></g>
+            <g transform="translate(200,96)"><rect x="-15" y="-4" width="30" height="24" fill="#FF0033"/><path d="M-9,-4 v-8 a9,9 0 0 1 18,0 v8" fill="none" stroke="#FF0033" stroke-width="3.5"/><circle cx="0" cy="8" r="3" fill="#040204"/></g>
+            <text x="200" y="136" font-size="8" fill="#FF0033" font-family="monospace" text-anchor="middle" font-weight="bold">COFRE DO</text>
+            <text x="200" y="147" font-size="8" fill="#FF0033" font-family="monospace" text-anchor="middle" font-weight="bold">CUSTODIANTE</text>
+            <line x1="250" y1="95" x2="292" y2="95" stroke="#F7931A" stroke-width="2" marker-end="url(#b2m)" class="br-flow br-idle"/>
+            <!-- Ethereum -->
+            <rect x="296" y="44" width="96" height="102" fill="#0A0608" stroke="#627EEA"/>
+            <text x="344" y="58" font-size="8" fill="#627EEA" font-family="monospace" text-anchor="middle" font-weight="bold">ETHEREUM</text>
+            <g class="br-ghost"><circle cx="344" cy="98" r="22" fill="none" stroke="#627EEA" stroke-width="2" stroke-dasharray="4 3"/><text x="344" y="102" font-size="11" fill="#627EEA" font-family="monospace" text-anchor="middle" font-weight="bold">wBTC</text></g>
+            <rect x="314" y="126" width="60" height="14" fill="#FF0033"/><text x="344" y="136" font-size="8" fill="#fff" font-family="monospace" text-anchor="middle" font-weight="bold">SÓ UM IOU</text>
+            <!-- testes -->
+            <g class="br-x br-x-sanction"><g stroke="#FF0033" stroke-width="5"><line x1="160" y1="44" x2="240" y2="146"/><line x1="240" y1="44" x2="160" y2="146"/></g><rect x="150" y="160" width="100" height="16" fill="#FF0033"/><text x="200" y="171.5" font-size="8.5" fill="#fff" font-family="monospace" text-anchor="middle" font-weight="bold">COFRE CONGELADO</text></g>
+            <g class="br-x br-x-fail"><g stroke="#FF0033" stroke-width="4"><line x1="262" y1="85" x2="282" y2="105"/><line x1="282" y1="85" x2="262" y2="105"/></g><rect x="150" y="160" width="100" height="16" fill="#FF0033"/><text x="200" y="171.5" font-size="8.5" fill="#fff" font-family="monospace" text-anchor="middle" font-weight="bold">TUDO PARA</text></g>
+            <g class="br-x br-x-exit"><path d="M344,148 V168 H56 V150" fill="none" stroke="#FBBF24" stroke-width="2" stroke-dasharray="5 3"/><rect x="160" y="160" width="80" height="16" fill="#0A0608" stroke="#FBBF24"/><text x="200" y="171.5" font-size="8" fill="#FBBF24" font-family="monospace" text-anchor="middle" font-weight="bold">PEDE KYC / OK</text></g>
+          </svg>
+          <div class="space-y-1 text-[10px] font-mono">
+            <div class="flex items-center justify-between gap-2"><span class="text-noir-muted">O ATIVO FICA</span><span class="gov-pill r">NO COFRE DE UMA EMPRESA</span></div>
+            <div class="flex items-center justify-between gap-2"><span class="text-noir-muted">QUEM APROVA</span><span class="gov-pill r">1 EMPRESA</span></div>
+            <div class="flex items-center justify-between gap-2"><span class="text-noir-muted">VOCÊ RECEBE</span><span class="gov-pill r">UMA PROMESSA (IOU)</span></div>
+            <div class="flex items-center justify-between gap-2"><span class="text-noir-muted">SE UM FALHA</span><span class="gov-pill r">TUDO PARA</span></div>
+          </div>
+          <div id="badgeStatusWeb2" class="border border-noir-border/70 bg-noir-surface/90 px-2 py-1.5 font-mono text-[10.5px] transition-all duration-300 mt-auto">
+            <span class="text-noir-red font-bold">CONFIA NA EMPRESA</span>
           </div>
         </div>
 
-        <!-- COLUNA DIREITA: CAMINHO WEB3 (LAYERZERO / MULTI-DVN DESCENTRALIZADO) -->
-        <div class="blueprint-box-l0 p-2.5 flex flex-col space-y-2 bg-noir-surface/40 border border-emerald-500/40">
-          <div class="flex items-center justify-between border-b border-emerald-500/30 pb-1 font-mono">
-            <span class="text-emerald-400 font-bold text-xs tracking-wider flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              02. VIA WEB3: PROTOCOLO DESCENTRALIZADO (L0)
-            </span>
-            <span id="badgeStatusWeb3" class="text-[10px] px-1.5 py-0.5 border border-emerald-500/60 bg-emerald-500/10 text-emerald-400 font-bold">
-              ZERO SPOF: MATEMÁTICA
-            </span>
+        <!-- WEB3 DE VERDADE: LayerZero -->
+        <div id="bridgeCardWeb3" class="br-card bg-noir-pitch/75 border border-emerald-500/40 p-3 flex flex-col gap-2 transition-all duration-300">
+          <div class="flex items-end justify-between gap-2">
+            <h3 class="font-display text-2xl text-white tracking-wider leading-none">LAYERZERO <span class="text-emerald-400">· VERIFICAÇÃO</span></h3>
+            <span class="text-[10px] font-mono text-emerald-400 text-right leading-tight font-bold">WEB3 DE VERDADE</span>
           </div>
-
-          <!-- Canvas Visual Animado Web3 Ampliado -->
-          <div id="containerBridgeWeb3" class="relative w-full h-[225px] bg-noir-pitch/95 border border-emerald-500/30 overflow-hidden select-none cursor-grab">
-            <canvas id="canvasBridgeWeb3" class="w-full h-full block"></canvas>
-            <div class="absolute top-2 left-2 pointer-events-none font-mono text-[9px] text-cyan-400 tracking-wider bg-noir-pitch/85 px-1.5 py-0.5 border border-cyan-400/40">
-              CONTRATO ORIGEM
-            </div>
-            <div class="absolute top-2 left-1/2 -translate-x-1/2 pointer-events-none font-mono text-[9px] text-emerald-400 tracking-wider bg-noir-pitch/85 px-1.5 py-0.5 border border-emerald-400/40">
-              MALHA MULTI-DVN (ZK)
-            </div>
-            <div class="absolute top-2 right-2 pointer-events-none font-mono text-[9px] text-emerald-400 tracking-wider bg-noir-pitch/85 px-1.5 py-0.5 border border-emerald-400/40">
-              DESTINO ON-CHAIN
-            </div>
-            <div class="absolute bottom-1.5 left-2 pointer-events-none font-mono text-[8.5px] text-noir-muted">
-              ARRASTE O MOUSE PARA ROTACIONAR 3D
-            </div>
+          <svg viewBox="0 0 400 190" class="w-full h-auto bg-noir-surface/80 border border-noir-border/60" role="img" aria-label="O token é queimado na origem, três verificadores independentes aprovam (2 de 3 bastam) e o mesmo token nasce no destino. Não existe cofre.">
+            <defs><marker id="b3m" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#34D399"/></marker></defs>
+            <!-- origem -->
+            <rect x="8" y="44" width="96" height="102" fill="#0A0608" stroke="#34D399"/>
+            <text x="56" y="58" font-size="8" fill="#34D399" font-family="monospace" text-anchor="middle" font-weight="bold">CHAIN A</text>
+            <circle cx="56" cy="98" r="22" fill="#34D399"/><text x="56" y="102" font-size="10" fill="#040204" font-family="monospace" text-anchor="middle" font-weight="bold">TOKEN</text>
+            <text x="56" y="136" font-size="7.5" fill="#806870" font-family="monospace" text-anchor="middle">QUEIMA 1</text>
+            <!-- verificadores -->
+            <text x="200" y="28" font-size="7.5" fill="#34D399" font-family="monospace" text-anchor="middle" font-weight="bold">VERIFICADORES INDEPENDENTES</text>
+            <g stroke="#34D399" stroke-width="1.4" opacity=".75">
+              <line x1="104" y1="92" x2="184" y2="58"/><line x1="104" y1="95" x2="184" y2="95"/><line x1="104" y1="98" x2="184" y2="132"/>
+              <line x1="216" y1="58" x2="292" y2="92" marker-end="url(#b3m)"/><line x1="216" y1="95" x2="292" y2="95" marker-end="url(#b3m)"/><line x1="216" y1="132" x2="292" y2="98" marker-end="url(#b3m)"/>
+            </g>
+            <g font-family="monospace" font-size="9" text-anchor="middle" font-weight="bold">
+              <g><circle cx="200" cy="58" r="14" fill="#040204" stroke="#22D3EE" stroke-width="2"/><text x="200" y="61" fill="#22D3EE">V1</text><text x="228" y="63" fill="#34D399" font-size="12">✓</text></g>
+              <g class="br-half"><circle cx="200" cy="95" r="14" fill="#040204" stroke="#A78BFA" stroke-width="2"/><text x="200" y="98" fill="#A78BFA">V2</text><text x="228" y="100" fill="#34D399" font-size="12">✓</text></g>
+              <g><circle cx="200" cy="132" r="14" fill="#040204" stroke="#34D399" stroke-width="2"/><text x="200" y="135" fill="#34D399">V3</text><text x="228" y="137" fill="#34D399" font-size="12">✓</text></g>
+            </g>
+            <g class="br-x br-x-fail" stroke="#FF0033" stroke-width="3"><line x1="192" y1="87" x2="208" y2="103"/><line x1="208" y1="87" x2="192" y2="103"/></g>
+            <rect x="150" y="160" width="100" height="16" fill="#34D399"/><text x="200" y="171.5" font-size="8.5" fill="#040204" font-family="monospace" text-anchor="middle" font-weight="bold">2 DE 3 BASTAM ✓</text>
+            <!-- destino -->
+            <rect x="296" y="44" width="96" height="102" fill="#0A0608" stroke="#34D399"/>
+            <text x="344" y="58" font-size="8" fill="#34D399" font-family="monospace" text-anchor="middle" font-weight="bold">CHAIN B</text>
+            <circle cx="344" cy="98" r="22" fill="#34D399"/><text x="344" y="102" font-size="10" fill="#040204" font-family="monospace" text-anchor="middle" font-weight="bold">TOKEN</text>
+            <rect x="314" y="126" width="60" height="14" fill="#34D399"/><text x="344" y="136" font-size="8" fill="#040204" font-family="monospace" text-anchor="middle" font-weight="bold">NATIVO</text>
+            <!-- testes -->
+            <g class="br-x br-x-sanction"><rect x="150" y="2" width="100" height="14" fill="#0A0608" stroke="#34D399" stroke-dasharray="3 2"/><text x="200" y="12" font-size="7.5" fill="#34D399" font-family="monospace" text-anchor="middle" font-weight="bold">NÃO HÁ COFRE ✓</text></g>
+            <g class="br-x br-x-exit"><path d="M344,148 V182 H56 V150" fill="none" stroke="#34D399" stroke-width="2" marker-end="url(#b3m)" class="br-flow"/><text x="320" y="178" font-size="7.5" fill="#34D399" font-family="monospace" text-anchor="end" font-weight="bold">VOLTA LIVRE ✓</text></g>
+          </svg>
+          <div class="space-y-1 text-[10px] font-mono">
+            <div class="flex items-center justify-between gap-2"><span class="text-noir-muted">O ATIVO FICA</span><span class="gov-pill g">NO CONTRATO (ON-CHAIN)</span></div>
+            <div class="flex items-center justify-between gap-2"><span class="text-noir-muted">QUEM APROVA</span><span class="gov-pill g">2 DE 3 VERIFICADORES</span></div>
+            <div class="flex items-center justify-between gap-2"><span class="text-noir-muted">VOCÊ RECEBE</span><span class="gov-pill g">TOKEN NATIVO</span></div>
+            <div class="flex items-center justify-between gap-2"><span class="text-noir-muted">SE UM FALHA</span><span class="gov-pill g">A REDE SEGUE</span></div>
           </div>
-
-          <!-- Specs Compactas da Estrutura Web3 -->
-          <div class="space-y-1 font-mono text-[11px] text-gray-200 bg-noir-pitch/80 p-2 border border-noir-border/60">
-            <div class="flex items-baseline justify-between">
-              <span class="text-noir-muted uppercase text-[10px]">FLUXO:</span>
-              <span class="text-white font-bold text-right">Contrato Origem ➔ Malha DVN ➔ Entrega Nativa</span>
-            </div>
-            <div class="flex items-baseline justify-between">
-              <span class="text-noir-muted uppercase text-[10px]">INFRAESTRUTURA:</span>
-              <span class="text-emerald-400 font-bold text-right">Rede Distribuída + Provas ZK (Polyhedra)</span>
-            </div>
-            <div class="flex items-baseline justify-between">
-              <span class="text-noir-muted uppercase text-[10px]">CONFIANÇA:</span>
-              <span class="text-gray-300 text-right">Consenso Criptográfico BFT (Zero-Trust)</span>
-            </div>
-            <div class="flex items-baseline justify-between">
-              <span class="text-noir-muted uppercase text-[10px]">PONTO FORTE:</span>
-              <span class="text-emerald-400 font-bold text-right">Imune a censura de empresa ou intervenção estatal</span>
-            </div>
+          <div id="badgeStatusWeb3" class="border border-noir-border/70 bg-noir-surface/90 px-2 py-1.5 font-mono text-[10.5px] transition-all duration-300 mt-auto">
+            <span class="text-emerald-400 font-bold">CONFIA NA VERIFICAÇÃO</span>
           </div>
-        </div>
-
-      </div>
-
-      <!-- Quadro Síntese: Diferenças Estruturais em Destaque -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 font-mono text-xs bg-noir-pitch/90 p-2 border border-noir-border/80 relative z-10">
-        <div class="border-l-2 border-[#F7931A] pl-2">
-          <span class="text-noir-muted block text-[10px]">LOCAL DO ATIVO:</span>
-          <span class="text-gray-300">Web2: Cofre Off-Chain</span><br>
-          <span class="text-emerald-400 font-bold">Web3: Contrato On-Chain</span>
-        </div>
-        <div class="border-l-2 border-noir-red pl-2">
-          <span class="text-noir-muted block text-[10px]">VALIDAÇÃO:</span>
-          <span class="text-gray-300">Web2: API Corporativa</span><br>
-          <span class="text-emerald-400 font-bold">Web3: Provas ZK + DVN</span>
-        </div>
-        <div class="border-l-2 border-[#627EEA] pl-2">
-          <span class="text-noir-muted block text-[10px]">TIPO DE ATIVO:</span>
-          <span class="text-[#F7931A] font-bold">Web2: Promissória (IOU)</span><br>
-          <span class="text-emerald-400 font-bold">Web3: Nativo Omnichain</span>
-        </div>
-        <div class="border-l-2 border-emerald-400 pl-2">
-          <span class="text-noir-muted block text-[10px]">RESILIÊNCIA:</span>
-          <span class="text-noir-red font-bold">Web2: SPOF (Censurável)</span><br>
-          <span class="text-emerald-400 font-bold">Web3: Consenso BFT</span>
         </div>
       </div>
 
-      <!-- Console Ticker Dinâmico de Telemetria -->
-      <div class="h-[28px] w-full flex items-center px-3 border border-noir-border/80 border-l-2 border-l-noir-red bg-noir-pitch/95 font-mono text-xs text-noir-terminalText overflow-hidden leading-tight shadow-inner relative z-10">
-        <div id="bridgeConsoleTicker" class="truncate font-mono tracking-tight text-gray-200">
-          > [TELEMETRIA COMPARATIVA]: Web2 requer custodiante corporativo (SPOF) // Web3 opera via consenso distribuído e matemática imutável.
-        </div>
+      <div id="bridgeConsoleTicker" class="h-[30px] w-full flex items-center px-3.5 border border-noir-border/80 border-l-2 border-l-noir-red bg-noir-pitch/95 font-mono text-xs text-noir-terminalText overflow-hidden leading-tight relative z-10">
+        <div class="truncate">> Escolha um "E se…?" e compare as duas pontes.</div>
       </div>
 
+      <div class="border-t border-noir-border/80 pt-2 flex flex-wrap items-center justify-between gap-3 text-xs font-mono relative z-10">
+        <div class="flex items-center gap-2 max-w-3xl">
+          <span class="text-noir-red font-bold font-jp text-sm jp-trans shrink-0" data-jp-tooltip="原則 (Gensoku): Princípio / Regra Fundamental">原則:</span>
+          <span class="font-sans text-sm text-gray-200"><strong class="text-white">wBTC: você confia numa empresa.</strong> LayerZero: você confia numa verificação e escolhe quem verifica. <span class="text-amber-300">Nenhuma ponte é risco zero.</span></span>
+        </div>
+        <div class="flex items-center gap-3 text-[10px] text-noir-muted shrink-0">
+          <span class="flex items-center gap-1"><span class="w-2 h-2 bg-noir-red inline-block"></span>CUSTÓDIA</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 bg-emerald-400 inline-block"></span>VERIFICAÇÃO</span>
+        </div>
+      </div>
     </section>
 
     <!-- SLIDE 9: O QUE É UM SMART CONTRACT? (EXPLICAÇÃO BÁSICA E INTUITIVA) -->
@@ -2576,6 +2551,36 @@
       badges[1].innerHTML = '<span class="text-amber-400 font-bold">PODER DIVIDIDO ENTRE CONVIDADOS</span>';
       badges[2].innerHTML = '<span class="text-emerald-400 font-bold">NINGUÉM MANDA SOZINHO</span>';
       consoleLog.innerHTML = '<div class="truncate">> Escolha um teste e compare as três redes.</div>';
+    }
+
+    function runBridgeTest(type) {
+      const cards = ['bridgeCardWeb2', 'bridgeCardWeb3'].map((id) => document.getElementById(id));
+      const badges = ['badgeStatusWeb2', 'badgeStatusWeb3'].map((id) => document.getElementById(id));
+      const ticker = document.getElementById('bridgeConsoleTicker');
+      if (cards.some((c) => !c) || badges.some((b) => !b) || !ticker) return;
+      const T = {
+        sanction: [['text-noir-red', '✕ COFRE CONGELADO: wBTC SEM LASTRO'], ['text-emerald-400', '✓ NÃO HÁ COFRE PARA CONGELAR'],
+                   'Sanção ou falência do custodiante trava o wBTC. Na ponte aberta não existe um cofre único para travar.'],
+        fail: [['text-noir-red', '✕ 1 PONTO ÚNICO: TUDO PARA'], ['text-emerald-400', '✓ 2 DE 3 AINDA APROVAM'],
+               'Se o único aprovador cai, a ponte de custódia para. Com verificadores independentes, os outros seguem.'],
+        exit: [['text-amber-400', '◐ SAIR EXIGE APROVAÇÃO (KYC)'], ['text-emerald-400', '✓ QUEIMA E RECEBE, SEM PEDIR'],
+               'Resgatar wBTC passa pela empresa. Na ponte aberta o caminho de volta é o mesmo contrato.']
+      }[type];
+      if (!T) return;
+      cards.forEach((c) => { c.dataset.test = type; });
+      badges.forEach((b, i) => { b.innerHTML = `<span class="${T[i][0]} font-bold">${T[i][1]}</span>`; });
+      ticker.innerHTML = `<div class="truncate">> ${T[2]}</div>`;
+    }
+
+    function resetBridgeTest() {
+      const cards = ['bridgeCardWeb2', 'bridgeCardWeb3'].map((id) => document.getElementById(id));
+      const badges = ['badgeStatusWeb2', 'badgeStatusWeb3'].map((id) => document.getElementById(id));
+      const ticker = document.getElementById('bridgeConsoleTicker');
+      if (cards.some((c) => !c) || badges.some((b) => !b) || !ticker) return;
+      cards.forEach((c) => { delete c.dataset.test; });
+      badges[0].innerHTML = '<span class="text-noir-red font-bold">CONFIA NA EMPRESA</span>';
+      badges[1].innerHTML = '<span class="text-emerald-400 font-bold">CONFIA NA VERIFICAÇÃO</span>';
+      ticker.innerHTML = '<div class="truncate">> Escolha um "E se…?" e compare as duas pontes.</div>';
     }
 
     // ========================================================
@@ -6452,405 +6457,7 @@
       return pts;
     }
 
-    function init3DBridge() {
-      if (bridge3DInitialized) return;
-      const cont2 = document.getElementById('containerBridgeWeb2');
-      const canvas2 = document.getElementById('canvasBridgeWeb2');
-      const cont3 = document.getElementById('containerBridgeWeb3');
-      const canvas3 = document.getElementById('canvasBridgeWeb3');
-
-      if (!cont2 || !canvas2 || !cont3 || !canvas3) return;
-
-      const w2 = cont2.clientWidth || 440;
-      const h2 = cont2.clientHeight || 210;
-      const w3 = cont3.clientWidth || 440;
-      const h3 = cont3.clientHeight || 210;
-
-      // ==========================================
-      // 1. CENA 3D WIREFRAME WEB2 (CUSTÓDIA BITGO)
-      // ==========================================
-      sceneBridgeWeb2 = new THREE.Scene();
-      cameraBridgeWeb2 = new THREE.PerspectiveCamera(40, w2 / h2, 0.1, 1000);
-      cameraBridgeWeb2.position.set(0, 2.2, 18);
-      cameraBridgeWeb2.lookAt(0, 0, 0);
-
-      rendererBridgeWeb2 = new THREE.WebGLRenderer({ canvas: canvas2, antialias: true, alpha: true });
-      rendererBridgeWeb2.setSize(w2, h2);
-      rendererBridgeWeb2.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-
-      // Grid Wireframe de Chão (Tema Âmbar/Vermelho)
-      const gridWeb2 = new THREE.GridHelper(30, 16, 0xF7931A, 0x2A1208);
-      gridWeb2.position.y = -3.2;
-      sceneBridgeWeb2.add(gridWeb2);
-
-      worldGroupWeb2 = new THREE.Group();
-      worldGroupWeb2.rotation.x = web2Rot.x;
-      worldGroupWeb2.rotation.y = web2Rot.y;
-      sceneBridgeWeb2.add(worldGroupWeb2);
-
-      // --- NÓ 1 (BITCOIN UTXO: x = -6.2) ---
-      const btcNodeGroup = new THREE.Group();
-      btcNodeGroup.position.set(-6.2, 0, 0);
-      worldGroupWeb2.add(btcNodeGroup);
-
-      // Pódio Hexagonal Wireframe
-      btcPodMesh = new THREE.LineSegments(
-        new THREE.EdgesGeometry(new THREE.CylinderGeometry(1.6, 1.9, 0.4, 6)),
-        new THREE.LineBasicMaterial({ color: 0xF7931A, linewidth: 2 })
-      );
-      btcPodMesh.position.y = -2.8;
-      btcNodeGroup.add(btcPodMesh);
-
-      // Cofre Wireframe BitGo
-      btcSafeMesh = new THREE.LineSegments(
-        new THREE.EdgesGeometry(new THREE.BoxGeometry(1.6, 1.6, 1.6)),
-        new THREE.LineBasicMaterial({ color: 0xF7931A, linewidth: 1.5 })
-      );
-      btcSafeMesh.position.y = -1.6;
-      btcNodeGroup.add(btcSafeMesh);
-
-      // Anéis internos concêntricos de multi-sig
-      for (let r = 0; r < 2; r++) {
-        const ring = new THREE.Line(
-          new THREE.BufferGeometry().setFromPoints(createCirclePoints3D(0.45 + r * 0.22, 20)),
-          new THREE.LineBasicMaterial({ color: 0xF7931A, transparent: true, opacity: 0.6 })
-        );
-        ring.rotation.x = Math.PI / 2 + r * 0.4;
-        btcSafeMesh.add(ring);
-      }
-
-      // Octaedro Dourado Bitcoin
-      btcCoreMesh = new THREE.LineSegments(
-        new THREE.WireframeGeometry(new THREE.OctahedronGeometry(0.7, 0)),
-        new THREE.LineBasicMaterial({ color: 0xF7931A, linewidth: 2 })
-      );
-      btcCoreMesh.position.y = 0.4;
-      btcNodeGroup.add(btcCoreMesh);
-
-      btcInnerMesh = new THREE.Mesh(
-        new THREE.OctahedronGeometry(0.35, 0),
-        new THREE.MeshBasicMaterial({ color: 0xF7931A, wireframe: true, transparent: true, opacity: 0.45 })
-      );
-      btcCoreMesh.add(btcInnerMesh);
-
-      // Sprite Flutuante do Bitcoin (₿)
-      btcSprite3D = createTokenSprite('btc');
-      btcSprite3D.position.set(-6.2, 1.7, 0);
-      worldGroupWeb2.add(btcSprite3D);
-
-      // --- NÓ 2 (MONÓLITO SERVIDOR AWS / BITGO: x = 0) ---
-      web2MonolithGroup = new THREE.Group();
-      web2MonolithGroup.position.set(0, 0, 0);
-      worldGroupWeb2.add(web2MonolithGroup);
-
-      // Pódio central
-      const midPod2 = new THREE.LineSegments(
-        new THREE.EdgesGeometry(new THREE.CylinderGeometry(1.8, 2.2, 0.4, 6)),
-        new THREE.LineBasicMaterial({ color: 0x8A001A, linewidth: 1.5 })
-      );
-      midPod2.position.y = -2.8;
-      web2MonolithGroup.add(midPod2);
-
-      // Torre do Servidor Rack
-      web2MonolithMesh = new THREE.LineSegments(
-        new THREE.EdgesGeometry(new THREE.BoxGeometry(1.8, 3.6, 1.4)),
-        new THREE.LineBasicMaterial({ color: 0xFF0033, linewidth: 2 })
-      );
-      web2MonolithMesh.position.y = -0.7;
-      web2MonolithGroup.add(web2MonolithMesh);
-
-      // Prateleiras internas do rack
-      for (let s = -1.2; s <= 1.2; s += 0.6) {
-        const shelf = new THREE.LineSegments(
-          new THREE.WireframeGeometry(new THREE.PlaneGeometry(1.6, 1.2)),
-          new THREE.LineBasicMaterial({ color: 0x8A001A, transparent: true, opacity: 0.5 })
-        );
-        shelf.rotation.x = Math.PI / 2;
-        shelf.position.y = s;
-        web2MonolithMesh.add(shelf);
-      }
-
-      // Torus Cadeado HSM
-      web2HsmLock = new THREE.LineSegments(
-        new THREE.WireframeGeometry(new THREE.TorusGeometry(0.35, 0.09, 6, 16)),
-        new THREE.LineBasicMaterial({ color: 0xFFFFFF })
-      );
-      web2HsmLock.position.set(0, 0, 0.72);
-      web2MonolithMesh.add(web2HsmLock);
-
-      // Perímetro de aviso
-      web2HazardRing = new THREE.Line(
-        new THREE.BufferGeometry().setFromPoints(createCirclePoints3D(1.7, 24)),
-        new THREE.LineBasicMaterial({ color: 0xFF0033, transparent: true, opacity: 0.5 })
-      );
-      web2HazardRing.rotation.x = Math.PI / 2;
-      web2HazardRing.position.y = -0.7;
-      web2MonolithGroup.add(web2HazardRing);
-
-      // --- NÓ 3 (ETHEREUM EVM: x = 6.2) ---
-      const ethNodeGroupWeb2 = new THREE.Group();
-      ethNodeGroupWeb2.position.set(6.2, 0, 0);
-      worldGroupWeb2.add(ethNodeGroupWeb2);
-
-      ethPodMeshWeb2 = new THREE.LineSegments(
-        new THREE.EdgesGeometry(new THREE.CylinderGeometry(1.6, 1.9, 0.4, 6)),
-        new THREE.LineBasicMaterial({ color: 0x627EEA, linewidth: 2 })
-      );
-      ethPodMeshWeb2.position.y = -2.8;
-      ethNodeGroupWeb2.add(ethPodMeshWeb2);
-
-      // Diamante Ethereum
-      ethDiamondWeb2 = new THREE.LineSegments(
-        new THREE.WireframeGeometry(new THREE.OctahedronGeometry(1.1, 0)),
-        new THREE.LineBasicMaterial({ color: 0x627EEA, linewidth: 2 })
-      );
-      ethDiamondWeb2.scale.set(0.85, 1.45, 0.85);
-      ethDiamondWeb2.position.y = 0.2;
-      ethNodeGroupWeb2.add(ethDiamondWeb2);
-
-      // Token Sintético Emitido wBTC
-      ethSyntheticWeb2 = new THREE.LineSegments(
-        new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(0.55, 0)),
-        new THREE.LineBasicMaterial({ color: 0xFFFFFF, linewidth: 1.5 })
-      );
-      ethSyntheticWeb2.position.set(0, 1.7, 0);
-      ethNodeGroupWeb2.add(ethSyntheticWeb2);
-
-      // Sprite Flutuante do wBTC
-      wbtcSprite3D = createTokenSprite('wbtc');
-      wbtcSprite3D.position.set(6.2, 2.5, 0);
-      worldGroupWeb2.add(wbtcSprite3D);
-
-      // Trilhos 3D Web2
-      railCurveWeb2_1 = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-5.0, -1.6, 0),
-        new THREE.Vector3(-2.8, -1.0, 0),
-        new THREE.Vector3(-1.0, -0.7, 0)
-      ]);
-      railLineWeb2_1 = new THREE.Line(
-        new THREE.BufferGeometry().setFromPoints(railCurveWeb2_1.getPoints(20)),
-        new THREE.LineBasicMaterial({ color: 0xF7931A, transparent: true, opacity: 0.7 })
-      );
-      worldGroupWeb2.add(railLineWeb2_1);
-
-      railCurveWeb2_2 = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(1.0, -0.7, 0),
-        new THREE.Vector3(3.4, -1.0, 0),
-        new THREE.Vector3(5.0, -1.6, 0)
-      ]);
-      railLineWeb2_2 = new THREE.Line(
-        new THREE.BufferGeometry().setFromPoints(railCurveWeb2_2.getPoints(20)),
-        new THREE.LineBasicMaterial({ color: 0x627EEA, transparent: true, opacity: 0.7 })
-      );
-      worldGroupWeb2.add(railLineWeb2_2);
-
-      // Mouse drag Web2
-      canvas2.addEventListener('mousedown', (e) => {
-        web2Dragging = true;
-        web2PrevMouse = { x: e.clientX, y: e.clientY };
-        canvas2.style.cursor = 'grabbing';
-      });
-      window.addEventListener('mousemove', (e) => {
-        if (!web2Dragging) return;
-        const dx = e.clientX - web2PrevMouse.x;
-        const dy = e.clientY - web2PrevMouse.y;
-        web2TargetRot.y += dx * 0.008;
-        web2TargetRot.x += dy * 0.008;
-        web2TargetRot.x = Math.max(-0.35, Math.min(0.45, web2TargetRot.x));
-        web2TargetRot.y = Math.max(-0.55, Math.min(0.35, web2TargetRot.y));
-        web2PrevMouse = { x: e.clientX, y: e.clientY };
-      });
-      window.addEventListener('mouseup', () => {
-        web2Dragging = false;
-        if (canvas2) canvas2.style.cursor = 'grab';
-      });
-
-
-      // ==========================================
-      // 2. CENA 3D WIREFRAME WEB3 (LAYERZERO / MULTI-DVN)
-      // ==========================================
-      sceneBridgeWeb3 = new THREE.Scene();
-      cameraBridgeWeb3 = new THREE.PerspectiveCamera(40, w3 / h3, 0.1, 1000);
-      cameraBridgeWeb3.position.set(0, 2.2, 18);
-      cameraBridgeWeb3.lookAt(0, 0, 0);
-
-      rendererBridgeWeb3 = new THREE.WebGLRenderer({ canvas: canvas3, antialias: true, alpha: true });
-      rendererBridgeWeb3.setSize(w3, h3);
-      rendererBridgeWeb3.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-
-      // Grid Wireframe de Chão (Tema Esmeralda/Verde)
-      const gridWeb3 = new THREE.GridHelper(30, 16, 0x10B981, 0x05241A);
-      gridWeb3.position.y = -3.2;
-      sceneBridgeWeb3.add(gridWeb3);
-
-      worldGroupWeb3 = new THREE.Group();
-      worldGroupWeb3.rotation.x = web3Rot.x;
-      worldGroupWeb3.rotation.y = web3Rot.y;
-      sceneBridgeWeb3.add(worldGroupWeb3);
-
-      // --- NÓ 1 (ORIGEM ON-CHAIN: x = -6.2) ---
-      const originNodeGroup = new THREE.Group();
-      originNodeGroup.position.set(-6.2, 0, 0);
-      worldGroupWeb3.add(originNodeGroup);
-
-      originPodMesh = new THREE.LineSegments(
-        new THREE.EdgesGeometry(new THREE.CylinderGeometry(1.6, 1.9, 0.4, 6)),
-        new THREE.LineBasicMaterial({ color: 0x00E5FF, linewidth: 2 })
-      );
-      originPodMesh.position.y = -2.8;
-      originNodeGroup.add(originPodMesh);
-
-      originCoreMesh = new THREE.LineSegments(
-        new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(0.75, 0)),
-        new THREE.LineBasicMaterial({ color: 0x00E5FF, linewidth: 2 })
-      );
-      originCoreMesh.position.y = 0.2;
-      originNodeGroup.add(originCoreMesh);
-
-      originRingMesh = new THREE.Line(
-        new THREE.BufferGeometry().setFromPoints(createCirclePoints3D(1.3, 24)),
-        new THREE.LineBasicMaterial({ color: 0x00E5FF, transparent: true, opacity: 0.5 })
-      );
-      originRingMesh.rotation.x = Math.PI / 2;
-      originRingMesh.position.y = 0.2;
-      originNodeGroup.add(originRingMesh);
-
-      oftSprite3D = createTokenSprite('oft');
-      oftSprite3D.position.set(-6.2, 1.7, 0);
-      worldGroupWeb3.add(oftSprite3D);
-
-      // --- NÓ 2 (MALHA MULTI-DVN DESCENTRALIZADA: x = 0) ---
-      l0ConstellationGroup = new THREE.Group();
-      l0ConstellationGroup.position.set(0, 0, 0);
-      worldGroupWeb3.add(l0ConstellationGroup);
-
-      const midPod3 = new THREE.LineSegments(
-        new THREE.EdgesGeometry(new THREE.CylinderGeometry(1.8, 2.2, 0.4, 6)),
-        new THREE.LineBasicMaterial({ color: 0x064E3B, linewidth: 1.5 })
-      );
-      midPod3.position.y = -2.8;
-      l0ConstellationGroup.add(midPod3);
-
-      // Anel de órbita DVN
-      l0OrbitRing = new THREE.Line(
-        new THREE.BufferGeometry().setFromPoints(createCirclePoints3D(2.1, 28)),
-        new THREE.LineBasicMaterial({ color: 0x10B981, transparent: true, opacity: 0.65 })
-      );
-      l0OrbitRing.rotation.x = Math.PI / 2;
-      l0OrbitRing.position.y = -0.4;
-      l0ConstellationGroup.add(l0OrbitRing);
-
-      // Escudo BFT (Wireframe esférico)
-      l0ShieldMesh = new THREE.LineSegments(
-        new THREE.WireframeGeometry(new THREE.SphereGeometry(1.9, 10, 8)),
-        new THREE.LineBasicMaterial({ color: 0x10B981, transparent: true, opacity: 0.0 })
-      );
-      l0ShieldMesh.position.y = -0.4;
-      l0ConstellationGroup.add(l0ShieldMesh);
-
-      // 3 Nós DVN em Triângulo
-      const rTri = 1.6;
-      dvn1Mesh = new THREE.LineSegments(
-        new THREE.WireframeGeometry(new THREE.OctahedronGeometry(0.55, 0)),
-        new THREE.LineBasicMaterial({ color: 0x00E5FF, linewidth: 1.8 })
-      );
-      l0ConstellationGroup.add(dvn1Mesh);
-
-      dvn2Mesh = new THREE.LineSegments(
-        new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(0.55, 0)),
-        new THREE.LineBasicMaterial({ color: 0x10B981, linewidth: 1.8 })
-      );
-      l0ConstellationGroup.add(dvn2Mesh);
-
-      dvn3Mesh = new THREE.LineSegments(
-        new THREE.WireframeGeometry(new THREE.DodecahedronGeometry(0.5, 0)),
-        new THREE.LineBasicMaterial({ color: 0xFFFFFF, linewidth: 1.8 })
-      );
-      l0ConstellationGroup.add(dvn3Mesh);
-
-      // Lasers do Triângulo BFT
-      const laserPts = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
-      const laserGeo = new THREE.BufferGeometry().setFromPoints(laserPts);
-      dvnLaserMesh = new THREE.Line(laserGeo, new THREE.LineBasicMaterial({ color: 0x10B981, transparent: true, opacity: 0.85, linewidth: 2 }));
-      l0ConstellationGroup.add(dvnLaserMesh);
-
-      // --- NÓ 3 (DESTINO ON-CHAIN: x = 6.2) ---
-      const destNodeGroup = new THREE.Group();
-      destNodeGroup.position.set(6.2, 0, 0);
-      worldGroupWeb3.add(destNodeGroup);
-
-      destPodMesh = new THREE.LineSegments(
-        new THREE.EdgesGeometry(new THREE.CylinderGeometry(1.6, 1.9, 0.4, 6)),
-        new THREE.LineBasicMaterial({ color: 0x10B981, linewidth: 2 })
-      );
-      destPodMesh.position.y = -2.8;
-      destNodeGroup.add(destPodMesh);
-
-      destDiamondMesh = new THREE.LineSegments(
-        new THREE.WireframeGeometry(new THREE.OctahedronGeometry(1.1, 0)),
-        new THREE.LineBasicMaterial({ color: 0x10B981, linewidth: 2 })
-      );
-      destDiamondMesh.scale.set(0.9, 1.4, 0.9);
-      destDiamondMesh.position.y = 0.2;
-      destNodeGroup.add(destDiamondMesh);
-
-      destTokenMesh = new THREE.LineSegments(
-        new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(0.55, 0)),
-        new THREE.LineBasicMaterial({ color: 0x10B981, linewidth: 1.5 })
-      );
-      destTokenMesh.position.set(0, 1.7, 0);
-      destNodeGroup.add(destTokenMesh);
-
-      destSprite3D = createTokenSprite('oft');
-      destSprite3D.position.set(6.2, 2.5, 0);
-      worldGroupWeb3.add(destSprite3D);
-
-      // Trilhos 3D Web3
-      railCurveWeb3_1 = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-5.0, -1.6, 0),
-        new THREE.Vector3(-3.0, -0.6, 0),
-        new THREE.Vector3(-1.4, -0.4, 0)
-      ]);
-      railLineWeb3_1 = new THREE.Line(
-        new THREE.BufferGeometry().setFromPoints(railCurveWeb3_1.getPoints(20)),
-        new THREE.LineBasicMaterial({ color: 0x00E5FF, transparent: true, opacity: 0.75 })
-      );
-      worldGroupWeb3.add(railLineWeb3_1);
-
-      railCurveWeb3_2 = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(1.4, -0.4, 0),
-        new THREE.Vector3(3.2, -0.6, 0),
-        new THREE.Vector3(5.0, -1.6, 0)
-      ]);
-      railLineWeb3_2 = new THREE.Line(
-        new THREE.BufferGeometry().setFromPoints(railCurveWeb3_2.getPoints(20)),
-        new THREE.LineBasicMaterial({ color: 0x10B981, transparent: true, opacity: 0.75 })
-      );
-      worldGroupWeb3.add(railLineWeb3_2);
-
-      // Mouse drag Web3
-      canvas3.addEventListener('mousedown', (e) => {
-        web3Dragging = true;
-        web3PrevMouse = { x: e.clientX, y: e.clientY };
-        canvas3.style.cursor = 'grabbing';
-      });
-      window.addEventListener('mousemove', (e) => {
-        if (!web3Dragging) return;
-        const dx = e.clientX - web3PrevMouse.x;
-        const dy = e.clientY - web3PrevMouse.y;
-        web3TargetRot.y += dx * 0.008;
-        web3TargetRot.x += dy * 0.008;
-        web3TargetRot.x = Math.max(-0.35, Math.min(0.45, web3TargetRot.x));
-        web3TargetRot.y = Math.max(-0.55, Math.min(0.35, web3TargetRot.y));
-        web3PrevMouse = { x: e.clientX, y: e.clientY };
-      });
-      window.addEventListener('mouseup', () => {
-        web3Dragging = false;
-        if (canvas3) canvas3.style.cursor = 'grab';
-      });
-
-      bridge3DInitialized = true;
-    }
+    function init3DBridge() {}
 
     function resizeBridge3D() {
       const cont2 = document.getElementById('containerBridgeWeb2');
@@ -6942,249 +6549,7 @@
     }
 
     // --- RENDERIZAÇÃO LOOP DO SLIDE 8 ---
-    function renderBridge3D() {
-      if (!bridge3DInitialized || currentSlide !== 7) return;
-      const time = performance.now() * 0.001;
-
-      // ==========================================
-      // ATUALIZAÇÃO CENA 3D WEB2 (WIREFRAME)
-      // ==========================================
-      if (rendererBridgeWeb2 && sceneBridgeWeb2 && cameraBridgeWeb2) {
-        // Auto oscilação suave de paralaxe 3D (mantém nós alinhados com o fluxo)
-        if (!web2Dragging) {
-          web2TargetRot.x = 0.12 + Math.sin(time * 0.7) * 0.03;
-          web2TargetRot.y = -0.10 + Math.cos(time * 0.5) * 0.12;
-        }
-        web2Rot.x += (web2TargetRot.x - web2Rot.x) * 0.08;
-        web2Rot.y += (web2TargetRot.y - web2Rot.y) * 0.08;
-        if (worldGroupWeb2) {
-          worldGroupWeb2.rotation.x = web2Rot.x;
-          worldGroupWeb2.rotation.y = web2Rot.y;
-        }
-
-        // Rotações dos nós
-        if (btcCoreMesh) {
-          btcCoreMesh.rotation.y += 0.02;
-          btcCoreMesh.position.y = 0.4 + Math.sin(time * 2.2) * 0.08;
-        }
-        if (btcSprite3D) {
-          btcSprite3D.position.y = 1.7 + Math.sin(time * 2.2) * 0.08;
-        }
-
-        // Ciclo SPOF Web2 (9 segundos: 0s-5s normal, 5s-8s falha SPOF, 8s-9s reset)
-        const cycleWeb2 = time % 9.0;
-        const isSpoffail = (cycleWeb2 >= 5.0 && cycleWeb2 <= 8.0);
-
-        // Atualiza Badge do Header
-        const badge2 = document.getElementById('badgeStatusWeb2');
-        if (badge2) {
-          if (isSpoffail) {
-            badge2.textContent = '⚠️ FALHA SPOF: SERVIDOR AWS TRAVADO';
-            badge2.className = 'text-[9px] px-1.5 py-0.5 border border-noir-red bg-noir-red/25 text-noir-red font-bold animate-pulse';
-          } else {
-            badge2.textContent = 'SPOF: SERVIDORES AWS';
-            badge2.className = 'text-[9px] px-1.5 py-0.5 border border-[#F7931A]/60 bg-[#F7931A]/10 text-[#F7931A] font-bold';
-          }
-        }
-
-        if (web2MonolithGroup) {
-          if (isSpoffail) {
-            // Glitch shake violento no monólito central
-            web2MonolithGroup.position.x = (Math.random() - 0.5) * 0.16;
-            web2MonolithGroup.position.y = (Math.random() - 0.5) * 0.16;
-            if (web2MonolithMesh) web2MonolithMesh.material.color.setHex(0xFF0033);
-            if (railLineWeb2_2) railLineWeb2_2.material.opacity = 0.15;
-
-            if (Math.random() < 0.35) {
-              spawnSparkWeb2((Math.random() - 0.5) * 1.5, -0.7 + (Math.random() - 0.5) * 2.5, (Math.random() - 0.5) * 1.2, 0xFF0033);
-            }
-          } else {
-            web2MonolithGroup.position.x = 0;
-            web2MonolithGroup.position.y = 0;
-            web2MonolithGroup.rotation.y += 0.006;
-            if (web2MonolithMesh) web2MonolithMesh.material.color.setHex(0xF7931A);
-            if (railLineWeb2_2) railLineWeb2_2.material.opacity = 0.75;
-          }
-        }
-
-        if (ethDiamondWeb2) {
-          ethDiamondWeb2.rotation.y += 0.018;
-          ethDiamondWeb2.position.y = 0.2 + Math.sin(time * 2.2 + 1.0) * 0.08;
-          if (isSpoffail) {
-            ethDiamondWeb2.material.color.setHex(0xFF0033);
-          } else {
-            ethDiamondWeb2.material.color.setHex(0x627EEA);
-          }
-        }
-        if (ethSyntheticWeb2) {
-          ethSyntheticWeb2.rotation.y += 0.025;
-          ethSyntheticWeb2.position.y = 1.7 + Math.sin(time * 2.8) * 0.1;
-        }
-        if (wbtcSprite3D) {
-          wbtcSprite3D.position.y = 2.5 + Math.sin(time * 2.8) * 0.1;
-        }
-
-        // Geração de pacotes em trânsito
-        if (Math.random() < 0.06 && packetsWeb2.length < 8) {
-          spawnPacketWeb2(railCurveWeb2_1, 0xF7931A, false);
-          if (!isSpoffail) {
-            spawnPacketWeb2(railCurveWeb2_2, 0x60A5FA, false);
-          }
-        }
-
-        // Atualização de pacotes Web2
-        for (let i = packetsWeb2.length - 1; i >= 0; i--) {
-          const p = packetsWeb2[i];
-          p.progress += p.speed;
-          if (p.curve) {
-            const pos = p.curve.getPointAt(Math.min(1.0, p.progress));
-            p.mesh.position.copy(pos);
-          }
-          p.mesh.rotation.x += 0.05;
-          p.mesh.rotation.y += 0.05;
-
-          if (p.progress >= 1.0) {
-            worldGroupWeb2.remove(p.mesh);
-            packetsWeb2.splice(i, 1);
-          }
-        }
-
-        // Atualização de faíscas Web2
-        for (let i = sparksWeb2.length - 1; i >= 0; i--) {
-          const s = sparksWeb2[i];
-          s.line.position.x += s.vx;
-          s.line.position.y += s.vy;
-          s.line.position.z += s.vz;
-          s.life -= 0.05;
-          s.line.material.opacity = s.life;
-          if (s.life <= 0) {
-            worldGroupWeb2.remove(s.line);
-            sparksWeb2.splice(i, 1);
-          }
-        }
-
-        rendererBridgeWeb2.render(sceneBridgeWeb2, cameraBridgeWeb2);
-      }
-
-      // ==========================================
-      // ATUALIZAÇÃO CENA 3D WEB3 (WIREFRAME)
-      // ==========================================
-      if (rendererBridgeWeb3 && sceneBridgeWeb3 && cameraBridgeWeb3) {
-        // Auto oscilação suave de paralaxe 3D (mantém nós alinhados com o fluxo)
-        if (!web3Dragging) {
-          web3TargetRot.x = 0.12 + Math.sin(time * 0.7 + 1.2) * 0.03;
-          web3TargetRot.y = -0.10 + Math.cos(time * 0.5 + 1.2) * 0.12;
-        }
-        web3Rot.x += (web3TargetRot.x - web3Rot.x) * 0.08;
-        web3Rot.y += (web3TargetRot.y - web3Rot.y) * 0.08;
-        if (worldGroupWeb3) {
-          worldGroupWeb3.rotation.x = web3Rot.x;
-          worldGroupWeb3.rotation.y = web3Rot.y;
-        }
-
-        // Rotações dos nós de origem e destino
-        if (originCoreMesh) {
-          originCoreMesh.rotation.y += 0.02;
-          originCoreMesh.position.y = 0.2 + Math.sin(time * 2.2) * 0.08;
-        }
-        if (oftSprite3D) {
-          oftSprite3D.position.y = 1.7 + Math.sin(time * 2.2) * 0.08;
-        }
-
-        if (destDiamondMesh) {
-          destDiamondMesh.rotation.y += 0.018;
-          destDiamondMesh.position.y = 0.2 + Math.sin(time * 2.2 + 1.0) * 0.08;
-        }
-        if (destTokenMesh) {
-          destTokenMesh.rotation.y += 0.025;
-          destTokenMesh.position.y = 1.7 + Math.sin(time * 2.8) * 0.1;
-        }
-        if (destSprite3D) {
-          destSprite3D.position.y = 2.5 + Math.sin(time * 2.8) * 0.1;
-        }
-
-        // Constelação Triangular Multi-DVN
-        const rotL0 = time * 0.6;
-        const rTri = 1.6;
-        const p1 = new THREE.Vector3(Math.cos(rotL0) * rTri, -0.4 + Math.sin(rotL0) * 0.4, Math.sin(rotL0) * rTri);
-        const p2 = new THREE.Vector3(Math.cos(rotL0 + 2.094) * rTri, -0.4 + Math.sin(rotL0 + 2.094) * 0.4, Math.sin(rotL0 + 2.094) * rTri);
-        const p3 = new THREE.Vector3(Math.cos(rotL0 + 4.188) * rTri, -0.4 + Math.sin(rotL0 + 4.188) * 0.4, Math.sin(rotL0 + 4.188) * rTri);
-
-        if (dvn1Mesh) { dvn1Mesh.position.copy(p1); dvn1Mesh.rotation.y += 0.03; }
-        if (dvn2Mesh) { dvn2Mesh.position.copy(p2); dvn2Mesh.rotation.y += 0.03; }
-        if (dvn3Mesh) { dvn3Mesh.position.copy(p3); dvn3Mesh.rotation.y += 0.03; }
-
-        if (dvnLaserMesh) {
-          const posAttr = dvnLaserMesh.geometry.attributes.position;
-          posAttr.setXYZ(0, p1.x, p1.y, p1.z);
-          posAttr.setXYZ(1, p2.x, p2.y, p2.z);
-          posAttr.setXYZ(2, p3.x, p3.y, p3.z);
-          posAttr.setXYZ(3, p1.x, p1.y, p1.z);
-          posAttr.needsUpdate = true;
-        }
-
-        if (l0OrbitRing) {
-          l0OrbitRing.rotation.z += 0.01;
-        }
-
-        // Demonstração periódica de defesa BFT
-        const cycleWeb3 = time % 7.0;
-        const isBftDefending = (cycleWeb3 >= 4.2 && cycleWeb3 <= 5.8);
-        if (l0ShieldMesh) {
-          l0ShieldMesh.rotation.y += 0.02;
-          l0ShieldMesh.material.opacity = isBftDefending ? 0.65 : 0.0;
-        }
-
-        const badge3 = document.getElementById('badgeStatusWeb3');
-        if (badge3) {
-          if (isBftDefending) {
-            badge3.textContent = '🛡️ CONSENSO BFT: DEFESA ATIVA';
-            badge3.className = 'text-[9px] px-1.5 py-0.5 border border-emerald-400 bg-emerald-400/25 text-emerald-400 font-bold animate-pulse';
-          } else {
-            badge3.textContent = 'ZERO SPOF: MATEMÁTICA';
-            badge3.className = 'text-[9px] px-1.5 py-0.5 border border-emerald-500/60 bg-emerald-500/10 text-emerald-400 font-bold';
-          }
-        }
-
-        // Geração de pacotes em trânsito contínuo
-        if (Math.random() < 0.07 && packetsWeb3.length < 8) {
-          spawnPacketWeb3(railCurveWeb3_1, 0x00E5FF);
-          spawnPacketWeb3(railCurveWeb3_2, 0x10B981);
-        }
-
-        // Atualização de pacotes Web3
-        for (let i = packetsWeb3.length - 1; i >= 0; i--) {
-          const p = packetsWeb3[i];
-          p.progress += p.speed;
-          if (p.curve) {
-            const pos = p.curve.getPointAt(Math.min(1.0, p.progress));
-            p.mesh.position.copy(pos);
-          }
-          p.mesh.rotation.x += 0.06;
-          p.mesh.rotation.y += 0.06;
-
-          if (p.progress >= 1.0) {
-            worldGroupWeb3.remove(p.mesh);
-            packetsWeb3.splice(i, 1);
-          }
-        }
-
-        rendererBridgeWeb3.render(sceneBridgeWeb3, cameraBridgeWeb3);
-      }
-
-      // Ticker Dinâmico de Telemetria Comparativa
-      const ticker = document.getElementById('bridgeConsoleTicker');
-      if (ticker) {
-        const step = Math.floor(time * 0.22) % 3;
-        if (step === 0) {
-          ticker.innerHTML = '> [DIAGNÓSTICO ARQUITETURAL]: <strong class="text-[#F7931A]">Web2 (wBTC)</strong> = Custódia corporativa em nuvem AWS (SPOF) // <strong class="text-emerald-400">Web3 (LayerZero)</strong> = Validação descentralizada por DVNs e provas ZK.';
-        } else if (step === 1) {
-          ticker.innerHTML = '> [COMPARAÇÃO DE RISCO]: Se a BitGo falir, for intimada pela SEC ou travar o KYC, o resgate é bloqueado // No LayerZero, nenhum intermediário individual tem chave mestra.';
-        } else {
-          ticker.innerHTML = '> [NATUREZA DO ATIVO]: O wBTC é um título de dívida corporativo (IOU sintético off-chain) // Protocolo Omnichain entrega paridade matemática sem custodiante.';
-        }
-      }
-    }
+    function renderBridge3D() {}
 
     // Funções Stub para retrocompatibilidade
     function setBridgeCameraView() {}
