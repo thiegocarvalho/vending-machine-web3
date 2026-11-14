@@ -141,6 +141,7 @@ contract DefiVendingMachine1155 is ERC1155, ERC2981, Ownable2Step, Pausable, Ree
     error EmptyMetadataURI();
     error EmptyContractURI();
     error ETHTransferFailed();
+    error RenounceDisabled();
 
     // =========================================================================
     //                              CONSTRUCTOR
@@ -594,6 +595,14 @@ contract DefiVendingMachine1155 is ERC1155, ERC2981, Ownable2Step, Pausable, Ree
         }
 
         _setTokenRoyalty(tokenId, receiver, feeNumerator);
+    }
+
+    /**
+     * @notice Disabled: renouncing ownership would lock withdrawals, pausing and catalog management forever.
+     * @dev Ownership can still be moved safely with Ownable2Step (transferOwnership + acceptOwnership).
+     */
+    function renounceOwnership() public view override onlyOwner {
+        revert RenounceDisabled();
     }
 
     /**
