@@ -581,7 +581,7 @@
       </span>
       <div class="flex items-center font-mono text-[11px]">
         <span class="text-noir-muted mr-1.5">FRAME</span>
-        <span class="text-noir-red font-bold"><span id="currentSlideNum">1</span> / <span id="totalSlidesNum">17</span></span>
+        <span class="text-noir-red font-bold"><span id="currentSlideNum">1</span> / <span id="totalSlidesNum">19</span></span>
       </div>
     </div>
 
@@ -1701,7 +1701,7 @@
             </div>
 
             <p class="text-gray-300 text-xs sm:text-[13px] leading-relaxed">
-              Ele roda 24 horas por dia de forma 100% autônoma. Ninguém pode burlar, pausar ou alterar a regra após o deploy.
+              Ele roda 24 horas por dia de forma autônoma e o código nunca muda depois do deploy. O que o dono pode fazer (como pausar a máquina) está escrito no próprio código, aberto para qualquer um conferir.
             </p>
           </div>
         </div>
@@ -1732,12 +1732,12 @@
 
             <div class="flex items-start gap-2.5 bg-noir-surface/80 p-2.5 border border-noir-border/60 shadow-md hover:border-noir-red/70 hover:bg-noir-surface transition-all cursor-default group">
               <span class="px-2 py-0.5 bg-noir-red/20 text-noir-red font-bold text-xs border border-noir-red/40 shrink-0 group-hover:bg-noir-red group-hover:text-white transition-colors">3. REGRA</span>
-              <span class="text-gray-200 font-sans text-xs sm:text-[13px]">A máquina confere automaticamente: <em>"Tem estoque no slot? O valor cobre o preço?"</em> (<code class="text-noir-red font-mono font-bold">require</code>).</span>
+              <span class="text-gray-200 font-sans text-xs sm:text-[13px]">A máquina confere automaticamente: <em>"Tem estoque no slot? O valor é exatamente o preço?"</em> (<code class="text-noir-red font-mono font-bold">if … revert</code>).</span>
             </div>
 
             <div class="flex items-start gap-2.5 bg-noir-surface/80 p-2.5 border border-noir-border/60 shadow-md hover:border-white/50 hover:bg-noir-surface transition-all cursor-default group">
               <span class="px-2 py-0.5 bg-white/10 text-white font-bold text-xs border border-white/20 shrink-0 group-hover:bg-white group-hover:text-black transition-colors">4. ENTREGA</span>
-              <span class="text-gray-200 font-sans text-xs sm:text-[13px]">Se o valor for exato e houver estoque: entrega o card instantaneamente. Se faltar estoque ou o valor for incorreto: desfaz tudo e cancela (<code class="text-noir-red font-mono font-bold">revert</code>).</span>
+              <span class="text-gray-200 font-sans text-xs sm:text-[13px]">Se o valor for exato e houver estoque: entrega o card instantaneamente. Se faltar estoque ou o valor for incorreto: desfaz tudo e devolve o seu ETH (<code class="text-noir-red font-mono font-bold">revert</code>).</span>
             </div>
           </div>
         </div>
@@ -1765,7 +1765,7 @@
           </div>
           <div>
             <span class="text-white font-bold block text-xs tracking-wider uppercase font-mono">[REGRAS IMUTÁVEIS]</span>
-            <span class="text-noir-muted text-[11px] block leading-tight font-sans">Ninguém pode alterar o preço ou o código após deploy.</span>
+            <span class="text-noir-muted text-[11px] block leading-tight font-sans">O código e o preço dos cards não mudam após o deploy.</span>
           </div>
         </div>
         <div class="flex items-center gap-3 bg-noir-surface/70 border border-noir-border/80 p-2.5 hover:border-noir-red/50 transition-colors shadow-sm">
@@ -1816,7 +1816,7 @@
           </p>
           <div class="pt-1.5 border-t border-noir-border/60 font-mono text-xs text-gray-300 space-y-0.5">
             <div>> <strong class="text-white">estoque</strong> = 100 unidades</div>
-            <div>> <strong class="text-white">preco</strong> = 0.0001 ETH</div>
+            <div>> <strong class="text-white">preco</strong> = 0.0046 ETH</div>
             <div>> <strong class="text-white">dono</strong> = 0x71C...</div>
           </div>
         </div>
@@ -1862,7 +1862,7 @@
         <div><span class="text-noir-red font-bold">contract</span> <span class="text-white font-bold">VendingMachine</span> {</div>
         <div class="pl-6 text-noir-muted text-xs">// 1. VARIÁVEIS (guardadas na memória da blockchain)</div>
         <div class="pl-6"><span class="text-noir-red font-bold">uint256</span> <span class="text-white font-bold">public estoque</span> = <span class="text-amber-300 font-bold">100</span>;</div>
-        <div class="pl-6"><span class="text-noir-red font-bold">uint256</span> <span class="text-white font-bold">public preco</span> = <span class="text-amber-300 font-bold">0.0001 ether</span>;</div>
+        <div class="pl-6"><span class="text-noir-red font-bold">uint256</span> <span class="text-white font-bold">public preco</span> = <span class="text-amber-300 font-bold">0.0046 ether</span>;</div>
         <div class="pl-6 pt-1 text-noir-muted text-xs">// 2. FUNÇÃO com 3. ARGUMENTO (cardId)</div>
         <div class="pl-6"><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">buyCard</span>(<span class="text-noir-red font-bold">uint256</span> <span class="text-rose-300 font-bold">cardId</span>) <span class="text-noir-red font-bold">public payable</span> {</div>
         <div class="pl-12 text-white font-bold">estoque = estoque - 1; <span class="text-noir-muted font-normal text-xs">// A função altera a variável de estado!</span></div>
@@ -1877,7 +1877,67 @@
       </div>
     </section>
 
-    <!-- SLIDE 11: PASSO A PASSO DO CONTRATO (1/5): ESTRUTURA, ESTADO & CONSTRUTOR -->
+    <!-- SLIDE 11: A FUNDAÇÃO — OPENZEPPELIN (HERANÇA DO CONTRATO REAL) -->
+    <section class="slide flex-col max-w-6xl w-full mx-auto space-y-3 relative" data-topic="06. CÓDIGO // FUNDAÇÃO OPENZEPPELIN">
+      <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 基 (Ki): Base / Fundação (bibliotecas auditadas)">基</div>
+      <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap justify-between items-end gap-2 relative z-10 w-full">
+        <div>
+          <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// ANÁLISE DE CÓDIGO REAL // ANTES DA PARTE 1</span>
+          <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">NÃO REINVENTAMOS A RODA: OPENZEPPELIN</h2>
+        </div>
+        <span class="text-xs font-mono text-noir-muted font-jp hidden sm:block jp-trans" data-jp-tooltip="基盤 (Kiban): Fundação / Base de Código Auditada">基盤</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-5 pt-1 relative z-10">
+        <div class="md:col-span-5 font-mono text-xs sm:text-[13px] leading-relaxed text-gray-100 space-y-1 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-noir-red shadow-xl overflow-x-auto">
+          <div class="text-noir-red font-bold text-xs uppercase tracking-wider">// O contrato real herda 6 peças prontas</div>
+          <div><span class="text-noir-red font-bold">pragma solidity</span> <span class="text-amber-300">0.8.24</span>;</div>
+          <div class="pt-1.5"><span class="text-noir-red font-bold">contract</span> <span class="text-white font-bold">DefiVendingMachine1155</span> <span class="text-noir-red font-bold">is</span></div>
+          <div class="pl-4 text-white">ERC1155,</div>
+          <div class="pl-4 text-white">ERC1155Pausable,</div>
+          <div class="pl-4 text-white">ERC1155Supply,</div>
+          <div class="pl-4 text-white">ERC2981,</div>
+          <div class="pl-4 text-white">Ownable2Step,</div>
+          <div class="pl-4 text-white">ReentrancyGuardTransient</div>
+          <div>{ <span class="text-noir-muted text-xs">// só a regra da máquina é nossa</span> }</div>
+          <div class="pt-2 text-noir-muted text-xs">// @openzeppelin/contracts v5.6.1: código auditado e usado em milhares de contratos.</div>
+        </div>
+
+        <div class="md:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs sm:text-[13px]">
+          <div class="bg-noir-surface/80 border border-noir-border/70 border-t-2 border-t-noir-red p-2.5 hover:border-noir-red/70 transition-colors">
+            <span class="text-noir-red font-mono font-bold text-xs">ERC1155</span>
+            <p class="text-gray-200 font-sans leading-snug mt-0.5">Vários cards num só contrato: saldo por carteira, transferência e <code class="text-white font-mono">balanceOfBatch</code>.</p>
+          </div>
+          <div class="bg-noir-surface/80 border border-noir-border/70 border-t-2 border-t-white p-2.5 hover:border-white/50 transition-colors">
+            <span class="text-white font-mono font-bold text-xs">ERC1155Pausable</span>
+            <p class="text-gray-200 font-sans leading-snug mt-0.5">Botão de emergência: pausa compras <strong class="text-white">e</strong> transferências de uma vez.</p>
+          </div>
+          <div class="bg-noir-surface/80 border border-noir-border/70 border-t-2 border-t-white p-2.5 hover:border-white/50 transition-colors">
+            <span class="text-white font-mono font-bold text-xs">ERC1155Supply</span>
+            <p class="text-gray-200 font-sans leading-snug mt-0.5">Contabilidade pronta: <code class="text-white font-mono">totalSupply(id)</code> de cada card emitido.</p>
+          </div>
+          <div class="bg-noir-surface/80 border border-noir-border/70 border-t-2 border-t-noir-red p-2.5 hover:border-noir-red/70 transition-colors">
+            <span class="text-noir-red font-mono font-bold text-xs">ERC2981</span>
+            <p class="text-gray-200 font-sans leading-snug mt-0.5">Royalties de revenda (5%, teto de 10%) que os marketplaces sabem ler.</p>
+          </div>
+          <div class="bg-noir-surface/80 border border-noir-border/70 border-t-2 border-t-noir-red p-2.5 hover:border-noir-red/70 transition-colors">
+            <span class="text-noir-red font-mono font-bold text-xs">Ownable2Step</span>
+            <p class="text-gray-200 font-sans leading-snug mt-0.5">Dono em duas etapas: quem recebe precisa <code class="text-white font-mono">acceptOwnership()</code>. Erro de digitação não perde o contrato.</p>
+          </div>
+          <div class="bg-noir-surface/80 border border-noir-border/70 border-t-2 border-t-white p-2.5 hover:border-white/50 transition-colors">
+            <span class="text-white font-mono font-bold text-xs">ReentrancyGuardTransient</span>
+            <p class="text-gray-200 font-sans leading-snug mt-0.5">Trava de reentrada nas compras e no saque, mais barata em gás (armazenamento transitório).</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-1.5 flex items-center justify-between text-xs sm:text-[13px] font-mono text-noir-muted border-t border-noir-border/60">
+        <span>💡 <em>Regra de ouro em segurança: não escreva de novo o que já foi auditado. Escreva só o que é seu.</em></span>
+        <span class="text-noir-red font-bold hidden sm:inline">[FUNDAÇÃO]</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 12: PASSO A PASSO DO CONTRATO (1/5): ESTRUTURA, ESTADO & CONSTRUTOR -->
     <section class="slide flex-col max-w-6xl w-full mx-auto space-y-3 relative" data-topic="06. CÓDIGO // ESTRUTURA & CONSTRUTOR">
       <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 構 (Kō): Construção / Estrutura de Dados e Construtor">構</div>
       <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap justify-between items-end gap-2 relative z-10 w-full">
@@ -1889,125 +1949,121 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-12 gap-5 pt-1 relative z-10">
-        <!-- Código Solidity (7 colunas - FONTE AMPLIADA) -->
-        <div class="md:col-span-7 font-mono text-xs sm:text-sm md:text-[14px] leading-relaxed text-gray-100 space-y-1 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-noir-red shadow-xl overflow-x-auto">
-          <div class="text-noir-red font-bold text-xs uppercase tracking-wider">// 1. A gaveta de dados de cada Card (EVM 32-byte Packing)</div>
+        <div class="md:col-span-7 font-mono text-xs sm:text-sm md:text-[13px] leading-relaxed text-gray-100 space-y-1 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-noir-red shadow-xl overflow-x-auto">
+          <div class="text-noir-red font-bold text-xs uppercase tracking-wider">// 1. A gaveta de cada Card (cabe em 1 slot de 32 bytes: 30 bytes)</div>
           <div><span class="text-noir-red font-bold">struct</span> <span class="text-white font-bold">Card</span> {</div>
-          <div class="pl-6"><span class="text-noir-red font-bold">uint128</span> <span class="text-white">price</span>;        <span class="text-noir-muted font-normal text-xs">// Preço em Wei (16 bytes)</span></div>
-          <div class="pl-6"><span class="text-noir-red font-bold">uint48</span>  <span class="text-white">stock</span>;        <span class="text-noir-muted font-normal text-xs">// Estoque disponível (6 bytes)</span></div>
-          <div class="pl-6"><span class="text-noir-red font-bold">uint48</span>  <span class="text-white">initialStock</span>; <span class="text-noir-muted font-normal text-xs">// Estoque inicial (default 100)</span></div>
-          <div class="pl-6"><span class="text-noir-red font-bold">bool</span>    <span class="text-white">active</span>;       <span class="text-noir-muted font-normal text-xs">// Card ativo para venda?</span></div>
-          <div class="pl-6"><span class="text-noir-red font-bold">bool</span>    <span class="text-white">exists</span>;       <span class="text-noir-muted font-normal text-xs">// Existe no catálogo?</span></div>
+          <div class="pl-6"><span class="text-noir-red font-bold">uint128</span> <span class="text-white">price</span>;        <span class="text-noir-muted font-normal text-xs">// preço em Wei</span></div>
+          <div class="pl-6"><span class="text-noir-red font-bold">uint48</span>  <span class="text-white">stock</span>;        <span class="text-noir-muted font-normal text-xs">// estoque atual</span></div>
+          <div class="pl-6"><span class="text-noir-red font-bold">uint48</span>  <span class="text-white">initialStock</span>; <span class="text-noir-muted font-normal text-xs">// tiragem (100)</span></div>
+          <div class="pl-6"><span class="text-noir-red font-bold">bool</span> <span class="text-white">active</span>, <span class="text-white">exists</span>;   <span class="text-noir-muted font-normal text-xs">// à venda? / cadastrado?</span></div>
           <div>}</div>
-          <div class="pt-1.5 text-noir-red font-bold text-xs uppercase tracking-wider">// 2. O catálogo de cards e contador</div>
+          <div class="pt-1.5 text-noir-red font-bold text-xs uppercase tracking-wider">// 2. Vitrine e contador</div>
           <div><span class="text-noir-red font-bold">mapping</span>(uint256 => Card) <span class="text-white font-bold">public cards</span>;</div>
           <div><span class="text-noir-red font-bold">uint256</span> <span class="text-white font-bold">public totalCardTypes</span>;</div>
-          <div class="pt-1.5 text-noir-red font-bold text-xs uppercase tracking-wider">// 3. Construtor: Inicializa 30 cards com estoque default 100</div>
-          <div><span class="text-noir-red font-bold">constructor</span>(string memory baseURI, uint128 defaultPrice) {</div>
-          <div class="pl-6 text-white font-bold">totalCardTypes = <span class="text-amber-300">30</span>; <span class="text-noir-muted font-normal text-xs">// Slots A1 até E6</span></div>
-          <div class="pl-6"><span class="text-noir-red font-bold">for</span> (uint256 id = 1; id <= 30; id++) {</div>
-          <div class="pl-12 text-white font-bold">cards[id] = Card({</div>
-          <div class="pl-16 text-gray-200">price: defaultPrice, stock: <span class="text-amber-300">100</span>,</div>
-          <div class="pl-16 text-gray-200">initialStock: <span class="text-amber-300">100</span>, active: <span class="text-emerald-400">true</span>, exists: <span class="text-emerald-400">true</span></div>
-          <div class="pl-12">});</div>
-          <div class="pl-6">}</div>
+          <div class="pt-1.5 text-noir-red font-bold text-xs uppercase tracking-wider">// 3. Construtor: 5 parâmetros, 30 cards, royalty</div>
+          <div><span class="text-noir-red font-bold">constructor</span>(</div>
+          <div class="pl-6">string baseMetadataURI, string initialContractURI,</div>
+          <div class="pl-6">uint256 defaultPrice, address royaltyReceiver, uint96 royaltyFeeNumerator</div>
+          <div>) <span class="text-white font-bold">ERC1155(baseMetadataURI) Ownable(msg.sender)</span> {</div>
+          <div class="pl-6 text-white font-bold">totalCardTypes = <span class="text-amber-300">30</span>; <span class="text-noir-muted font-normal text-xs">// A1 até E6</span></div>
+          <div class="pl-6"><span class="text-noir-red font-bold">for</span> (id = 1; id &lt;= 30; id++) cards[id] = Card({</div>
+          <div class="pl-12 text-gray-200">price: defaultPrice, stock: <span class="text-amber-300">100</span>, initialStock: <span class="text-amber-300">100</span>,</div>
+          <div class="pl-12 text-gray-200">active: <span class="text-emerald-400">true</span>, exists: <span class="text-emerald-400">true</span> });</div>
+          <div class="pl-6 text-white font-bold">_setDefaultRoyalty(royaltyReceiver, royaltyFeeNumerator);</div>
           <div>}</div>
         </div>
 
-        <!-- Explicação Linha por Linha (5 colunas) -->
         <div class="md:col-span-5 space-y-2.5 font-mono text-xs sm:text-sm">
           <div class="border-b border-noir-border/60 pb-1">
             <span class="text-noir-red text-xs font-bold uppercase tracking-wider">[EXPLICAÇÃO PASSO A PASSO]</span>
           </div>
-
           <div class="space-y-2.5 text-gray-200 font-sans text-xs sm:text-sm leading-relaxed">
             <div class="border-l-2 border-noir-red pl-3 space-y-0.5">
-              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">1. A Struct Card (EVM Packing):</strong>
-              <p class="text-gray-300 text-xs sm:text-[13px]">Controle de estoque e valor individual por card. Preço, estoque (default 100) e status são compactados em apenas 1 slot de 32 bytes!</p>
+              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">1. A struct Card:</strong>
+              <p class="text-gray-300 text-xs sm:text-[13px]">Preço, estoque e status de cada card ficam compactados num único slot, o que reduz o gás de cada compra.</p>
             </div>
-
             <div class="border-l-2 border-white pl-3 space-y-0.5">
-              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">2. O Mapping cards:</strong>
-              <p class="text-gray-300 text-xs sm:text-[13px]">É a vitrine digital. Você informa o número do card (1 a 30) e ele te devolve os dados e estoque daquele slot.</p>
+              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">2. O mapping cards:</strong>
+              <p class="text-gray-300 text-xs sm:text-[13px]">A vitrine: o número do card (1 a 30) devolve os dados do slot.</p>
             </div>
-
             <div class="border-l-2 border-noir-border pl-3 space-y-0.5">
-              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">3. O Construtor:</strong>
-              <p class="text-gray-300 text-xs sm:text-[13px]">Monta os 30 slots iniciais com estoque padrão de 100 unidades cada, pronto para expansão dinâmica.</p>
+              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">3. O construtor:</strong>
+              <p class="text-gray-300 text-xs sm:text-[13px]">Roda <strong class="text-white">uma única vez</strong>, no deploy. Quem faz o deploy vira o dono (<code class="text-white font-mono">Ownable(msg.sender)</code>) e o preço fica igual para os 30 cards.</p>
+            </div>
+            <div class="border-l-2 border-amber-300/80 pl-3 space-y-0.5">
+              <strong class="text-amber-300 block font-mono text-xs sm:text-sm font-bold">Dois endereços IPFS:</strong>
+              <p class="text-gray-300 text-xs sm:text-[13px]"><code class="text-white font-mono">ipfs://CID/{id}.json</code> descreve cada card; <code class="text-white font-mono">contractURI</code> descreve a coleção.</p>
             </div>
           </div>
         </div>
       </div>
 
       <div class="pt-1.5 flex items-center justify-between text-xs sm:text-[13px] font-mono text-noir-muted border-t border-noir-border/60">
-        <span>💡 <em>Estoque individual por card: default 100 no construtor, com tiragem e preço customizáveis.</em></span>
+        <span>💡 <em>Estoque individual por card: tiragem de 100 unidades e preço definidos no deploy.</em></span>
         <span class="text-noir-red font-bold hidden sm:inline">[ETAPA_01/05]</span>
       </div>
     </section>
 
-    <!-- SLIDE 12: PASSO A PASSO (2/5): A FUNÇÃO BUYCARD() — VALIDAÇÕES DE SEGURANÇA -->
+    <!-- SLIDE 13: PASSO A PASSO (2/5): A FUNÇÃO BUYCARD() — AS 5 TRAVAS -->
     <section class="slide flex-col max-w-6xl w-full mx-auto space-y-3 relative" data-topic="06. CÓDIGO // BUYCARD VALIDAÇÕES">
-      <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 検 (Ken): Inspeção / Verificação de Segurança (require)">検</div>
+      <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 検 (Ken): Inspeção / Verificação de Segurança">検</div>
       <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap justify-between items-end gap-2 relative z-10 w-full">
         <div>
           <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// ANÁLISE DE CÓDIGO REAL // PARTE 2</span>
-          <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">A FUNÇÃO BUYCARD(): AS 4 TRAVAS DE SEGURANÇA</h2>
+          <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">A FUNÇÃO BUYCARD(): AS 5 TRAVAS DE SEGURANÇA</h2>
         </div>
-        <span class="text-xs font-mono text-noir-muted font-jp hidden sm:block jp-trans" data-jp-tooltip="購入と検証 (Kōnyū to Kenshō): Compra e Validações de Segurança (require)">購入と検証</span>
+        <span class="text-xs font-mono text-noir-muted font-jp hidden sm:block jp-trans" data-jp-tooltip="購入と検証 (Kōnyū to Kenshō): Compra e Validações de Segurança">購入と検証</span>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-12 gap-5 pt-1 relative z-10">
-        <!-- Código Solidity (7 colunas - FONTE AMPLIADA) -->
-        <div class="md:col-span-7 font-mono text-xs sm:text-sm md:text-[14px] leading-relaxed text-gray-100 space-y-1 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-noir-red shadow-xl overflow-x-auto">
-          <div class="text-noir-red font-bold text-xs uppercase tracking-wider">// Assinatura da compra (1 card ou quantidade)</div>
-          <div><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">buyCard</span>(<span class="text-noir-red font-bold">uint256</span> <span class="text-rose-300 font-bold">cardId</span>, <span class="text-noir-red font-bold">uint256</span> <span class="text-rose-300 font-bold">amount</span>)</div>
-          <div class="pl-6 text-white font-bold"><span class="text-noir-red">external payable whenNotPaused nonReentrant</span> {</div>
-          <div class="pt-1.5 text-noir-red font-bold text-xs uppercase tracking-wider">// Trava 1: O card solicitado existe no catálogo?</div>
-          <div class="pl-6"><span class="text-noir-red font-bold">if</span> (cardId < 1 || cardId > totalCardTypes) revert InvalidCardId(cardId);</div>
-          <div class="pt-1.5 text-noir-red font-bold text-xs uppercase tracking-wider">// Trava 2 & 3: Card ativo e estoque suficiente?</div>
+        <div class="md:col-span-7 font-mono text-xs sm:text-sm md:text-[13px] leading-relaxed text-gray-100 space-y-1 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-noir-red shadow-xl overflow-x-auto">
+          <div class="text-noir-red font-bold text-xs uppercase tracking-wider">// Assinatura: 2 modificadores já protegem a porta de entrada</div>
+          <div><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">buyCard</span>(uint256 <span class="text-rose-300 font-bold">cardId</span>, uint256 <span class="text-rose-300 font-bold">amount</span>)</div>
+          <div class="pl-6"><span class="text-noir-red font-bold">public payable whenNotPaused nonReentrant</span> {</div>
+          <div class="pt-1.5 text-noir-red font-bold text-xs uppercase tracking-wider">// Trava 1 e 2: card existe? quantidade válida?</div>
+          <div class="pl-6"><span class="text-noir-red font-bold">if</span> (cardId &lt; 1 || cardId &gt; totalCardTypes) <span class="text-noir-red font-bold">revert InvalidCardId(cardId);</span></div>
+          <div class="pl-6"><span class="text-noir-red font-bold">if</span> (amount == 0) <span class="text-noir-red font-bold">revert InvalidAmount();</span></div>
+          <div class="pt-1.5 text-noir-red font-bold text-xs uppercase tracking-wider">// Trava 3: card ativo? Trava 4: tem estoque?</div>
           <div class="pl-6">Card <span class="text-noir-red font-bold">storage</span> card = cards[cardId];</div>
           <div class="pl-6"><span class="text-noir-red font-bold">if</span> (!card.active) <span class="text-noir-red font-bold">revert CardNotActive(cardId);</span></div>
-          <div class="pl-6"><span class="text-noir-red font-bold">if</span> (card.stock < amount) <span class="text-noir-red font-bold">revert InsufficientStock(cardId, card.stock, amount);</span></div>
-          <div class="pt-1.5 text-noir-red font-bold text-xs uppercase tracking-wider">// Trava 4: O comprador enviou o valor EXATO? (Zero troco)</div>
+          <div class="pl-6"><span class="text-noir-red font-bold">if</span> (card.stock == 0) <span class="text-noir-red font-bold">revert CardIsSoldOut(cardId);</span></div>
+          <div class="pl-6"><span class="text-noir-red font-bold">if</span> (card.stock &lt; amount) <span class="text-noir-red font-bold">revert InsufficientStock(…);</span></div>
+          <div class="pt-1.5 text-noir-red font-bold text-xs uppercase tracking-wider">// Trava 5: valor EXATO, nem mais, nem menos</div>
           <div class="pl-6">uint256 cost = uint256(card.price) * amount;</div>
-          <div class="pl-6"><span class="text-noir-red font-bold">if</span> (msg.value != cost)</div>
-          <div class="pl-12 text-noir-red font-bold">revert IncorrectPayment(msg.value, cost);</div>
-          <div class="pl-6 text-noir-muted text-xs">// Continua para a entrega do token...</div>
+          <div class="pl-6"><span class="text-noir-red font-bold">if</span> (msg.value != cost) <span class="text-noir-red font-bold">revert IncorrectPayment(msg.value, cost);</span></div>
+          <div class="pl-6 text-noir-muted text-xs">// … segue para a entrega</div>
           <div>}</div>
+          <div class="pt-1.5 text-noir-muted text-xs">// Atalho usado pelo jogo: buyCard(cardId) = buyCard(cardId, 1)</div>
         </div>
 
-        <!-- Explicação Didática (5 colunas) -->
         <div class="md:col-span-5 space-y-2.5 font-mono text-xs sm:text-sm">
           <div class="border-b border-noir-border/60 pb-1">
             <span class="text-noir-red text-xs font-bold uppercase tracking-wider">[MODIFICADORES & CHECKS]</span>
           </div>
-
           <div class="space-y-2.5 text-gray-200 font-sans text-xs sm:text-sm leading-relaxed">
             <div class="border-l-2 border-noir-red pl-3 space-y-0.5">
-              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">Estoque & Quantidade:</strong>
-              <p class="text-gray-300 text-xs sm:text-[13px]">Valida se o slot possui estoque suficiente para a quantidade solicitada antes de prosseguir.</p>
+              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">whenNotPaused:</strong>
+              <p class="text-gray-300 text-xs sm:text-[13px]">Máquina em manutenção? Qualquer compra é recusada na hora.</p>
             </div>
-
             <div class="border-l-2 border-white pl-3 space-y-0.5">
-              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">whenNotPaused & nonReentrant:</strong>
-              <p class="text-gray-300 text-xs sm:text-[13px]">Garantem que a máquina não está em manutenção e protegem contra ataques de hackers.</p>
+              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">nonReentrant:</strong>
+              <p class="text-gray-300 text-xs sm:text-[13px]">Impede que um contrato malicioso compre de novo no meio da própria compra. Testamos esse ataque (slide 17).</p>
             </div>
-
             <div class="border-l-2 border-noir-border pl-3 space-y-0.5">
-              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">Trava 4 & Revert:</strong>
-              <p class="text-gray-300 text-xs sm:text-[13px]">Exigir o valor exato (<code class="text-white font-mono">!= cost</code>) cancela pagamentos incorretos, eliminando devolução de troco e economizando gás.</p>
+              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">revert com erro customizado:</strong>
+              <p class="text-gray-300 text-xs sm:text-[13px]">Desfaz tudo e diz o motivo (<code class="text-white font-mono">CardIsSoldOut</code>, <code class="text-white font-mono">IncorrectPayment</code>…). É mais barato que texto e o jogo traduz cada erro para o jogador.</p>
             </div>
           </div>
         </div>
       </div>
 
       <div class="pt-1.5 flex items-center justify-between text-xs sm:text-[13px] font-mono text-noir-muted border-t border-noir-border/60">
-        <span>💡 <em>Zero tolerância: valida estoque individual e exige o valor exato, sem troco e com máxima economia de gás.</em></span>
+        <span>💡 <em>Zero tolerância: qualquer dúvida desfaz a compra e o ETH volta inteiro para o comprador.</em></span>
         <span class="text-noir-red font-bold hidden sm:inline">[ETAPA_02/05]</span>
       </div>
     </section>
 
-    <!-- SLIDE 13: PASSO A PASSO (3/5): A FUNÇÃO BUYCARD() — ENTREGA ATÔMICA & ZERO TROCO -->
+    <!-- SLIDE 14: PASSO A PASSO (3/5): ENTREGA ATÔMICA, EVENTOS & ZERO TROCO -->
     <section class="slide flex-col max-w-6xl w-full mx-auto space-y-3 relative" data-topic="06. CÓDIGO // BUYCARD ENTREGA & ZERO TROCO">
       <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 渡 (Watashi): Entrega Atômica e Cunhagem Direta">渡</div>
       <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap justify-between items-end gap-2 relative z-10 w-full">
@@ -2015,120 +2071,116 @@
           <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// ANÁLISE DE CÓDIGO REAL // PARTE 3</span>
           <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">BUYCARD(): ENTREGA ATÔMICA, EVENTOS & ZERO TROCO</h2>
         </div>
-        <span class="text-xs font-mono text-noir-muted font-jp hidden sm:block jp-trans" data-jp-tooltip="即時発行とガス節約 (Sokuji Hakkō to Gasu Setsuyaku): Emissão Instantânea e Economia de Gás">即時発行とガス節約</span>
+        <span class="text-xs font-mono text-noir-muted font-jp hidden sm:block jp-trans" data-jp-tooltip="即時発行 (Sokuji Hakkō): Emissão Instantânea">即時発行</span>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-12 gap-5 pt-1 relative z-10">
-        <!-- Código Solidity (7 colunas - FONTE AMPLIADA) -->
-        <div class="md:col-span-7 font-mono text-xs sm:text-sm md:text-[14px] leading-relaxed text-gray-100 space-y-1 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-noir-red shadow-xl overflow-x-auto">
-          <div class="text-noir-red font-bold text-xs uppercase tracking-wider">// 1. ATUALIZA O ESTADO (Deduz estoque do card)</div>
-          <div class="text-white font-bold">card.stock = card.stock - <span class="text-amber-300">amount</span>;</div>
-          <div class="pt-1.5 text-noir-red font-bold text-xs uppercase tracking-wider">// 2. ENTREGA O CARD (Cunhagem direta na carteira)</div>
-          <div class="text-white font-bold">_mint(msg.sender, cardId, <span class="text-amber-300">amount</span>, <span class="text-emerald-400">""</span>);</div>
-          <div class="pt-1.5 text-noir-red font-bold text-xs uppercase tracking-wider">// 3. AVISA O MUNDO (Emite evento para o dApp)</div>
-          <div class="text-white font-bold">emit CardPurchased(msg.sender, cardId, amount, cost, card.stock);</div>
-          <div class="text-noir-muted text-xs font-normal">if (card.stock == 0) emit CardSoldOut(cardId);</div>
-          <div class="pt-2 text-noir-red font-bold text-xs uppercase tracking-wider">// 4. SUPORTE A BATCH & ZERO TROCO</div>
-          <div class="p-2 border border-emerald-500/40 bg-emerald-950/20 text-xs sm:text-[13px] text-emerald-400 font-mono">
-            // Suporta compras individuais (_mint) e em lote (_mintBatch)<br>
-            // Pagamento exato: sem chamadas de troco e máxima economia de gás!
+        <div class="md:col-span-7 font-mono text-xs sm:text-sm md:text-[13px] leading-relaxed text-gray-100 space-y-1 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-noir-red shadow-xl overflow-x-auto">
+          <div class="text-noir-red font-bold text-xs uppercase tracking-wider">// 1. PRIMEIRO o estado: desconta o estoque</div>
+          <div class="text-white font-bold">uint48 remaining = uint48(currentStock - amount);</div>
+          <div class="text-white font-bold">card.stock = remaining;</div>
+          <div class="pt-1.5 text-noir-red font-bold text-xs uppercase tracking-wider">// 2. DEPOIS a entrega: cria o token na carteira</div>
+          <div class="text-white font-bold">_mint(msg.sender, cardId, amount, <span class="text-emerald-400">""</span>);</div>
+          <div class="pt-1.5 text-noir-red font-bold text-xs uppercase tracking-wider">// 3. AVISA o mundo (o jogo escuta estes eventos)</div>
+          <div class="text-white font-bold">emit CardPurchased(msg.sender, cardId, amount, cost, remaining);</div>
+          <div class="text-white font-bold">if (remaining == 0) emit CardSoldOut(cardId);</div>
+          <div class="pt-2 text-noir-red font-bold text-xs uppercase tracking-wider">// 4. GÁS REAL (medido nos testes)</div>
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="border border-noir-border/70 bg-noir-pitch/60 p-2"><div class="text-white font-display text-2xl leading-none">105k</div><div class="text-noir-muted text-[10px] mt-0.5">1ª compra do card</div></div>
+            <div class="border border-noir-border/70 bg-noir-pitch/60 p-2"><div class="text-white font-display text-2xl leading-none">71k</div><div class="text-noir-muted text-[10px] mt-0.5">compras seguintes</div></div>
+            <div class="border border-noir-border/70 bg-noir-pitch/60 p-2"><div class="text-white font-display text-2xl leading-none">54k</div><div class="text-noir-muted text-[10px] mt-0.5">mesmo comprador</div></div>
           </div>
         </div>
 
-        <!-- Explicação Didática (5 colunas) -->
         <div class="md:col-span-5 space-y-2.5 font-mono text-xs sm:text-sm">
           <div class="border-b border-noir-border/60 pb-1">
             <span class="text-noir-red text-xs font-bold uppercase tracking-wider">[ARQUITETURA & EFICIÊNCIA]</span>
           </div>
-
           <div class="space-y-2.5 text-gray-200 font-sans text-xs sm:text-sm leading-relaxed">
             <div class="border-l-2 border-noir-red pl-3 space-y-0.5">
-              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">card.stock -= amount:</strong>
-              <p class="text-gray-300 text-xs sm:text-[13px]">Atualiza o estoque individual do card ANTES da cunhagem (padrão Checks-Effects-Interactions).</p>
+              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">Estado antes da entrega:</strong>
+              <p class="text-gray-300 text-xs sm:text-[13px]">O <code class="text-white font-mono">_mint</code> pode chamar o contrato do comprador. Com o estoque já descontado e o <code class="text-white font-mono">nonReentrant</code>, não há como explorar essa brecha (padrão Checks-Effects-Interactions).</p>
             </div>
-
             <div class="border-l-2 border-white pl-3 space-y-0.5">
-              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">_mint / _mintBatch:</strong>
-              <p class="text-gray-300 text-xs sm:text-[13px]">Cria os tokens ERC-1155 diretamente na carteira de quem chamou a função (<code class="text-white font-mono">msg.sender</code>), seja 1 ou lote.</p>
+              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">Tudo ou nada:</strong>
+              <p class="text-gray-300 text-xs sm:text-[13px]">Se qualquer passo falhar, a transação inteira é desfeita: nunca existe pagamento sem card, nem card sem pagamento.</p>
             </div>
-
             <div class="border-l-2 border-emerald-500/80 pl-3 space-y-0.5 bg-emerald-950/20 p-2">
-              <strong class="text-emerald-400 block font-mono text-xs sm:text-sm font-bold">Por que Sem Troco?</strong>
-              <p class="text-gray-300 text-xs sm:text-[13px]">Na Web3, a carteira envia o valor exato. Fazer <code class="text-white font-mono">.call{}</code> de troco gastaria ~10.000 de gás a mais e abriria riscos de Reentrância e DoS.</p>
+              <strong class="text-emerald-400 block font-mono text-xs sm:text-sm font-bold">Por que sem troco?</strong>
+              <p class="text-gray-300 text-xs sm:text-[13px]">A carteira envia o valor exato. Devolver troco exigiria uma chamada externa (~10 mil de gás a mais) e mais um risco de reentrância.</p>
             </div>
           </div>
         </div>
       </div>
 
       <div class="pt-1.5 flex items-center justify-between text-xs sm:text-[13px] font-mono text-noir-muted border-t border-noir-border/60">
-        <span>💡 <em>Padrão Pagamento Exato: execução 100% atômica, sem chamadas externas arriscadas e máxima economia de gás.</em></span>
+        <span>💡 <em>Existe também <code class="text-white font-mono">buyCardsBatch</code> (vários cards numa transação); o jogo compra sempre 1 por vez.</em></span>
         <span class="text-noir-red font-bold hidden sm:inline">[ETAPA_03/05]</span>
       </div>
     </section>
 
-    <!-- SLIDE 14: PASSO A PASSO (4/5): PAINEL DO DONO & SEGURANÇA -->
+    <!-- SLIDE 15: PASSO A PASSO (4/5): PAINEL DO DONO — O QUE PODE E O QUE NÃO PODE -->
     <section class="slide flex-col max-w-6xl w-full mx-auto space-y-3 relative" data-topic="06. CÓDIGO // PAINEL DO DONO & SEGURANÇA">
       <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 統 (Tō): Governança / Controle Administrativo (Owner)">統</div>
       <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap justify-between items-end gap-2 relative z-10 w-full">
         <div>
           <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// ANÁLISE DE CÓDIGO REAL // PARTE 4</span>
-          <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">PAINEL DO DONO: GOVERNANÇA & SEGURANÇA (ONLYOWNER)</h2>
+          <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">PAINEL DO DONO: PODERES E LIMITES (ONLYOWNER)</h2>
         </div>
         <span class="text-xs font-mono text-noir-muted font-jp hidden sm:block jp-trans" data-jp-tooltip="管理者権限 (Kanrisha Kengen): Privilégios de Administrador (Owner / Pause)">管理者権限</span>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-12 gap-5 pt-1 relative z-10">
-        <!-- Código Solidity (7 colunas - FONTE AMPLIADA) -->
-        <div class="md:col-span-7 font-mono text-xs sm:text-sm md:text-[14px] leading-relaxed text-gray-100 space-y-1 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-noir-red shadow-xl overflow-x-auto">
-          <div class="text-noir-red font-bold text-xs uppercase tracking-wider">// 1. Cadastra card individual (preço & estoque custom, default 100)</div>
-          <div><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">addCard</span>(<span class="text-noir-red font-bold">uint128</span> price, <span class="text-noir-red font-bold">uint48</span> stock) <span class="text-noir-red font-bold">external onlyOwner</span> {</div>
-          <div class="pl-6">uint48 initial = stock > 0 ? stock : <span class="text-amber-300">100</span>;</div>
-          <div class="pl-6 text-white font-bold">cards[++totalCardTypes] = Card(price, initial, initial, <span class="text-emerald-400">true</span>, <span class="text-emerald-400">true</span>);</div>
-          <div>}</div>
-          <div class="pt-1.5 text-noir-red font-bold text-xs uppercase tracking-wider">// 2. Cadastra múltiplos cards em lote (Batch de preços e estoques)</div>
-          <div><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">addCardsBatch</span>(uint128[] prices, uint48[] stocks) <span class="text-noir-red font-bold">external onlyOwner</span> {</div>
-          <div class="pl-6 text-noir-muted text-xs">// Registra N cards com preços e estoques independentes em 1 transação...</div>
-          <div>}</div>
-          <div class="pt-1.5 text-noir-red font-bold text-xs uppercase tracking-wider">// 3. Saque seguro do faturamento acumulado em ETH</div>
-          <div><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">withdrawTo</span>(<span class="text-noir-red font-bold">address payable</span> recipient) <span class="text-noir-red font-bold">public onlyOwner nonReentrant</span> {</div>
+        <div class="md:col-span-6 font-mono text-xs sm:text-sm md:text-[13px] leading-relaxed text-gray-100 space-y-1 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-noir-red shadow-xl overflow-x-auto">
+          <div class="text-noir-red font-bold text-xs uppercase tracking-wider">// 1. Abastecer: novo card com preço e tiragem próprios</div>
+          <div><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">addCard</span>(uint128 price, uint48 initialStock)</div>
+          <div class="pl-6"><span class="text-noir-red font-bold">public onlyOwner</span> returns (uint256 newCardId) { … }</div>
+          <div class="pt-1.5 text-noir-red font-bold text-xs uppercase tracking-wider">// 2. Sacar as vendas (só para um endereço válido)</div>
+          <div><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">withdrawTo</span>(address payable recipient)</div>
+          <div class="pl-6"><span class="text-noir-red font-bold">public onlyOwner nonReentrant</span> {</div>
+          <div class="pl-6">if (recipient == address(0)) <span class="text-noir-red font-bold">revert InvalidRecipient();</span></div>
           <div class="pl-6">uint256 balance = address(<span class="text-amber-300">this</span>).balance;</div>
+          <div class="pl-6">if (balance == 0) <span class="text-noir-red font-bold">revert NoFundsToWithdraw();</span></div>
           <div class="pl-6"><span class="text-noir-red font-bold">(bool ok, ) = recipient.call{value: balance}("");</span></div>
-          <div class="pl-6"><span class="text-noir-red font-bold">if</span> (!ok) <span class="text-noir-red font-bold">revert ETHTransferFailed();</span></div>
+          <div class="pl-6">if (!ok) <span class="text-noir-red font-bold">revert ETHTransferFailed();</span></div>
           <div>}</div>
+          <div class="pt-1.5 text-noir-red font-bold text-xs uppercase tracking-wider">// 3. Trava contra acidente: renunciar à posse está bloqueado</div>
+          <div><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">renounceOwnership</span>() … { <span class="text-noir-red font-bold">revert RenounceDisabled();</span> }</div>
         </div>
 
-        <!-- Explicação Didática (5 colunas) -->
-        <div class="md:col-span-5 space-y-2.5 font-mono text-xs sm:text-sm">
-          <div class="border-b border-noir-border/60 pb-1">
-            <span class="text-noir-red text-xs font-bold uppercase tracking-wider">[CONTROLE & GESTÃO DE ESTOQUE]</span>
+        <div class="md:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-3 content-start">
+          <div class="bg-emerald-950/20 border border-emerald-500/40 border-t-2 border-t-emerald-400 p-3 space-y-1.5">
+            <span class="text-emerald-400 font-mono font-bold text-xs uppercase tracking-wider">[O DONO PODE]</span>
+            <ul class="text-gray-200 font-sans text-xs sm:text-[13px] leading-snug space-y-1 list-none">
+              <li>▸ Pausar e despausar a máquina</li>
+              <li>▸ Cadastrar cards novos (1 ou em lote)</li>
+              <li>▸ Ativar ou desativar a venda de um card</li>
+              <li>▸ Sacar o ETH das vendas</li>
+              <li>▸ Trocar os endereços de metadados</li>
+              <li>▸ Ajustar royalties (teto de 10%)</li>
+              <li>▸ Passar a posse, em 2 etapas</li>
+            </ul>
           </div>
-
-          <div class="space-y-2.5 text-gray-200 font-sans text-xs sm:text-sm leading-relaxed">
-            <div class="border-l-2 border-noir-red pl-3 space-y-0.5">
-              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">Estoque & Valor por Card:</strong>
-              <p class="text-gray-300 text-xs sm:text-[13px]">Cada card tem seu estoque independente (default 100, mas customizável para edições raras). Pode ser cadastrado individualmente ou em lote (<code class="text-white font-mono">Batch</code>).</p>
-            </div>
-
-            <div class="border-l-2 border-white pl-3 space-y-0.5">
-              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">O modificador onlyOwner:</strong>
-              <p class="text-gray-300 text-xs sm:text-[13px]">Injeta proteção criptográfica: apenas a carteira dona do contrato tem permissão para cadastrar cards ou sacar os fundos acumulados.</p>
-            </div>
-
-            <div class="border-l-2 border-emerald-500/80 pl-3 space-y-0.5 bg-emerald-950/20 p-2">
-              <strong class="text-emerald-400 block font-mono text-xs sm:text-sm font-bold">Superpoder do ERC-1155:</strong>
-              <p class="text-gray-300 text-xs sm:text-[13px]">Permite abastecer ou comprar cards em lote com economias de até 80% de gás em relação a múltiplos deploys.</p>
-            </div>
+          <div class="bg-noir-surface/80 border border-noir-red/50 border-t-2 border-t-noir-red p-3 space-y-1.5">
+            <span class="text-noir-red font-mono font-bold text-xs uppercase tracking-wider">[O DONO NÃO PODE]</span>
+            <ul class="text-gray-200 font-sans text-xs sm:text-[13px] leading-snug space-y-1 list-none">
+              <li>✕ Mudar preço ou estoque de um card já cadastrado</li>
+              <li>✕ Alterar o código depois do deploy</li>
+              <li>✕ Renunciar à posse por engano</li>
+              <li>✕ Perder o contrato por erro de digitação</li>
+            </ul>
+            <p class="text-noir-muted font-mono text-[11px] leading-snug pt-1 border-t border-noir-border/60">Confiança é transparência: cada poder está escrito no código, público e verificável no Etherscan.</p>
           </div>
         </div>
       </div>
 
       <div class="pt-1.5 flex items-center justify-between text-xs sm:text-[13px] font-mono text-noir-muted border-t border-noir-border/60">
-        <span>💡 <em>Controle de estoque independente por card: default 100, customizável e operável individualmente ou em lote (Batch).</em></span>
+        <span>💡 <em>Um dono com poderes limitados e visíveis é a diferença entre um contrato confiável e uma caixa-preta.</em></span>
         <span class="text-noir-red font-bold hidden sm:inline">[ETAPA_04/05]</span>
       </div>
     </section>
 
-    <!-- SLIDE 15: PASSO A PASSO (5/5): FUNÇÕES GET & ZERO GAS -->
+    <!-- SLIDE 16: PASSO A PASSO (5/5): FUNÇÕES GET & ZERO GAS -->
     <section class="slide flex-col max-w-6xl w-full mx-auto space-y-2.5 relative" data-topic="06. CÓDIGO // FUNÇÕES GET & ZERO GAS">
       <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 読 (Doku): Leitura / Consulta de Estado Sem Gás">読</div>
       <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap justify-between items-end gap-2 relative z-10 w-full">
@@ -2139,89 +2191,144 @@
         <span class="text-xs font-mono text-noir-muted font-jp hidden sm:block jp-trans" data-jp-tooltip="閲覧とガスゼロ (Etsuran to Gasu Zero): Funções de Leitura (view) e Custo Zero de Gás">閲覧とガスゼロ</span>
       </div>
 
-      <!-- Comparativo Compacto: ESCRITA vs LEITURA -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3 relative z-10">
-        <div class="bg-noir-surface/90 border border-noir-border/80 px-3.5 py-2 border-l-4 border-l-noir-red shadow-md flex items-center justify-between">
+        <div class="bg-noir-surface/90 border border-noir-border/80 px-3.5 py-2 border-l-4 border-l-noir-red shadow-md flex items-center justify-between gap-2">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-noir-red animate-pulse shrink-0"></span>
             <div>
               <span class="text-noir-red font-mono font-bold text-xs uppercase">TRANSAÇÕES DE ESCRITA:</span>
-              <span class="text-gray-300 font-sans text-xs sm:text-[13px] ml-1.5">Alteram o estado, exigem consenso e aprovação no MetaMask.</span>
+              <span class="text-gray-300 font-sans text-xs sm:text-[13px] ml-1.5">Alteram o estado, exigem consenso e a aprovação na carteira.</span>
             </div>
           </div>
           <span class="bg-noir-red/20 text-noir-red border border-noir-red/40 px-2 py-0.5 font-mono text-[10px] font-bold uppercase shrink-0">GASTA GÁS</span>
         </div>
-
-        <div class="bg-noir-surface/90 border border-emerald-500/40 px-3.5 py-2 border-l-4 border-l-emerald-400 shadow-md flex items-center justify-between">
+        <div class="bg-noir-surface/90 border border-emerald-500/40 px-3.5 py-2 border-l-4 border-l-emerald-400 shadow-md flex items-center justify-between gap-2">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
             <div>
               <span class="text-emerald-400 font-mono font-bold text-xs uppercase">FUNÇÕES VIEW / GET:</span>
-              <span class="text-gray-200 font-sans text-xs sm:text-[13px] ml-1.5">Consultam dados salvos localmente via RPC. Zero popups!</span>
+              <span class="text-gray-200 font-sans text-xs sm:text-[13px] ml-1.5">Consultam dados via RPC. Zero pop-ups!</span>
             </div>
           </div>
           <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 font-mono text-[10px] font-bold uppercase shrink-0">ZERO GÁS (100% GRÁTIS)</span>
         </div>
       </div>
 
-      <!-- Grid com Código Real e Arquitetura do Frontend -->
       <div class="grid grid-cols-1 md:grid-cols-12 gap-5 pt-0.5 relative z-10">
-        <!-- Código Solidity (7 colunas - FONTE AMPLIADA) -->
-        <div class="md:col-span-7 font-mono text-xs sm:text-sm md:text-[14px] leading-relaxed text-gray-100 space-y-1 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-white shadow-xl overflow-x-auto">
-          <div class="text-noir-muted font-bold text-xs uppercase tracking-wider">// 1. Consulta pontual com modificador "view"</div>
-          <div><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">getStock</span>(<span class="text-noir-red font-bold">uint256</span> cardId) <span class="text-noir-red font-bold">external view returns</span> (<span class="text-noir-red font-bold">uint256</span>) {</div>
-          <div class="pl-6"><span class="text-noir-red font-bold">if</span> (cardId < 1 || cardId > totalCardTypes) <span class="text-noir-red font-bold">revert InvalidCardId(cardId);</span></div>
+        <div class="md:col-span-7 font-mono text-xs sm:text-sm md:text-[13px] leading-relaxed text-gray-100 space-y-1 bg-noir-surface/90 border border-noir-border/80 p-3.5 border-l-4 border-l-white shadow-xl overflow-x-auto">
+          <div class="text-noir-muted font-bold text-xs uppercase tracking-wider">// 1. Consulta pontual com o modificador "view"</div>
+          <div><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">getStock</span>(uint256 cardId) <span class="text-noir-red font-bold">external view returns</span> (uint256) {</div>
+          <div class="pl-6">if (cardId &lt; 1 || cardId &gt; totalCardTypes) <span class="text-noir-red font-bold">revert InvalidCardId(cardId);</span></div>
           <div class="pl-6"><span class="text-noir-red font-bold">return</span> uint256(cards[cardId].stock); <span class="text-emerald-400 font-bold">// ⚡ ZERO GÁS</span></div>
           <div>}</div>
-
-          <div class="pt-1.5 text-noir-muted font-bold text-xs uppercase tracking-wider">// 2. Super Get: puxa os 30 estoques de uma só vez para o dApp!</div>
-          <div><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">getAllStocks</span>() <span class="text-noir-red font-bold">external view returns</span> (<span class="text-noir-red font-bold">uint256[] memory</span> stocks) {</div>
+          <div class="pt-1.5 text-noir-muted font-bold text-xs uppercase tracking-wider">// 2. Super Get: a vitrine inteira em UMA chamada</div>
+          <div><span class="text-noir-red font-bold">function</span> <span class="text-white font-bold">getAllCardsInfo</span>() <span class="text-noir-red font-bold">external view returns</span> (</div>
+          <div class="pl-6">uint256[] prices, uint256[] stocks, bool[] activeStatuses</div>
+          <div>) {</div>
           <div class="pl-6">uint256 total = totalCardTypes;</div>
-          <div class="pl-6">stocks = <span class="text-noir-red font-bold">new</span> uint256[](total);</div>
-          <div class="pl-6"><span class="text-noir-red font-bold">for</span> (uint256 i = 1; i <= total; i++) {</div>
-          <div class="pl-12">stocks[i - 1] = uint256(cards[i].stock);</div>
+          <div class="pl-6"><span class="text-noir-red font-bold">for</span> (uint256 i = 1; i &lt;= total; i++) {</div>
+          <div class="pl-12">prices[i - 1] = cards[i].price; stocks[i - 1] = cards[i].stock; …</div>
           <div class="pl-6">}</div>
           <div>}</div>
         </div>
 
-        <!-- Explicação Arquitetural (5 colunas) -->
         <div class="md:col-span-5 space-y-2.5 font-mono text-xs sm:text-sm">
           <div class="border-b border-noir-border/60 pb-1">
-            <span class="text-white text-xs font-bold uppercase tracking-wider">[COMO O DAPP USA ISSO?]</span>
+            <span class="text-white text-xs font-bold uppercase tracking-wider">[COMO O JOGO USA ISSO?]</span>
           </div>
-
           <div class="space-y-2 text-gray-200 font-sans text-xs sm:text-sm leading-relaxed">
             <div class="border-l-2 border-emerald-400 pl-3 space-y-0.5">
               <strong class="text-white block font-mono text-xs sm:text-sm font-bold">O modificador view:</strong>
-              <p class="text-gray-300 text-xs sm:text-[13px]">Avisa a EVM que a função é somente leitura. Nenhuma taxa de mineração ou assinatura é cobrada.</p>
+              <p class="text-gray-300 text-xs sm:text-[13px]">Avisa a EVM que a função só lê. Nenhuma taxa de mineração ou assinatura é cobrada.</p>
             </div>
-
             <div class="border-l-2 border-white pl-3 space-y-0.5">
-              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">getAllStocks() no Frontend:</strong>
-              <p class="text-gray-300 text-xs sm:text-[13px]">Em vez de 30 chamadas separadas, o dApp faz uma única requisição RPC gratuita para renderizar toda a Vending Machine.</p>
+              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">getAllCardsInfo():</strong>
+              <p class="text-gray-300 text-xs sm:text-[13px]">Em vez de 90 consultas (preço, estoque e status de 30 cards), o jogo faz 1 requisição e desenha a máquina toda.</p>
             </div>
-
             <div class="border-l-2 border-noir-border pl-3 space-y-0.5">
-              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">Atualização Instantânea:</strong>
-              <p class="text-gray-300 text-xs sm:text-[13px]">O site consulta essa função a cada 3 segundos via RPC sem custo algum para o usuário ou para o protocolo!</p>
+              <strong class="text-white block font-mono text-xs sm:text-sm font-bold">Eventos em vez de insistir:</strong>
+              <p class="text-gray-300 text-xs sm:text-[13px]">Na máquina ou no inventário, o jogo escuta <code class="text-white font-mono">CardPurchased</code>, <code class="text-white font-mono">CardSoldOut</code> e <code class="text-white font-mono">Paused</code> a cada poucos segundos e atualiza o estoque sozinho.</p>
             </div>
           </div>
         </div>
       </div>
 
       <div class="pt-1.5 flex items-center justify-between text-xs sm:text-[13px] font-mono text-noir-muted border-t border-noir-border/60">
-        <span>💡 <em>Regra de ouro: Ler a blockchain é tão livre e gratuito quanto abrir uma página web. Apenas gravar dados custa gás.</em></span>
+        <span>💡 <em>Regra de ouro: ler a blockchain é tão livre quanto abrir uma página web. Só gravar dados custa gás.</em></span>
         <span class="text-noir-red font-bold hidden sm:inline">[ETAPA_05/05]</span>
       </div>
     </section>
-    <!-- SLIDE 16: DEPLOY NA SEPOLIA E FAUCETS DESCOMPLICADOS -->
-    <section class="slide flex-col max-w-6xl w-full mx-auto space-y-4 relative" data-topic="07. DEPLOY & TESTNET">
-      
-      <!-- Watermark Kanji -->
-      <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 配 (Hai): Distribuição / Deploy em Rede de Testes">
-        配
+
+    <!-- SLIDE 17: TESTADO E ANALISADO ANTES DO DEPLOY -->
+    <section class="slide flex-col max-w-6xl w-full mx-auto space-y-3 relative" data-topic="06. CÓDIGO // TESTES & ANÁLISE DE SEGURANÇA">
+      <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 守 (Mamoru): Proteger / Defesa">守</div>
+      <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap justify-between items-end gap-2 relative z-10 w-full">
+        <div>
+          <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// ANTES DE ENVIAR UM CENTAVO</span>
+          <h2 class="text-3xl lg:text-4xl font-display text-white tracking-wider mt-0.5">TESTADO E ANALISADO ANTES DO DEPLOY</h2>
+        </div>
+        <span class="text-xs font-mono text-noir-muted font-jp hidden sm:block jp-trans" data-jp-tooltip="安全検証 (Anzen Kenshō): Verificação de Segurança">安全検証</span>
       </div>
 
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 relative z-10">
+        <div class="bg-noir-surface/90 border border-noir-border/80 border-t-2 border-t-noir-red p-3 text-center">
+          <div class="font-display text-5xl text-white leading-none">53</div>
+          <div class="text-noir-red font-mono text-[11px] font-bold uppercase tracking-wider mt-1">testes on-chain</div>
+          <div class="text-noir-muted font-sans text-[11px] leading-tight mt-1">compra, pausa, posse, royalties, estoque</div>
+        </div>
+        <div class="bg-noir-surface/90 border border-noir-border/80 border-t-2 border-t-white p-3 text-center">
+          <div class="font-display text-5xl text-white leading-none">102</div>
+          <div class="text-white font-mono text-[11px] font-bold uppercase tracking-wider mt-1">detectores Slither</div>
+          <div class="text-noir-muted font-sans text-[11px] leading-tight mt-1">análise estática automática</div>
+        </div>
+        <div class="bg-emerald-950/20 border border-emerald-500/40 border-t-2 border-t-emerald-400 p-3 text-center">
+          <div class="font-display text-5xl text-emerald-400 leading-none">0</div>
+          <div class="text-emerald-400 font-mono text-[11px] font-bold uppercase tracking-wider mt-1">achados graves</div>
+          <div class="text-noir-muted font-sans text-[11px] leading-tight mt-1">3 avisos informativos, todos intencionais</div>
+        </div>
+        <div class="bg-noir-surface/90 border border-noir-border/80 border-t-2 border-t-noir-red p-3 text-center">
+          <div class="font-display text-5xl text-white leading-none">15 KB</div>
+          <div class="text-noir-red font-mono text-[11px] font-bold uppercase tracking-wider mt-1">tamanho do contrato</div>
+          <div class="text-noir-muted font-sans text-[11px] leading-tight mt-1">limite da EVM: 24 KB</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-1 relative z-10">
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 border-b border-noir-border/60 pb-1.5">
+            <span class="text-noir-red font-mono text-xs font-bold">[ATAQUES SIMULADOS]</span>
+            <h4 class="font-display text-2xl text-white tracking-wide">O QUE TENTAMOS QUEBRAR</h4>
+          </div>
+          <ul class="space-y-2 text-xs sm:text-[13px] font-sans text-gray-200">
+            <li class="border-l-2 border-noir-red pl-3"><strong class="text-white font-mono">Reentrada:</strong> um contrato malicioso tenta comprar de novo no meio da compra. Bloqueado, e a compra original conclui.</li>
+            <li class="border-l-2 border-white pl-3"><strong class="text-white font-mono">Lote com card repetido:</strong> o estoque desconta a cada item e um lote que falha não deixa estoque pela metade.</li>
+            <li class="border-l-2 border-noir-border pl-3"><strong class="text-white font-mono">Pausa:</strong> pausado, nem compra nem transferência passam.</li>
+            <li class="border-l-2 border-noir-red pl-3"><strong class="text-white font-mono">Contas:</strong> o ETH no contrato é sempre igual ao preço × cards vendidos.</li>
+          </ul>
+        </div>
+
+        <div class="space-y-2 md:border-l md:border-noir-border/80 md:pl-5">
+          <div class="flex items-center gap-2 border-b border-noir-border/60 pb-1.5">
+            <span class="text-white font-mono text-xs font-bold">[ACHADO → CORREÇÃO]</span>
+            <h4 class="font-display text-2xl text-white tracking-wide">A REVISÃO ENCONTROU UM RISCO</h4>
+          </div>
+          <div class="bg-noir-surface/90 border border-noir-border/80 p-3 space-y-2 font-mono text-xs sm:text-[13px]">
+            <div class="text-noir-red"><span class="font-bold">ANTES:</span> <span class="text-gray-200 font-sans">o dono podia chamar <code class="text-white font-mono">renounceOwnership()</code> sem querer e perder para sempre o saque, a pausa e a gestão.</span></div>
+            <div class="text-emerald-400"><span class="font-bold">DEPOIS:</span> <span class="text-gray-200 font-sans">a função agora reverte (<code class="text-white font-mono">RenounceDisabled</code>). A posse só muda pelo caminho seguro de 2 etapas.</span></div>
+          </div>
+          <p class="text-noir-muted font-sans text-[11px] sm:text-xs leading-snug">Limite honesto: testes e análise automática não substituem uma auditoria humana independente. Para uma rede com dinheiro de verdade, ela seria o próximo passo.</p>
+        </div>
+      </div>
+
+      <div class="pt-1.5 flex items-center justify-between text-xs sm:text-[13px] font-mono text-noir-muted border-t border-noir-border/60">
+        <span>💡 <em>Segurança não é um selo: é o hábito de tentar quebrar o próprio código antes de publicar.</em></span>
+        <span class="text-noir-red font-bold hidden sm:inline">[VERIFICAÇÃO]</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 18: DEPLOY NA SEPOLIA E FAUCETS DESCOMPLICADOS -->
+    <section class="slide flex-col max-w-6xl w-full mx-auto space-y-3 relative" data-topic="07. DEPLOY & TESTNET">
+      <div class="watermark-kanji jp-kanji-trans right-6 top-1/4 text-[280px]" data-jp-tooltip="Kanji 配 (Hai): Distribuição / Deploy em Rede de Testes">配</div>
       <div class="slide-header border-b border-noir-border/80 pb-2 flex flex-wrap justify-between items-end gap-2 relative z-10 w-full">
         <div>
           <span class="text-noir-red font-mono text-xs uppercase tracking-widest font-bold">// TESTNET EVM</span>
@@ -2230,51 +2337,58 @@
         <span class="text-xs font-mono text-noir-muted font-jp hidden sm:block jp-trans" data-jp-tooltip="テストネット (Tesutonetto): Rede de Testes (Sepolia Testnet)">テストネット</span>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-1 relative z-10">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-1 relative z-10">
         <div class="space-y-3">
           <div class="flex items-center gap-2 border-b border-noir-border/60 pb-1.5">
             <span class="text-noir-red font-mono text-xs font-bold">[FAUCET_INDEX]</span>
-            <h4 class="font-display text-2xl text-white tracking-wide">FAUCETS CONFIRMADOS</h4>
+            <h4 class="font-display text-2xl text-white tracking-wide">ETH DE TESTE, DE GRAÇA</h4>
           </div>
-          <div class="space-y-3.5 text-xs sm:text-sm font-mono">
+          <div class="space-y-3 text-xs sm:text-sm font-mono">
             <div class="border-l-2 border-noir-red pl-4 space-y-0.5">
-              <span class="text-noir-red font-bold block text-sm sm:text-base">1. GOOGLE CLOUD WEB3 FAUCET</span>
-              <span class="text-gray-200 font-sans leading-relaxed text-xs sm:text-[13px]">Login com conta Google, 0.05 ETH instantâneo sem exigência de saldo na mainnet.</span>
+              <span class="text-noir-red font-bold block text-sm">1. GOOGLE CLOUD WEB3 FAUCET</span>
+              <span class="text-gray-200 font-sans leading-relaxed text-xs sm:text-[13px]">Login com conta Google, 0.05 ETH na hora, sem exigir saldo na mainnet.</span>
             </div>
             <div class="border-l-2 border-white pl-4 space-y-0.5">
-              <span class="text-white font-bold block text-sm sm:text-base">2. SEPOLIA POW FAUCET (PK910.DE)</span>
-              <span class="text-gray-200 font-sans leading-relaxed text-xs sm:text-[13px]">Mineração leve de 1 min na CPU do navegador. À prova de bloqueios de IP.</span>
+              <span class="text-white font-bold block text-sm">2. SEPOLIA POW FAUCET (PK910.DE)</span>
+              <span class="text-gray-200 font-sans leading-relaxed text-xs sm:text-[13px]">Mineração leve de ~1 min no navegador. Funciona mesmo com bloqueio de IP.</span>
             </div>
             <div class="border-l-2 border-noir-border pl-4 space-y-0.5">
-              <span class="text-white font-bold block text-sm sm:text-base">3. ALTERNATIVA L2: ARBITRUM / BASE SEPOLIA</span>
-              <span class="text-gray-200 font-sans leading-relaxed text-xs sm:text-[13px]">Mesmíssimo código Solidity EVM, gas quase zero e faucets sem restrição.</span>
+              <span class="text-white font-bold block text-sm">3. ALTERNATIVA L2: ARBITRUM / BASE SEPOLIA</span>
+              <span class="text-gray-200 font-sans leading-relaxed text-xs sm:text-[13px]">Mesmo código Solidity, gás quase zero e faucets sem restrição.</span>
             </div>
+          </div>
+
+          <div class="bg-noir-surface/90 border border-amber-300/40 border-l-4 border-l-amber-300 p-3 space-y-1 font-mono text-xs sm:text-[13px]">
+            <span class="text-amber-300 font-bold uppercase tracking-wider text-xs">[A CONTA DO FAUCET]</span>
+            <div class="text-gray-200 font-sans leading-snug">Cada card custa <strong class="text-white font-mono">0,0046 ETH</strong>. Um faucet de <strong class="text-white font-mono">0,05 ETH</strong> compra <strong class="text-white">10 cards</strong> (0,046) e ainda sobra para o gás. O 11º já não cabe: precisa de outro faucet.</div>
           </div>
         </div>
 
-        <div class="space-y-3 md:border-l md:border-noir-border/80 md:pl-8 font-mono text-xs sm:text-sm">
+        <div class="space-y-3 md:border-l md:border-noir-border/80 md:pl-6 font-mono text-xs sm:text-sm">
           <div class="flex items-center gap-2 border-b border-noir-border/60 pb-1.5">
-            <span class="text-white font-mono text-xs font-bold">[REMIX_WORKFLOW]</span>
-            <h4 class="font-display text-2xl text-white tracking-wide font-sans">DEPLOY PASSO A PASSO (REMIX)</h4>
+            <span class="text-white font-mono text-xs font-bold">[DEPLOY_WORKFLOW]</span>
+            <h4 class="font-display text-2xl text-white tracking-wide">DEPLOY PASSO A PASSO</h4>
           </div>
           <ol class="space-y-2 text-gray-200 list-decimal list-inside leading-relaxed text-xs sm:text-[13px] font-sans">
-            <li>Abra <span class="text-white font-bold font-mono">remix.ethereum.org</span> e cole <span class="text-noir-red font-bold font-mono">VendingMachine1155.sol</span>.</li>
-            <li>Compile na versão <span class="text-white font-bold font-mono">0.8.20+</span>.</li>
-            <li>Em Deploy, selecione <span class="text-white font-bold font-mono">Injected Provider - MetaMask</span> (rede Sepolia).</li>
-            <li>Parâmetros do construtor:
-              <ul class="pl-4 pt-1 space-y-0.5 text-gray-200 font-mono text-xs bg-noir-surface/60 p-2 border-l-2 border-noir-red mt-1">
-                <li>> baseURI: <span class="text-white font-bold">"ipfs://CID/{id}.json"</span></li>
-                <li>> defaultPrice: <span class="text-amber-300 font-bold">100000000000000</span> (0.0001 ETH)</li>
-                <li>> defaultStock: <span class="text-white font-bold">100</span></li>
+            <li><span class="text-white font-bold">Compile</span> com <span class="text-white font-bold font-mono">solc 0.8.24</span> (Hardhat ou Remix).</li>
+            <li><span class="text-white font-bold">Carteira de deploy:</span> chave num keystore cifrado ou a extensão do navegador. A chave nunca vai no código.</li>
+            <li><span class="text-white font-bold">Ensaie primeiro:</span> uma simulação mostra dono, royalties, custo e confere os metadados no IPFS.</li>
+            <li><span class="text-white font-bold">Deploy</span> com os 5 parâmetros do construtor:
+              <ul class="pl-4 pt-1 space-y-0.5 text-gray-200 font-mono text-[11px] sm:text-xs bg-noir-surface/60 p-2 border-l-2 border-noir-red mt-1">
+                <li>> baseMetadataURI: <span class="text-white font-bold">"ipfs://CID/{id}.json"</span></li>
+                <li>> initialContractURI: <span class="text-white font-bold">"ipfs://CID/contractURI.json"</span></li>
+                <li>> defaultPrice: <span class="text-amber-300 font-bold">4600000000000000</span> (0,0046 ETH)</li>
+                <li>> royaltyReceiver: <span class="text-white font-bold">0xSuaCarteira</span></li>
+                <li>> royaltyFeeNumerator: <span class="text-amber-300 font-bold">500</span> (5%)</li>
               </ul>
             </li>
-            <li>Clique em <span class="text-noir-red font-bold font-mono">transact</span> e veja o contrato ativo no Etherscan!</li>
+            <li><span class="text-white font-bold">Confira:</span> o script lê o contrato de volta e <span class="text-noir-red font-bold font-mono">verifica no Etherscan</span>; o código fica público.</li>
           </ol>
         </div>
       </div>
     </section>
 
-    <!-- SLIDE 17: SIMULADOR INTERATIVO DA VENDING MACHINE RETRO TOTALMENTE ABERTO -->
+    <!-- SLIDE 19: SIMULADOR INTERATIVO DA VENDING MACHINE RETRO TOTALMENTE ABERTO -->
     <section class="slide flex-col max-w-6xl w-full mx-auto space-y-3 relative" data-topic="08. LIVE DEMO // VENDING MACHINE">
       
       <!-- Watermark Kanji -->
@@ -2328,7 +2442,7 @@
             </div>
             <div id="lcdCardName" class="text-base font-bold tracking-wider text-white">CARD #01: GENESIS CAPSULE</div>
             <div class="flex justify-between text-xs pt-0.5 text-noir-muted">
-              <span>PREÇO: <strong id="lcdCardPrice" class="text-noir-red font-bold">0.0001 ETH</strong></span>
+              <span>PREÇO: <strong id="lcdCardPrice" class="text-noir-red font-bold">0.0046 ETH</strong></span>
               <span>ESTOQUE: <strong id="lcdCardStock" class="text-white font-bold">100 UNID</strong></span>
             </div>
           </div>
@@ -2350,13 +2464,13 @@
                 <span id="buyAmount" class="text-white font-bold">1</span>
                 <button onclick="adjustAmount(1)" class="px-2 py-0.5 text-white hover:text-noir-red font-bold">[ + ]</button>
               </div>
-              <span class="text-noir-muted">TOTAL: <strong id="buyTotalCost" class="text-noir-red font-bold">0.0001 ETH</strong></span>
+              <span class="text-noir-muted">TOTAL: <strong id="buyTotalCost" class="text-noir-red font-bold">0.0046 ETH</strong></span>
             </div>
 
             <!-- Input estilo Terminal Aberto com Linha Inferior -->
             <div class="flex items-center justify-between text-xs font-mono border-b border-noir-border pb-1">
               <span class="text-noir-muted text-[10.5px]">VALOR PAGO (ETH):</span>
-              <input id="inputSentValue" type="number" step="0.0001" value="0.0001" class="w-24 bg-transparent text-right text-white text-xs font-bold font-mono focus:outline-none focus:text-noir-red">
+              <input id="inputSentValue" type="number" step="0.0001" value="0.0046" class="w-24 bg-transparent text-right text-white text-xs font-bold font-mono focus:outline-none focus:text-noir-red">
             </div>
 
             <button onclick="executePurchase()" class="term-btn w-full text-center text-sm py-2">
@@ -7250,7 +7364,7 @@
     let cardStocks = new Array(30).fill(100);
     let selectedSlotIndex = 0;
     let currentBuyAmount = 1;
-    const CARD_PRICE_ETH = 0.0001;
+    const CARD_PRICE_ETH = 0.0046;
 
     function initVendingGrid() {
       const grid = document.getElementById('vendingGrid');
