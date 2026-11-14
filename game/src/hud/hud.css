@@ -1,64 +1,78 @@
-:root{--white:#f2f5fa;--dim:rgba(242,245,250,.62);--red:#ff2a44;--safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px)}
-#hud{position:fixed;inset:0;pointer-events:none;font-family:'Space Grotesk',system-ui,sans-serif;color:var(--white);user-select:none;-webkit-user-select:none;text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 12px rgba(0,0,0,.6)}
+/* HUD no estilo de survival-horror moderno (Resident Evil): traço fino, cores dessaturadas, pouca informação, acento vermelho-sangue só onde importa.
+   Só CSS + gradientes estáticos (sem filtros, sem blur, sem animação contínua): leve em aparelho fraco. */
+:root{--white:#e6e4de;--dim:rgba(230,228,222,.58);--faint:rgba(230,228,222,.28);--red:#d4283a;--blood:#8f1422;--panel:rgba(8,9,12,.62);--safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px)}
+#hud{position:fixed;inset:0;pointer-events:none;font-family:'Space Grotesk',system-ui,sans-serif;color:var(--white);user-select:none;-webkit-user-select:none;text-shadow:0 1px 2px rgba(0,0,0,.95),0 0 8px rgba(0,0,0,.55)}
 #hud *{box-sizing:border-box}
-#hud button{pointer-events:auto;font:inherit;color:var(--white);background:rgba(6,10,20,.55);border:1px solid rgba(255,255,255,.7);min-height:44px;min-width:44px;padding:0 16px;cursor:pointer;letter-spacing:.14em;text-transform:uppercase;font-size:12px}
-#hud button:hover{background:rgba(255,255,255,.18)}
+#hud button{pointer-events:auto;font:inherit;color:var(--white);background:var(--panel);border:1px solid var(--faint);min-height:44px;min-width:44px;padding:0 18px;cursor:pointer;letter-spacing:.2em;text-transform:uppercase;font-size:11px;clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px));-webkit-tap-highlight-color:transparent}
+#hud button:hover{background:rgba(230,228,222,.14);border-color:var(--white)}
 
-/* vinheta inferior discreta, como nos jogos de survival-horror */
-#hud::after{content:'';position:absolute;inset:auto 0 0 0;height:32%;background:linear-gradient(to top,rgba(0,0,0,.55),transparent);z-index:-1}
+/* vinheta: escurece os cantos e o rodapé (um gradiente estático por cima da cena) */
+#hud::before{content:'';position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 50% 46%,transparent 52%,rgba(0,0,0,.5) 100%),linear-gradient(to top,rgba(0,0,0,.5),transparent 26%)}
 
-/* mira central: ponto + anel fino, só andando */
-.cross{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 0 0 5px rgba(255,255,255,.0),0 0 4px rgba(0,0,0,.8);display:none;transition:all .15s}
+/* mira: ponto minúsculo; ao poder interagir, abre em quatro marcas de canto */
+.cross{position:absolute;left:50%;top:50%;width:3px;height:3px;margin:-1.5px 0 0 -1.5px;border-radius:50%;background:rgba(230,228,222,.8);box-shadow:0 0 3px rgba(0,0,0,.9);display:none;transition:width .18s,height .18s,margin .18s,background .18s}
 .mode-walk .cross{display:block}
-.can-use .cross{width:8px;height:8px;margin:-4px 0 0 -4px;background:transparent;border:1.5px solid #fff;box-shadow:0 0 6px rgba(255,255,255,.7)}
+.can-use .cross{width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:0;background:
+  linear-gradient(var(--white),var(--white)) 0 0/8px 1.5px no-repeat,linear-gradient(var(--white),var(--white)) 0 0/1.5px 8px no-repeat,
+  linear-gradient(var(--white),var(--white)) 100% 0/8px 1.5px no-repeat,linear-gradient(var(--white),var(--white)) 100% 0/1.5px 8px no-repeat,
+  linear-gradient(var(--white),var(--white)) 0 100%/8px 1.5px no-repeat,linear-gradient(var(--white),var(--white)) 0 100%/1.5px 8px no-repeat,
+  linear-gradient(var(--white),var(--white)) 100% 100%/8px 1.5px no-repeat,linear-gradient(var(--white),var(--white)) 100% 100%/1.5px 8px no-repeat;box-shadow:none}
 
-/* prompt de interação: tecla em caixa + rótulo */
-.prompt{position:absolute;left:50%;top:76%;transform:translateX(-50%);display:none;align-items:center;gap:14px;pointer-events:auto;cursor:pointer}
-.prompt{background:linear-gradient(90deg,rgba(0,0,0,.6),rgba(0,0,0,.35));padding:10px 22px 10px 12px;border-left:2px solid #fff}
-.can-use .prompt{display:flex;animation:pulse 1.8s ease-in-out infinite}
-.key{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;padding:0 8px;border:1.5px solid #fff;border-radius:4px;font:600 14px 'Fira Code',monospace;background:rgba(0,0,0,.35);margin:0 3px}
-.prompt .key{min-width:38px;height:38px;font-size:18px}
-.prompt .label{display:flex;flex-direction:column;font-size:18px;letter-spacing:.14em;text-transform:uppercase;line-height:1.15}
-.prompt b{font-weight:400}
-.prompt small{font:400 10px 'Fira Code',monospace;letter-spacing:.2em;color:var(--dim)}
-@keyframes pulse{50%{opacity:.7}}
+/* prompt de interação: botão redondo + rótulo, entre dois filetes finos */
+.prompt{position:absolute;left:50%;top:72%;transform:translateX(-50%);display:none;align-items:center;gap:16px;pointer-events:auto;cursor:pointer;padding:14px 8px;min-width:min(340px,86vw);justify-content:center;background:radial-gradient(ellipse at center,rgba(0,0,0,.55),transparent 72%)}
+.prompt::before,.prompt::after{content:'';position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--faint) 20%,var(--faint) 80%,transparent)}
+.prompt::before{top:0}.prompt::after{bottom:0}
+.can-use .prompt{display:flex;animation:rise .22s ease-out}
+.key{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 7px;border:1px solid var(--dim);border-radius:3px;font:600 12px 'Fira Code',monospace;color:var(--white);background:rgba(0,0,0,.4);margin:0 3px;letter-spacing:0;text-shadow:none}
+.prompt .key{min-width:40px;height:40px;padding:0;border-radius:50%;border:1.5px solid var(--white);font-size:17px;box-shadow:0 0 0 3px rgba(0,0,0,.35),inset 0 0 0 1px rgba(230,228,222,.18)}
+.prompt .label{display:flex;flex-direction:column;font-size:17px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;line-height:1.2}
+.prompt b{font-weight:600}
+.prompt small{font:400 9.5px 'Fira Code',monospace;letter-spacing:.3em;color:var(--dim);margin-bottom:3px}
+@keyframes rise{from{opacity:0;transform:translate(-50%,6px)}}
 
-/* selecionando: slot + nome + preço, canto inferior esquerdo */
-.info{position:absolute;left:clamp(16px,4vw,56px);bottom:calc(64px + var(--safe-b));display:none;align-items:flex-end;gap:16px}
-.mode-select .info,.mode-pay .info{display:flex}
-.slot{font:400 64px/0.85 'Bebas Neue',sans-serif;letter-spacing:.04em;color:var(--red)}
-.detail{border-left:1px solid rgba(255,255,255,.6);padding-left:14px}
-.name{font:400 26px 'Bebas Neue',sans-serif;letter-spacing:.08em}
-.meta{display:flex;gap:16px;font:13px 'Fira Code',monospace;color:var(--dim)}
+/* selecionando: slot grande e discreto + nome e dados, num cartão com cantos cortados */
+.info{position:absolute;left:clamp(16px,4vw,56px);bottom:calc(64px + var(--safe-b));display:none;align-items:stretch;gap:0;background:linear-gradient(90deg,var(--panel),rgba(8,9,12,.18));clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%);border-top:1px solid var(--faint);border-left:2px solid var(--red);padding:12px 26px 12px 16px}
+.mode-select .info,.mode-pay .info{display:flex;animation:fade .25s ease-out}
+.slot{font:400 58px/.85 'Bebas Neue',sans-serif;letter-spacing:.05em;color:var(--white);padding-right:16px;margin-right:16px;border-right:1px solid var(--faint);display:flex;align-items:center}
+.detail{display:flex;flex-direction:column;justify-content:center;gap:6px}
+.name{font:400 25px/1 'Bebas Neue',sans-serif;letter-spacing:.12em;text-transform:uppercase}
+.meta{display:flex;gap:18px;font:12px 'Fira Code',monospace;letter-spacing:.06em;color:var(--dim)}
 .stock.sold{color:var(--red)}
+@keyframes fade{from{opacity:0}}
 
 /* mensagens de estado */
-.status{position:absolute;left:clamp(16px,4vw,56px);bottom:calc(150px + var(--safe-b));max-width:min(46vw,420px);text-align:left;font-size:15px;letter-spacing:.06em;opacity:0;transition:opacity .2s;pointer-events:auto}
-.status.on{opacity:1}.status.err{color:#ff6b7d}.status a{color:#fff;text-decoration:underline}
+.status{position:absolute;left:clamp(16px,4vw,56px);bottom:calc(150px + var(--safe-b));max-width:min(46vw,420px);text-align:left;font-size:13px;letter-spacing:.1em;line-height:1.5;text-transform:uppercase;opacity:0;transition:opacity .2s;pointer-events:auto;padding-left:12px;border-left:1px solid var(--faint)}
+.status.on{opacity:1}.status.err{color:#ee6b79;border-left-color:var(--red)}.status a{color:var(--white);text-decoration:underline;text-underline-offset:3px}
 
-/* dicas de teclas */
-.keys{position:absolute;right:clamp(16px,4vw,56px);bottom:calc(20px + var(--safe-b));display:none;align-items:center;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
-.keys i{width:1px;height:14px;background:rgba(255,255,255,.35);margin:0 14px}
+/* dicas de teclas e rede */
+.keys{position:absolute;right:clamp(16px,4vw,56px);bottom:calc(22px + var(--safe-b));display:none;align-items:center;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.keys i{width:1px;height:14px;background:var(--faint);margin:0 16px}
+.keys .key{margin:0 2px;min-width:24px;height:24px;font-size:11px}
+.keys .key:first-child{margin-left:0}
 .mode-walk .keys-walk,.mode-select .keys-select,.mode-pay .keys-pay{display:flex}
-.net{position:absolute;right:clamp(16px,4vw,56px);top:calc(14px + var(--safe-t));font:11px 'Fira Code',monospace;letter-spacing:.2em;color:var(--dim)}
+.net{position:absolute;right:clamp(16px,4vw,56px);top:calc(16px + var(--safe-t));font:10px 'Fira Code',monospace;letter-spacing:.3em;color:var(--dim);padding-left:14px}
+.net::before{content:'';position:absolute;left:0;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:var(--red);box-shadow:0 0 6px var(--red)}
 
-/* toque: joystick, D-pad e botões (escondidos no desktop) */
+/* toque: joystick e botões (escondidos no desktop) */
 .joy,.m-use,.m-ok,.m-back,.m-inv,.m-wallet{display:none}
 @media (pointer:coarse),(max-width:900px){
   .keys{display:none!important}
-  .info{bottom:calc(150px + var(--safe-b))}.slot{font-size:48px}.name{font-size:20px}
+  .prompt{top:auto;bottom:calc(210px + var(--safe-b))}
+  .info{bottom:calc(150px + var(--safe-b));padding:10px 20px 10px 14px}.slot{font-size:44px;padding-right:12px;margin-right:12px}.name{font-size:20px}
   .status{bottom:calc(230px + var(--safe-b));max-width:80vw}
-  .mode-walk .joy{display:block;position:absolute;left:24px;bottom:calc(28px + var(--safe-b));width:128px;height:128px;border:1px solid rgba(255,255,255,.5);border-radius:50%;pointer-events:auto;touch-action:none;background:rgba(0,0,0,.2)}
-  .joy i{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px;border-radius:50%;background:rgba(255,255,255,.35);border:1px solid #fff}
+  .mode-walk .joy{display:block;position:absolute;left:26px;bottom:calc(30px + var(--safe-b));width:124px;height:124px;border:1px solid var(--faint);border-radius:50%;pointer-events:auto;touch-action:none;background:radial-gradient(circle,rgba(0,0,0,.35) 0 38%,transparent 39%),rgba(0,0,0,.18)}
+  .joy i{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px;border-radius:50%;background:rgba(230,228,222,.16);border:1px solid var(--white)}
   .mode-select .m-ok{display:block;position:absolute;left:20px;bottom:calc(28px + var(--safe-b))}
   .mode-select .m-back,.mode-pay .m-back{display:block;position:absolute;left:20px;top:calc(14px + var(--safe-t))}
-  .mode-walk .m-inv,.mode-select .m-inv{display:block;position:absolute;right:14px;top:calc(40px + var(--safe-t));min-height:40px;font-size:11px}
-  .mode-pay.no-wallet .m-wallet{display:block;position:absolute;left:50%;transform:translateX(-50%);bottom:calc(34px + var(--safe-b));min-height:52px;padding:0 22px;font-size:13px;background:var(--red);border-color:var(--red);font-weight:700}
+  .mode-walk .m-inv,.mode-select .m-inv{display:block;position:absolute;right:14px;top:calc(40px + var(--safe-t));min-height:40px;font-size:10px}
+  .mode-pay.no-wallet .m-wallet{display:block;position:absolute;left:50%;transform:translateX(-50%);bottom:calc(34px + var(--safe-b));min-height:52px;padding:0 24px;font-size:12px;background:var(--blood);border-color:var(--red);font-weight:700}
   .can-use .prompt{display:none}
-  .can-use .m-use{display:block;position:absolute;right:24px;bottom:calc(64px + var(--safe-b));min-width:96px;min-height:56px;font-size:15px;border-width:2px}
+  .can-use .m-use{display:block;position:absolute;right:24px;bottom:calc(64px + var(--safe-b));min-width:96px;min-height:56px;font-size:13px;border-color:var(--white)}
 }
 
 /* aviso de falta de conexão com a rede (RPC) */
-.net-alert{position:absolute;left:50%;top:calc(14px + var(--safe-t));transform:translateX(-50%);display:flex;align-items:center;gap:14px;padding:8px 8px 8px 16px;background:rgba(40,8,14,.88);border:1px solid #ff6b7d;font-size:12px;letter-spacing:.08em;max-width:94vw;pointer-events:auto}
+.net-alert{position:absolute;left:50%;top:calc(14px + var(--safe-t));transform:translateX(-50%);display:flex;align-items:center;gap:14px;padding:8px 8px 8px 16px;background:rgba(30,6,10,.9);border:1px solid var(--blood);border-left:3px solid var(--red);font-size:11px;letter-spacing:.12em;text-transform:uppercase;max-width:94vw;pointer-events:auto}
 .net-alert[hidden]{display:none}
-.net-alert button{min-height:34px;padding:0 12px;font-size:10.5px}
+.net-alert button{min-height:34px;padding:0 12px;font-size:10px}
+
+@media (prefers-reduced-motion:reduce){.can-use .prompt,.mode-select .info,.mode-pay .info{animation:none}}
