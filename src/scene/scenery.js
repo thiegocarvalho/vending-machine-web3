@@ -195,24 +195,62 @@ export function paintUfoSign(g, w, h) {
 }
 
 // Horizonte urbano ao fundo (visto por cima do muro): prédios com janelas acesas na neblina.
-export function paintSkyline(g, w, h, rand = Math.random) {
-  const bg = g.createLinearGradient(0, 0, 0, h);
-  bg.addColorStop(0, '#0b1020'); bg.addColorStop(0.6, '#2b2748'); bg.addColorStop(1, '#4a3a5a');
-  g.fillStyle = bg; g.fillRect(0, 0, w, h);
-  let x = 0;
-  while (x < w) {
-    const bw = 30 + rand() * 70, bh = h * (0.25 + rand() * 0.5);
-    g.fillStyle = `rgb(${12 + rand() * 10},${14 + rand() * 10},${28 + rand() * 12})`; g.fillRect(x, h - bh, bw, bh);
-    for (let k = 0; k < bw * bh / 500; k++) {
-      if (rand() < 0.45) continue;
-      g.fillStyle = rand() < 0.8 ? '#ffb860' : '#ff5a5a';
-      g.fillRect(x + 4 + rand() * (bw - 10), h - bh + 6 + rand() * (bh - 12), 3, 4);
+// Gerador pseudoaleatório com semente: o horizonte é sempre o mesmo, e dois lados diferentes.
+export function seeded(seed) { let t = seed >>> 0; return () => { t = (t + 0x6d2b79f5) >>> 0; let r = Math.imul(t ^ (t >>> 15), 1 | t); r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r; return ((r ^ (r >>> 14)) >>> 0) / 4294967296; }; }
+
+// Horizonte urbano em 3 camadas com perspectiva atmosférica: prédios distantes enevoados, médios e os mais próximos com janelas acesas.
+export function paintSkyline(g, w, h, rand = seeded(7)) {
+  const sky = g.createLinearGradient(0, 0, 0, h);
+  sky.addColorStop(0, '#060a1a'); sky.addColorStop(0.45, '#1a1a42'); sky.addColorStop(0.8, '#52305f'); sky.addColorStop(1, '#8a3f66');
+  g.fillStyle = sky; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 140; i++) { g.fillStyle = `rgba(255,255,255,${0.2 + rand() * 0.5})`; g.fillRect(rand() * w, rand() * h * 0.45, 1.5, 1.5); }          // estrelas
+  for (let i = 0; i < 16; i++) { g.fillStyle = `rgba(${70 + rand() * 40},${50 + rand() * 30},${120 + rand() * 40},${0.06 + rand() * 0.08})`;       // nuvens
+    g.beginPath(); g.ellipse(rand() * w, h * (0.1 + rand() * 0.4), 120 + rand() * 260, 14 + rand() * 26, 0, 0, Math.PI * 2); g.fill(); }
+  const glow = g.createLinearGradient(0, h * 0.55, 0, h);                                                                                          // clarão da cidade (uniforme em x: textura sem emenda)
+  glow.addColorStop(0, 'rgba(255,120,110,0)'); glow.addColorStop(1, 'rgba(255,120,110,0.42)');
+  g.fillStyle = glow; g.fillRect(0, 0, w, h);
+
+  const WARM = ['255,205,130', '255,185,100', '255,225,170'], COOL = ['150,205,255', '190,225,255'], POP = ['255,70,150', '90,230,255'];
+  const layers = [
+    { top: 0.34, bot: 0.78, color: [64, 46, 104], lit: 0.0, dens: 0.0, win: 0 },            // distante: só silhueta enevoada
+    { top: 0.28, bot: 0.62, color: [34, 28, 70], lit: 0.28, dens: 0.55, win: 6 },           // meio
+    { top: 0.2, bot: 0.5, color: [14, 14, 32], lit: 0.45, dens: 0.8, win: 8 }               // perto
+  ];
+  layers.forEach((L, li) => {
+    const drawBuilding = (x, bw, bh, seed) => {                                   // determinístico por prédio: pode ser desenhado duas vezes (emenda da textura)
+      const r = seeded(seed), top = h - bh, [cr, cg, cb] = L.color, k = 0.9 + r() * 0.2;
+      g.fillStyle = `rgb(${cr * k | 0},${cg * k | 0},${cb * k | 0})`;
+      const type = r();
+      if (type < 0.35) { g.fillRect(x, top, bw, bh); g.fillRect(x + bw * 0.2, top - bh * 0.12, bw * 0.6, bh * 0.12); }                          // recuo no topo
+      else if (type < 0.5) { g.fillRect(x, top, bw, bh); g.fillRect(x + bw * 0.48, top - bh * 0.25, 3, bh * 0.25);                                // antena com luz de aviso
+        g.fillStyle = 'rgba(255,60,60,0.95)'; g.fillRect(x + bw * 0.48 - 1, top - bh * 0.25 - 3, 5, 5); }
+      else if (type < 0.6) { g.beginPath(); g.moveTo(x, top + bh * 0.08); g.lineTo(x + bw, top); g.lineTo(x + bw, h); g.lineTo(x, h); g.fill(); }  // topo inclinado
+      else g.fillRect(x, top, bw, bh);
+      if (L.win) {                                                                                                                                 // janelas em grade, com andares inteiros acesos ou apagados
+        const cw = L.win + 4, ch = L.win + 6, cols = Math.max(1, Math.floor((bw - 8) / cw)), rows = Math.floor((bh - 12) / ch);
+        const tint = r() < 0.2 ? COOL : WARM;
+        for (let rr = 0; rr < rows; rr++) {
+          const floorLit = r() < L.dens;
+          for (let c = 0; c < cols; c++) if (floorLit && r() < L.lit + 0.35) {
+            const col = r() < 0.04 ? POP[(r() * 2) | 0] : tint[(r() * tint.length) | 0];
+            g.fillStyle = `rgba(${col},${0.5 + r() * 0.45})`; g.fillRect(x + 4 + c * cw, top + 8 + rr * ch, L.win - 1, L.win);
+          }
+        }
+        if (li === 2 && r() < 0.14) { g.fillStyle = r() < 0.5 ? 'rgba(255,60,170,0.9)' : 'rgba(70,225,255,0.9)'; g.fillRect(x + bw - 5, top + bh * 0.12, 3, bh * 0.45); }   // letreiro vertical neon
+      }
+    };
+    let x = 0;
+    while (x < w) {
+      const bw = (li === 0 ? 50 : 40) + rand() * (li === 0 ? 120 : 90), bh = h * (L.top + rand() * (L.bot - L.top)) * (0.55 + 0.45 * rand());
+      const seed = (rand() * 4294967295) >>> 0;
+      drawBuilding(x, bw, bh, seed);
+      if (x + bw > w) drawBuilding(x - w, bw, bh, seed);                                                                                           // continua do outro lado: textura repetível sem emenda
+      x += bw + rand() * 8;
     }
-    x += bw + rand() * 6;
-  }
-  const haze = g.createLinearGradient(0, h * 0.5, 0, h);
-  haze.addColorStop(0, 'rgba(90,70,120,0)'); haze.addColorStop(1, 'rgba(120,80,130,0.55)');
-  g.fillStyle = haze; g.fillRect(0, 0, w, h);
+    const haze = g.createLinearGradient(0, h * 0.4, 0, h);                                                                                          // névoa mais forte atrás
+    haze.addColorStop(0, 'rgba(110,60,120,0)'); haze.addColorStop(1, `rgba(140,70,120,${0.5 - li * 0.18})`);
+    g.fillStyle = haze; g.fillRect(0, 0, w, h);
+  });
 }
 
 // Parede de tijolos atrás da máquina, até o horizonte (a névoa esconde o fim). Fonte única para geometria e colisão.
@@ -306,15 +344,17 @@ export function buildScenery() {
   bulb.position.set(POST.x - 0.95, POST.h - 0.12, POST.z); g.add(bulb);        // lâmpada acesa
 
   // horizonte urbano distante, visto por cima do muro
-  const sky = new THREE.Mesh(new THREE.PlaneGeometry(220, 55),
-    new THREE.MeshBasicMaterial({ map: canvasTex(1024, 256, (c, w, h) => paintSkyline(c, w, h)), fog: false }));
+  const skyGeo = new THREE.PlaneGeometry(2000, 55);                                   // larguíssimo e repetido: sem borda visível ao olhar ao longo da rua
+  const skyTex = (seed) => canvasTex(2048, 512, (c, w, h) => paintSkyline(c, w, h, seeded(seed)), { repeat: [9, 1] });
+  const sky = new THREE.Mesh(skyGeo, new THREE.MeshBasicMaterial({ map: skyTex(7), fog: false }));
   sky.position.set(0, 20, -40); g.add(sky);
-  const sky2 = sky.clone(); sky2.position.set(0, 20, 45); sky2.rotation.y = Math.PI; g.add(sky2);       // fundo do outro lado da rua
+  const sky2 = new THREE.Mesh(skyGeo, new THREE.MeshBasicMaterial({ map: skyTex(11), fog: false }));
+  sky2.position.set(0, 20, 45); sky2.rotation.y = Math.PI; g.add(sky2);                                          // fundo do outro lado da rua
   return g;
 }
 
 export function addLighting(scene) {
   // Sem luzes dinâmicas: a iluminação está assada nas cores (baked.js) e no chão; só névoa e fundo.
   scene.fog = new THREE.Fog(FOG, 9, 28);
-  scene.background = new THREE.Color(FOG);
+  scene.background = new THREE.Color(0x060a1a);        // topo do céu (igual ao topo do horizonte pintado), diferente da cor da neblina
 }

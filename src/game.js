@@ -36,7 +36,7 @@ const wake = (ms = 1500) => { activeUntil = Math.max(activeUntil, performance.no
 const adaptive = createAdaptiveScale({ base: 0, max: RESOLUTION_LEVELS.length - 1, onChange: (n) => { setResolutionFactor(RESOLUTION_LEVELS[n]); wake(); } });
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(65, 1, 0.1, 60);
+const camera = new THREE.PerspectiveCamera(65, 1, 0.1, 400);
 addLighting(scene);
 const sceneryGroup = buildScenery();
 scene.add(sceneryGroup);
