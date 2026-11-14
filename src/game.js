@@ -4,6 +4,7 @@ import { buildMachine, MACHINE_COLLIDER, PANEL } from './scene/machine.js';
 import { buildScenery, addLighting, SCENERY_COLLIDERS, POSTER } from './scene/scenery.js';
 import { createControls } from './player/controls.js';
 import { createRig } from './player/rig.js';
+import { createSpotlight, approach as approachNum } from './scene/spotlight.js';
 import { populateCards } from './scene/cards.js';
 import { loadCardsInfo } from './data/chain.js';
 import { createSelection, createHighlight, pickCard } from './player/selection.js';
@@ -47,6 +48,7 @@ const rig = createRig(camera, controls);
 const modes = createModes();
 const selection = createSelection(1);
 const highlight = createHighlight(scene);
+const spot = createSpotlight(scene);
 highlight.setVisible(false);
 const screen = createMachineScreen(machine.screenMesh);
 const hudRoot = document.createElement('div'); document.body.appendChild(hudRoot);
@@ -70,9 +72,11 @@ let busy = false, watcher = null, screenArgs = { state: 'idle' }, hoverBtn = fal
 // ---------- poses de câmera ----------
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const walkPose = () => ({ x: 0, y: 1.6, z: 3.4, yaw: 0, pitch: 0 });
+// Zoom de foco: bem perto do card selecionado (um pouco mais longe em telas estreitas para caber mais colunas).
+const focusDistance = () => (camera.aspect < 0.8 ? 0.82 : 0.58);
 function selectPose(id) {
   const p = machine.slotAnchors[id - 1].getWorldPosition(new THREE.Vector3());
-  return { x: p.x, y: clamp(p.y, 1.0, 2.0), z: p.z + 1.25, yaw: 0, pitch: 0 };
+  return { x: p.x, y: p.y + 0.02, z: p.z + focusDistance(), yaw: 0, pitch: 0 };
 }
 // enquadra o painel LED e a telinha juntos
 const payPose = () => ({ x: PANEL.screen.x, y: (PANEL.led.y + PANEL.screen.y) / 2 - 0.05, z: front + 0.03 + 1.05, yaw: 0, pitch: 0 });
@@ -94,12 +98,12 @@ function drawScreen(args = screenArgs) {
 function refresh() {
   const id = selection.id;
   hud.showCard(id, cardsApi.metas[id - 1], infos[id - 1]);
-  highlight.moveTo(machine.slotAnchors[id - 1]);
+  highlight.moveTo(machine.slotAnchors[id - 1]); spot.moveTo(machine.slotAnchors[id - 1]);
   machine.led.setText(ledText());
   if (modes.mode !== 'pay') drawScreen({ state: modes.mode === 'walk' ? 'idle' : 'select' });
   wake();
 }
-selection.onChange(() => { refresh(); if (modes.mode === 'select') rig.flyTo(selectPose(selection.id), 380); });
+selection.onChange(() => { refresh(); if (modes.mode === 'select') rig.flyTo(selectPose(selection.id), 340); });
 cardsApi.onLoaded((id) => { wake(); if (id === selection.id) refresh(); });
 
 // ---------- pagamento ----------
@@ -165,13 +169,13 @@ let pendingWalk = false;
 modes.onChange((mode) => {
   wake(3000); aimed = null; hud.setMode(mode); hud.setStatus('');
   if (mode === 'walk') {
-    stopWatcher(); highlight.setVisible(false); controls.setEnabled(false); pendingWalk = true;
+    stopWatcher(); highlight.setVisible(false); spot.setOn(false); controls.setEnabled(false); pendingWalk = true;
     rig.flyTo(walkPose(), 600); machine.led.setText('-- --'); drawScreen({ state: 'idle' });
   } else if (mode === 'select') {
-    stopWatcher(); busy = false; controls.setEnabled(false); highlight.setVisible(true);
-    rig.flyTo(selectPose(selection.id), 550); refresh();
+    stopWatcher(); busy = false; controls.setEnabled(false); highlight.setVisible(true); spot.setOn(true);
+    rig.flyTo(selectPose(selection.id), 650); refresh();
   } else if (mode === 'pay') {
-    rig.flyTo(payPose(), 550); startPayment();
+    spot.setOn(false); rig.flyTo(payPose(), 550); startPayment();
   }
 });
 hud.setMode('walk');
@@ -216,7 +220,9 @@ function cast(e) {
 }
 const screenUv = () => ray.intersectObject(machine.screenMesh, false)[0]?.uv ?? null;
 
+const parallax = { x: 0, y: 0, yaw: 0, pitch: 0 };
 canvas.addEventListener('pointermove', (e) => {
+  if (e.pointerType === 'mouse') { parallax.x = (e.clientX / innerWidth) * 2 - 1; parallax.y = (e.clientY / innerHeight) * 2 - 1; }
   if (e.pointerType !== 'mouse' || rig.active) return;
   if (modes.mode === 'select') {
     cast(e); const id = pickCard(ray, cardsApi.cards);
@@ -263,6 +269,12 @@ let last = performance.now(), lastDraw = 0;
   if (controls.isActive()) wake();
   if (!loading && t >= activeUntil) { lastDraw = 0; return; }                  // ocioso: não gasta GPU nem bateria
   const dt = Math.min(0.05, (t - last) / 1000); last = t;
+  if (modes.mode === 'select' && !flying) {                                      // profundidade: a câmera acompanha de leve o mouse
+    parallax.yaw = approachNum(parallax.yaw, -parallax.x * 0.05, 8, dt); parallax.pitch = approachNum(parallax.pitch, -parallax.y * 0.035, 8, dt);
+    controls.setLook(parallax.yaw, parallax.pitch);
+    if (Math.abs(parallax.yaw + parallax.x * 0.05) > 5e-4 || Math.abs(parallax.pitch + parallax.y * 0.035) > 5e-4) wake(400);
+  }
+  if (spot.update(dt)) wake(400);
   controls.update(dt);
   if (modes.mode === 'walk' && controls.enabled) {                              // prompt "E" quando perto e olhando a máquina
     const { yaw, pitch } = controls.pose();

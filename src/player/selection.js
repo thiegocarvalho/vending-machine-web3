@@ -22,7 +22,7 @@ export function pickCard(raycaster, cardMeshes) {
 export function createHighlight(scene) {
   const frame = new THREE.LineSegments(
     new THREE.EdgesGeometry(new THREE.PlaneGeometry(0.19, 0.19 * 4 / 3)),
-    new THREE.LineBasicMaterial({ color: 0xffffff }));
+    new THREE.LineBasicMaterial({ color: 0x4fd2ff }));
   frame.visible = false; scene.add(frame);
   return {
     moveTo(anchor) { anchor.getWorldPosition(frame.position); frame.position.z += 0.012; frame.rotation.x = anchor.rotation.x; frame.visible = true; },
