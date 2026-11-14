@@ -1,0 +1,64 @@
+:root{--white:#f2f5fa;--dim:rgba(242,245,250,.62);--red:#ff2a44;--safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px)}
+#hud{position:fixed;inset:0;pointer-events:none;font-family:'Space Grotesk',system-ui,sans-serif;color:var(--white);user-select:none;-webkit-user-select:none;text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 12px rgba(0,0,0,.6)}
+#hud *{box-sizing:border-box}
+#hud button{pointer-events:auto;font:inherit;color:var(--white);background:rgba(6,10,20,.55);border:1px solid rgba(255,255,255,.7);min-height:44px;min-width:44px;padding:0 16px;cursor:pointer;letter-spacing:.14em;text-transform:uppercase;font-size:12px}
+#hud button:hover{background:rgba(255,255,255,.18)}
+
+/* vinheta inferior discreta, como nos jogos de survival-horror */
+#hud::after{content:'';position:absolute;inset:auto 0 0 0;height:32%;background:linear-gradient(to top,rgba(0,0,0,.55),transparent);z-index:-1}
+
+/* mira central: ponto + anel fino, só andando */
+.cross{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 0 0 5px rgba(255,255,255,.0),0 0 4px rgba(0,0,0,.8);display:none;transition:all .15s}
+.mode-walk .cross{display:block}
+.can-use .cross{width:8px;height:8px;margin:-4px 0 0 -4px;background:transparent;border:1.5px solid #fff;box-shadow:0 0 6px rgba(255,255,255,.7)}
+
+/* prompt de interação: tecla em caixa + rótulo */
+.prompt{position:absolute;left:50%;top:76%;transform:translateX(-50%);display:none;align-items:center;gap:14px;pointer-events:auto;cursor:pointer}
+.prompt{background:linear-gradient(90deg,rgba(0,0,0,.6),rgba(0,0,0,.35));padding:10px 22px 10px 12px;border-left:2px solid #fff}
+.can-use .prompt{display:flex;animation:pulse 1.8s ease-in-out infinite}
+.key{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;padding:0 8px;border:1.5px solid #fff;border-radius:4px;font:600 14px 'Fira Code',monospace;background:rgba(0,0,0,.35);margin:0 3px}
+.prompt .key{min-width:38px;height:38px;font-size:18px}
+.prompt .label{display:flex;flex-direction:column;font-size:18px;letter-spacing:.14em;text-transform:uppercase;line-height:1.15}
+.prompt b{font-weight:400}
+.prompt small{font:400 10px 'Fira Code',monospace;letter-spacing:.2em;color:var(--dim)}
+@keyframes pulse{50%{opacity:.7}}
+
+/* selecionando: slot + nome + preço, canto inferior esquerdo */
+.info{position:absolute;left:clamp(16px,4vw,56px);bottom:calc(64px + var(--safe-b));display:none;align-items:flex-end;gap:16px}
+.mode-select .info,.mode-pay .info{display:flex}
+.slot{font:400 64px/0.85 'Bebas Neue',sans-serif;letter-spacing:.04em;color:var(--red)}
+.detail{border-left:1px solid rgba(255,255,255,.6);padding-left:14px}
+.name{font:400 26px 'Bebas Neue',sans-serif;letter-spacing:.08em}
+.meta{display:flex;gap:16px;font:13px 'Fira Code',monospace;color:var(--dim)}
+.stock.sold{color:var(--red)}
+
+/* mensagens de estado */
+.status{position:absolute;left:clamp(16px,4vw,56px);bottom:calc(150px + var(--safe-b));max-width:min(46vw,420px);text-align:left;font-size:15px;letter-spacing:.06em;opacity:0;transition:opacity .2s;pointer-events:auto}
+.status.on{opacity:1}.status.err{color:#ff6b7d}.status a{color:#fff;text-decoration:underline}
+
+/* dicas de teclas */
+.keys{position:absolute;right:clamp(16px,4vw,56px);bottom:calc(20px + var(--safe-b));display:none;align-items:center;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.keys i{width:1px;height:14px;background:rgba(255,255,255,.35);margin:0 14px}
+.mode-walk .keys-walk,.mode-select .keys-select,.mode-pay .keys-pay{display:flex}
+.net{position:absolute;right:clamp(16px,4vw,56px);top:calc(14px + var(--safe-t));font:11px 'Fira Code',monospace;letter-spacing:.2em;color:var(--dim)}
+
+/* toque: joystick, D-pad e botões (escondidos no desktop) */
+.joy,.m-use,.m-ok,.m-back,.m-inv,.m-wallet{display:none}
+@media (pointer:coarse),(max-width:900px){
+  .keys{display:none!important}
+  .info{bottom:calc(150px + var(--safe-b))}.slot{font-size:48px}.name{font-size:20px}
+  .status{bottom:calc(230px + var(--safe-b));max-width:80vw}
+  .mode-walk .joy{display:block;position:absolute;left:24px;bottom:calc(28px + var(--safe-b));width:128px;height:128px;border:1px solid rgba(255,255,255,.5);border-radius:50%;pointer-events:auto;touch-action:none;background:rgba(0,0,0,.2)}
+  .joy i{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px;border-radius:50%;background:rgba(255,255,255,.35);border:1px solid #fff}
+  .mode-select .m-ok{display:block;position:absolute;left:20px;bottom:calc(28px + var(--safe-b))}
+  .mode-select .m-back,.mode-pay .m-back{display:block;position:absolute;left:20px;top:calc(14px + var(--safe-t))}
+  .mode-walk .m-inv,.mode-select .m-inv{display:block;position:absolute;right:14px;top:calc(40px + var(--safe-t));min-height:40px;font-size:11px}
+  .mode-pay.no-wallet .m-wallet{display:block;position:absolute;left:50%;transform:translateX(-50%);bottom:calc(34px + var(--safe-b));min-height:52px;padding:0 22px;font-size:13px;background:var(--red);border-color:var(--red);font-weight:700}
+  .can-use .prompt{display:none}
+  .can-use .m-use{display:block;position:absolute;right:24px;bottom:calc(64px + var(--safe-b));min-width:96px;min-height:56px;font-size:15px;border-width:2px}
+}
+
+/* aviso de falta de conexão com a rede (RPC) */
+.net-alert{position:absolute;left:50%;top:calc(14px + var(--safe-t));transform:translateX(-50%);display:flex;align-items:center;gap:14px;padding:8px 8px 8px 16px;background:rgba(40,8,14,.88);border:1px solid #ff6b7d;font-size:12px;letter-spacing:.08em;max-width:94vw;pointer-events:auto}
+.net-alert[hidden]{display:none}
+.net-alert button{min-height:34px;padding:0 12px;font-size:10.5px}

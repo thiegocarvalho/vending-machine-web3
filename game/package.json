@@ -1,0 +1,37 @@
+{
+  "name": "defi-vending-machine-3d",
+  "version": "1.0.0",
+  "description": "Vending machine 3D de cards colecionáveis ERC-1155 (Three.js, sem servidor): lê o contrato por RPC e as imagens por IPFS.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "vitest run",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "threejs",
+    "webgl",
+    "erc-1155",
+    "nft",
+    "ethereum",
+    "sepolia",
+    "vending-machine",
+    "web3"
+  ],
+  "author": "Zeru",
+  "license": "MIT",
+  "dependencies": {
+    "@fontsource/bebas-neue": "^5.3.0",
+    "@fontsource/fira-code": "^5.3.0",
+    "@fontsource/space-grotesk": "^5.3.0",
+    "qrcode": "^1.5.4",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "viem": "^2.57.19",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0"
+  },
+  "type": "module",
+  "private": true
+}
