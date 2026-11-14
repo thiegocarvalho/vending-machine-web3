@@ -21,8 +21,9 @@ async function loadTexture(meta) {
   const url = imageUrlFor(meta);
   const blob = url.startsWith('ipfs://') ? await fetchIpfs(url, config.gateways, { as: 'blob', timeoutMs: 15000 })
                                          : await (await fetch(url)).blob();
-  const bmp = await createImageBitmap(blob, { resizeWidth: TEX_W, resizeHeight: TEX_H, resizeQuality: 'medium' });
-  const t = new THREE.Texture(bmp); t.magFilter = THREE.NearestFilter; t.minFilter = THREE.LinearFilter;
+  const bmp = await createImageBitmap(blob, { resizeWidth: TEX_W, resizeHeight: TEX_H, resizeQuality: 'medium', imageOrientation: 'flipY' });
+  // ImageBitmap ignora flipY: a inversão vem de imageOrientation no createImageBitmap
+  const t = new THREE.Texture(bmp); t.flipY = false; t.magFilter = THREE.NearestFilter; t.minFilter = THREE.LinearFilter;
   t.generateMipmaps = false; t.colorSpace = THREE.SRGBColorSpace; t.needsUpdate = true; return t;
 }
 
